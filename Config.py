@@ -1,6 +1,3 @@
-
-import os
-
 # This is for reddit
 client_id = 
 client_secret = 
