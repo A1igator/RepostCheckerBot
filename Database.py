@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 
 def initDatabase(conn):
     c = conn.cursor()
@@ -7,13 +8,23 @@ def initDatabase(conn):
     c.close()
     print("Create table.")
     
-def isLogged(conn, postUrl, postText):
+def isLogged(conn, postUrl, postText, date):
     c = conn.cursor()
     if postText != "":
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postText),))
     elif postUrl != "":
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postUrl),))
     result = list(args.fetchone())[0]
+    now = int(datetime.datetime.timestamp(datetime.datetime.today()))
+    then = int(date)
+    delta = now - then
+    print(delta)
+    if delta>15780000:
+        if postUrl != "":
+            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postUrl),))
+        elif postText != "":
+            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postText),))
+        result = 0
     c.close()
     print("Found? {}".format(result))
     return result
