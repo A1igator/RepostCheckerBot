@@ -3,38 +3,42 @@ import datetime
 
 def initDatabase(conn):
     c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Title TEXT, State INTEGER DEFAULT 1);")
+    c.execute("CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);")
     conn.commit()
     c.close()
     print("Create table.")
     
-def isLogged(conn, postUrl, postText, date):
+def isLogged(conn, postImageUrl, postText, date):
+    result = ""
+    args = None
     c = conn.cursor()
     if postText != "":
-        args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postText),))
-    elif postUrl != "":
-        args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postUrl),))
-    result = list(args.fetchone())[0]
+        print(postText)
+        args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(postText),))
+        result = list(args.fetchone())[0]
+    elif postImageUrl != "":
+        args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(postImageUrl),))
+        result = list(args.fetchone())[0]
     now = int(datetime.datetime.timestamp(datetime.datetime.today()))
     then = int(date)
     delta = now - then
     print(delta)
     if delta>15780000:
         if postUrl != "":
-            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postUrl),))
+            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postImageUrl),))
         elif postText != "":
             c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postText),))
-        result = 0
+        result = ""
     c.close()
     print("Found? {}".format(result))
     return result
 
-def addUser(conn, title, date, postUrl, postText):
+def addUser(conn, date, postImageUrl, postUrl, postText):
     c = conn.cursor()
     if postText != "":
-        c.execute("INSERT INTO Posts (Date, Content) VALUES (?, ?);", (str(date), str(postText),))
-    elif postUrl != "":
-        c.execute("INSERT INTO Posts (Date, Content) VALUES (?, ?);", (str(date), str(postUrl),))
+        c.execute("INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);", (str(date), str(postText), str(postUrl),))
+    elif postImageUrl != "":
+        c.execute("INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);", (str(date), str(postImageUrl), str(postUrl),))
     conn.commit()
     c.close()
     print("Added new post - {}".format(str(date)))
