@@ -20,18 +20,25 @@ def findPosts():
     for submission in subreddit.top('all', limit=10000):
         sub += 1
         print("{} --> Starting new submission {}".format(sub, submission.id))
-        if (Database.isLogged(conn, submission.url, submission.selftext, submission.created) == ""):
+        result = Database.isLogged(conn, submission.url, submission.selftext, submission.created)
+        if (result[0] == ""):
             Database.addUser(conn, submission.created, submission.url, submission.permalink, submission.selftext)
             print("Added {}".format(submission.permalink))
     sub = 0
     for submission in subreddit.stream.submissions():
         sub += 1
         print("{} --> Starting new submission {}".format(sub, submission.id))
-        if (Database.isLogged(conn, submission.url, submission.selftext, submission.created) == ""):
+        result = Database.isLogged(conn, submission.url, submission.selftext, submission.created)
+        if (result[0] == ""):
             Database.addUser(conn, submission.created, submission.url, submission.permalink, submission.selftext)
             print("Added {}".format(submission.permalink))
         elif sub > 100:
-            submission.report('REPOST ALERT: reddit.com' + Database.isLogged(conn, submission.url, submission.selftext, submission.created))
+            submission.report('REPOST ALERT: https://reddit.com' + result[0])
+            submission.reply(
+                'I have detected that this may be a repost of https://reddit.com' + result[0] + ' from ' + result[1] + ""
+                
+                
+                ")
         
 
 Database.initDatabase(conn)
