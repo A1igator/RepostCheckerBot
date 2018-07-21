@@ -35,6 +35,7 @@ def monthdelta(d1, d2):
 def isLogged(conn, postImageUrl, postText, date):
     result = ""
     args = None
+    originalPostDate = None
     c = conn.cursor()
     if postText != "":
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postText),))
@@ -54,17 +55,17 @@ def isLogged(conn, postImageUrl, postText, date):
                 args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(dhash.dhash_int(img1)),))
                 result = list(args.fetchone())[0]
             else:
-                args = c.execute("SELECT Content, Url FROM posts;")
+                args = c.execute("SELECT Content, Url, Date FROM posts;")
                 for hashed in args.fetchall():
                     hashedReadable = hashed[0]
                     if isInt(hashedReadable):
                         hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
                         if hashedDifference < 10:
                             result = hashed[1]
+                            originalPostDate = hashed[2]
     now = datetime.datetime.today()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = monthdelta(then, now)
-    print(timePassed)
     if timePassed>6:
         if postUrl != "":
             c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postImageUrl),))
@@ -74,10 +75,14 @@ def isLogged(conn, postImageUrl, postText, date):
         print('deleted')
     c.close()
     print("Found? {}".format(result))
+    if originalPostDate != None:
+        now = datetime.datetime.today()
+        then = datetime.datetime.fromtimestamp(originalPostDate)
+        timePassed = monthdelta(then, now)
     if timePassed == 0:
         return result, str((now-then).days) + ' days ago'
     else:
-        return result, str(timePassed) + 'months ago'
+        return result, str(timePassed) + ' months ago'
 
 def addUser(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
