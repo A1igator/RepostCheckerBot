@@ -19,21 +19,21 @@ def findPosts():
     post = 0
     for submission in subreddit.top('all', limit=10000):
         post += 1
-        print("{} --> Starting new submission {}".format(sub, submission.id))
+        print("{} --> Starting new submission {}".format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created)
         if (result[0] == ""):
             Database.addUser(conn, submission.created, submission.url, submission.permalink, submission.selftext)
             print("Added {}".format(submission.permalink))
-    psot = 0
+    post = 0
     for submission in subreddit.stream.submissions():
         post += 1
-        print("{} --> Starting new submission {}".format(sub, submission.id))
+        print("{} --> Starting new submission {}".format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created)
         if (result[0] == ""):
             Database.addUser(conn, submission.created, submission.url, submission.permalink, submission.selftext)
             print("Added {}".format(submission.permalink))
         elif post > 100:
-            submission.report('REPOST ALERT: https://reddit.com' + result[0])
+            submission.report('REPOST ALERT')
             doThis = True
             while doThis:
                 try:

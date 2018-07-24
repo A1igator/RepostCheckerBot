@@ -2,10 +2,14 @@ import sqlite3
 import datetime
 from datetime import timedelta
 from calendar import monthrange
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 from io import BytesIO
+import ssl
 from PIL import Image
 import dhash
+
+context = ssl._create_unverified_context()
+user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
 def initDatabase(conn):
     c = conn.cursor()
@@ -48,7 +52,7 @@ def isLogged(conn, postImageUrl, postText, date):
             args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(postImageUrl),))
             result = list(args.fetchone())[0]
         elif postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
-            file1 = BytesIO(urlopen(postImageUrl).read())
+            file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
             img1 = Image.open(file1)
             args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(dhash.dhash_int(img1)),))
             if list(args.fetchone())[0] != 0:
@@ -66,7 +70,7 @@ def isLogged(conn, postImageUrl, postText, date):
     now = datetime.datetime.today()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = monthdelta(then, now)
-    if timePassed>6:
+    if timePassed>10:
         if postUrl != "":
             c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postImageUrl),))
         elif postText != "":
@@ -90,7 +94,7 @@ def addUser(conn, date, postContentUrl, postUrl, postText):
         content = postText
     else:
         if postContentUrl.endswith('png') or postContentUrl.endswith('jpg'):
-            file1 = BytesIO(urlopen(postContentUrl).read())
+            file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
             img1 = Image.open(file1)
             content = dhash.dhash_int(img1)
         else:
