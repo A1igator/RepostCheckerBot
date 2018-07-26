@@ -12,7 +12,7 @@ reddit = praw.Reddit(client_id=Config.client_id,
 
 subreddit = reddit.subreddit('ihadastroke')
 
-conn = sqlite3.connect("Posts.db")
+conn = sqlite3.connect(".gitignore/Posts.db")
 
 def findPosts():
     print("Starting searching...")
