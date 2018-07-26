@@ -10,7 +10,7 @@ reddit = praw.Reddit(client_id=Config.client_id,
                      password=Config.password,
                      user_agent=Config.user_agent)
 
-subreddit = reddit.subreddit('ihadastroke')
+subreddit = reddit.subreddit(Config.subreddit)
 
 conn = sqlite3.connect(".gitignore/Posts.db")
 
