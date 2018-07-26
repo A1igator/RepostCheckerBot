@@ -64,6 +64,7 @@ def isLogged(conn, postImageUrl, postText, date):
                     hashedReadable = hashed[0]
                     if isInt(hashedReadable):
                         hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
+                        print(hashedDifference)
                         if hashedDifference < 10:
                             result = hashed[1]
                             originalPostDate = hashed[2]
