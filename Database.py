@@ -1,3 +1,4 @@
+import praw
 import sqlite3
 import datetime
 from datetime import timedelta
@@ -70,7 +71,7 @@ def isLogged(conn, postImageUrl, postText, date):
     now = datetime.datetime.today()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = monthdelta(then, now)
-    if timePassed>10:
+    if timePassed > 6 or reddit.subreddit(Config.subreddit).submission(result).selftext == "[deleted]" or reddit.subreddit(Config.subreddit).submission(result).selftext == "[removed]":
         if postUrl != "":
             c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postImageUrl),))
         elif postText != "":
