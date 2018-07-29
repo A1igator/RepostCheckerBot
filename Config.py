@@ -4,3 +4,4 @@ client_secret =
 username = 
 password = 
 user_agent = 
+subreddit = 
