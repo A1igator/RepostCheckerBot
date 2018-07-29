@@ -12,7 +12,7 @@ reddit = praw.Reddit(client_id=Config.client_id,
 
 subreddit = reddit.subreddit(Config.subreddit)
 
-conn = sqlite3.connect("Posts.db")
+conn = sqlite3.connect(".gitignore/Posts.db")
 
 def findPosts():
     print("Starting searching...")
@@ -28,9 +28,9 @@ def findPosts():
     for submission in subreddit.stream.submissions():
         post += 1
         print("{} --> Starting new submission {}".format(post, submission.id))
-        result = Database.isLogged(conn, submission.url, submission.selftext, submission.created)
+        result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if (result[0] == ""):
-            Database.addUser(conn, submission.created, submission.url, submission.permalink, submission.selftext)
+            Database.addUser(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
             print("Added {}".format(submission.permalink))
         elif post > 100:
             submission.report('REPOST ALERT')

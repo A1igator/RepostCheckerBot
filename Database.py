@@ -3,6 +3,9 @@ import praw
 from PIL import Image
 import dhash
 
+# other files
+import Config
+
 # packages that come with python
 import sqlite3
 import datetime
@@ -11,6 +14,12 @@ from calendar import monthrange
 from urllib.request import Request, urlopen
 from io import BytesIO
 import ssl
+
+reddit = praw.Reddit(client_id=Config.client_id,
+                     client_secret=Config.client_secret,
+                     username=Config.username,
+                     password=Config.password,
+                     user_agent=Config.user_agent)
 
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
@@ -54,17 +63,20 @@ def isLogged(conn, postImageUrl, postText, date):
     if postText != "":
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postText),))
         if list(args.fetchone())[0] != 0:
-            args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(postText),))
-            result = list(args.fetchone())[0]
-
+            args = c.execute("SELECT Url, Date FROM Posts WHERE Content = ?;", (str(postText),))
+            fullResult = list(args.fetchone())
+            result = fullResult[0]
+            originalPostDate = fullResult[1]
     # checks images
     elif postImageUrl != "":
 
         # checks image url(this would check other urls too)
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postImageUrl),))
         if list(args.fetchone())[0] != 0:
-            args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(postImageUrl),))
-            result = list(args.fetchone())[0]
+            args = c.execute("SELECT Url, Date FROM Posts WHERE Content = ?;", (str(postImageUrl),))
+            fullResult = list(args.fetchone())
+            result = fullResult[0]
+            originalPostDate = fullResult[1]
 
         # checks via hash
         elif postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
@@ -84,36 +96,40 @@ def isLogged(conn, postImageUrl, postText, date):
                     hashedReadable = hashed[0]
                     if isInt(hashedReadable):
                         hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
+                        print(hashedDifference)
                         if hashedDifference < 10:
                             result = hashed[1]
                             originalPostDate = hashed[2]
 
     # checks if post is more than 6 months old or has been removed.
-    now = datetime.datetime.today()
+    now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
-    timePassed = monthDelta(then, now)
-    if timePassed > 6 or reddit.subreddit(Config.subreddit).submission(result).selftext == "[deleted]" or reddit.subreddit(Config.subreddit).submission(result).selftext == "[removed]":
-        if postUrl != "":
-            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postImageUrl),))
-        elif postText != "":
-            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postText),))
-        result = ""
-        print('deleted')
+    timePassed = monthdelta(then, now)
+    if result != "":
+        if timePassed > 6 or reddit.submission(url = "https://reddit.com" + result).selftext == "[deleted]" or reddit.submission(url = "https://reddit.com" + result).selftext == "[removed]":
+            c.execute("DELETE FROM Posts WHERE Url = ?;", (str(result),))
+            result = ""
+            print('deleted')
     c.close()
     print("Found? {}".format(result))
 
     # gives how long it has been since original post
     if originalPostDate != None:
-        now = datetime.datetime.today()
         then = datetime.datetime.fromtimestamp(originalPostDate)
-        timePassed = monthDelta(then, now)
-
+        timePassed = monthdelta(then, now)
+        
     # returns results
-    if timePassed == 0:
-        return result, str((now-then).days) + ' days ago'
-    else:
+    if timePassed >= 1:
         return result, str(timePassed) + ' months ago'
-
+    elif (now-then).days >= 1:
+        return result, str((now-then).days) + ' days ago'
+    elif (now-then).seconds//3600 >= 1:
+        return result, str((now-then).seconds//3600) + ' hours ago'
+    elif (now-then).seconds//60 >= 1:
+        return result, str((now-then).seconds//60) + ' minutes ago'
+    else:
+        return result, str((now-then).seconds) + ' seconds ago'
+    
 def addUser(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != "":
@@ -125,7 +141,7 @@ def addUser(conn, date, postContentUrl, postUrl, postText):
             content = dhash.dhash_int(img1)
         else:
             content = postContentUrl
-        c.execute("INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);", (str(date), str(content), str(postUrl),))
+    c.execute("INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);", (int(date), str(content), str(postUrl),))
     conn.commit()
     c.close()
     print("Added new post - {}".format(str(date)))
