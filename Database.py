@@ -67,6 +67,7 @@ def isLogged(conn, postImageUrl, postText, date):
             fullResult = list(args.fetchone())
             result = fullResult[0]
             originalPostDate = fullResult[1]
+        
     # checks images
     elif postImageUrl != "":
 
@@ -130,7 +131,8 @@ def isLogged(conn, postImageUrl, postText, date):
     else:
         return result, str((now-then).seconds) + ' seconds ago'
     
-def addUser(conn, date, postContentUrl, postUrl, postText):
+# adds a post
+def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != "":
         content = postText
@@ -146,6 +148,7 @@ def addUser(conn, date, postContentUrl, postUrl, postText):
     c.close()
     print("Added new post - {}".format(str(date)))
 
+# gets everything in the database(only useful for testing)
 def getAll(conn):
     c = conn.cursor()
     args = c.execute("SELECT Content FROM posts;")
