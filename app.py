@@ -20,9 +20,9 @@ def findPosts():
     for submission in subreddit.top('all', limit=10000):
         post += 1
         print("{} --> Starting new submission {}".format(post, submission.id))
-        result = Database.isLogged(conn, submission.url, submission.selftext, submission.created)
+        result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if (result[0] == ""):
-            Database.addUser(conn, submission.created, submission.url, submission.permalink, submission.selftext)
+            Database.addUser(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
             print("Added {}".format(submission.permalink))
     post = 0
     for submission in subreddit.stream.submissions():

@@ -1,24 +1,24 @@
-import praw
-import Config
 import sqlite3
 import datetime
 from datetime import timedelta
 from calendar import monthrange
+<<<<<<< HEAD
 from urllib.request import Request, urlopen
 from io import BytesIO
 import ssl
 from PIL import Image
 import dhash
 
-reddit = praw.Reddit(client_id=Config.client_id,
-                     client_secret=Config.client_secret,
-                     username=Config.username,
-                     password=Config.password,
-                     user_agent=Config.user_agent)
-
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
+=======
+from urllib.request import urlopen
+from io import BytesIO
+from PIL import Image
+import dhash
+
+>>>>>>> 48616a28567ffe53b8fc326a3045ee04fb1ce422
 def initDatabase(conn):
     c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);")
@@ -52,19 +52,19 @@ def isLogged(conn, postImageUrl, postText, date):
     if postText != "":
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postText),))
         if list(args.fetchone())[0] != 0:
-            args = c.execute("SELECT Url, Date FROM Posts WHERE Content = ?;", (str(postText),))
-            fullResult = list(args.fetchone())
-            result = fullResult[0]
-            originalPostDate = fullResult[1]
+            args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(postText),))
+            result = list(args.fetchone())[0]
     elif postImageUrl != "":
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postImageUrl),))
         if list(args.fetchone())[0] != 0:
-            args = c.execute("SELECT Url, Date FROM Posts WHERE Content = ?;", (str(postImageUrl),))
-            fullResult = list(args.fetchone())
-            result = fullResult[0]
-            originalPostDate = fullResult[1]
+            args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(postImageUrl),))
+            result = list(args.fetchone())[0]
         elif postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
+<<<<<<< HEAD
             file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
+=======
+            file1 = BytesIO(urlopen(postImageUrl).read())
+>>>>>>> 48616a28567ffe53b8fc326a3045ee04fb1ce422
             img1 = Image.open(file1)
             args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(dhash.dhash_int(img1)),))
             if list(args.fetchone())[0] != 0:
@@ -76,46 +76,50 @@ def isLogged(conn, postImageUrl, postText, date):
                     hashedReadable = hashed[0]
                     if isInt(hashedReadable):
                         hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
-                        print(hashedDifference)
                         if hashedDifference < 10:
                             result = hashed[1]
                             originalPostDate = hashed[2]
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.today()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = monthdelta(then, now)
-    if result != "":
-        if timePassed > 6 or reddit.submission(url = "https://reddit.com" + result).selftext == "[deleted]" or reddit.submission(url = "https://reddit.com" + result).selftext == "[removed]":
-            c.execute("DELETE FROM Posts WHERE Url = ?;", (str(result),))
-            result = ""
-            print('deleted')
+<<<<<<< HEAD
+    if timePassed>10:
+=======
+    if timePassed>6:
+>>>>>>> 48616a28567ffe53b8fc326a3045ee04fb1ce422
+        if postUrl != "":
+            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postImageUrl),))
+        elif postText != "":
+            c.execute("DELETE FROM Posts WHERE Content = ?;", (str(postText),))
+        result = ""
+        print('deleted')
     c.close()
     print("Found? {}".format(result))
     if originalPostDate != None:
+        now = datetime.datetime.today()
         then = datetime.datetime.fromtimestamp(originalPostDate)
         timePassed = monthdelta(then, now)
-    if timePassed >= 1:
-        return result, str(timePassed) + ' months ago'
-    elif (now-then).days >= 1:
+    if timePassed == 0:
         return result, str((now-then).days) + ' days ago'
-    elif (now-then).seconds//3600 >= 1:
-        return result, str((now-then).total_seconds()//3600) + ' hours ago'
-    elif (now-then).seconds//60 >= 1:
-        return result, str((now-then).total_seconds()//60) + ' minutes ago'
     else:
-        return result, str((now-then).total_seconds()) + ' seconds ago'
-    
+        return result, str(timePassed) + ' months ago'
+
 def addUser(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != "":
         content = postText
     else:
         if postContentUrl.endswith('png') or postContentUrl.endswith('jpg'):
+<<<<<<< HEAD
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
+=======
+            file1 = BytesIO(urlopen(postContentUrl).read())
+>>>>>>> 48616a28567ffe53b8fc326a3045ee04fb1ce422
             img1 = Image.open(file1)
             content = dhash.dhash_int(img1)
         else:
             content = postContentUrl
-    c.execute("INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);", (int(date), str(content), str(postUrl),))
+        c.execute("INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);", (str(date), str(content), str(postUrl),))
     conn.commit()
     c.close()
     print("Added new post - {}".format(str(date)))
@@ -125,4 +129,8 @@ def getAll(conn):
     args = c.execute("SELECT Content FROM posts;")
     result = [x[0] for x in args.fetchall()]
     c.close()
+<<<<<<< HEAD
     return result
+=======
+    return result
+>>>>>>> 48616a28567ffe53b8fc326a3045ee04fb1ce422
