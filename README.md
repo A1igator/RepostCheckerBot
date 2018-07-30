@@ -12,7 +12,9 @@ This bot is able to notice reposts of any kind(link, text, picture) where it has
 
 # Dependencies
 [praw](https://praw.readthedocs.io/en/latest/) : connecting to reddit
+
 [pillow](https://pillow.readthedocs.io/en/latest/): getting the image in a usable format
+
 [dhash](https://github.com/Jetsetter/dhash): seeing the difference between images
 
 # Contribution
