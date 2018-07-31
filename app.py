@@ -17,7 +17,7 @@ reddit = praw.Reddit(client_id=Config.client_id,
 
 subreddit = reddit.subreddit(Config.subreddit)
 
-conn = sqlite3.connect("Posts.db")
+conn = sqlite3.connect(".gitignore/Posts.db")
 
 # the main function
 def findPosts():

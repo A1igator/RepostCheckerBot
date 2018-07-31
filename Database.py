@@ -1,12 +1,5 @@
-# packages that need to be pip installed
 import praw
-from PIL import Image
-import dhash
-
-# other files
 import Config
-
-# packages that come with python
 import sqlite3
 import datetime
 from datetime import timedelta
@@ -14,6 +7,8 @@ from calendar import monthrange
 from urllib.request import Request, urlopen
 from io import BytesIO
 import ssl
+from PIL import Image
+import dhash
 
 reddit = praw.Reddit(client_id=Config.client_id,
                      client_secret=Config.client_secret,
@@ -24,7 +19,6 @@ reddit = praw.Reddit(client_id=Config.client_id,
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
-# initializes the database
 def initDatabase(conn):
     c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);")
@@ -32,7 +26,6 @@ def initDatabase(conn):
     c.close()
     print("Create table.")
 
-# checks if a value is an integer or not
 def isInt(s):
     try: 
         int(s)
@@ -40,8 +33,7 @@ def isInt(s):
     except:
         return False
 
-# figures out how many months have passed since the post that was found
-def monthDelta(d1, d2):
+def monthdelta(d1, d2):
     delta = 0
     while True:
         mdays = monthrange(d1.year, d1.month)[1]
@@ -52,14 +44,11 @@ def monthDelta(d1, d2):
             break
     return delta
 
-# checks if post is in the database
 def isLogged(conn, postImageUrl, postText, date):
     result = ""
     args = None
     originalPostDate = None
     c = conn.cursor()
-
-    # checks text posts
     if postText != "":
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postText),))
         if list(args.fetchone())[0] != 0:
@@ -67,30 +56,23 @@ def isLogged(conn, postImageUrl, postText, date):
             fullResult = list(args.fetchone())
             result = fullResult[0]
             originalPostDate = fullResult[1]
-        
-    # checks images
     elif postImageUrl != "":
-
-        # checks image url(this would check other urls too)
         args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(postImageUrl),))
         if list(args.fetchone())[0] != 0:
             args = c.execute("SELECT Url, Date FROM Posts WHERE Content = ?;", (str(postImageUrl),))
             fullResult = list(args.fetchone())
+            print(result)
             result = fullResult[0]
             originalPostDate = fullResult[1]
-
-        # checks via hash
         elif postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
             file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
             img1 = Image.open(file1)
-
-            # checks hash
             args = c.execute("SELECT COUNT(1) FROM Posts WHERE Content = ?;", (str(dhash.dhash_int(img1)),))
             if list(args.fetchone())[0] != 0:
-                args = c.execute("SELECT Url FROM Posts WHERE Content = ?;", (str(dhash.dhash_int(img1)),))
-                result = list(args.fetchone())[0]
-
-            # checks if there is a close hash
+                args = c.execute("SELECT Url, Date FROM Posts WHERE Content = ?;", (str(dhash.dhash_int(img1)),))
+                fullResult = list(args.fetchone())
+                result = fullResult[0]
+                originalPostDate = fullResult[1]
             else:
                 args = c.execute("SELECT Content, Url, Date FROM posts;")
                 for hashed in args.fetchall():
@@ -101,8 +83,6 @@ def isLogged(conn, postImageUrl, postText, date):
                         if hashedDifference < 10:
                             result = hashed[1]
                             originalPostDate = hashed[2]
-
-    # checks if post is more than 6 months old or has been removed.
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = monthdelta(then, now)
@@ -113,26 +93,25 @@ def isLogged(conn, postImageUrl, postText, date):
             print('deleted')
     c.close()
     print("Found? {}".format(result))
-
-    # gives how long it has been since original post
     if originalPostDate != None:
         then = datetime.datetime.fromtimestamp(originalPostDate)
         timePassed = monthdelta(then, now)
-        
-    # returns results
-    if timePassed >= 1:
-        return result, str(timePassed) + ' months ago'
-    elif (now-then).days >= 1:
-        return result, str((now-then).days) + ' days ago'
-    elif (now-then).seconds//3600 >= 1:
-        return result, str((now-then).total_seconds()//3600) + ' hours ago'
-    elif (now-then).seconds//60 >= 1:
-        return result, str((now-then).total_seconds()//60) + ' minutes ago'
-    else:
-        return result, str((now-then).total_seconds()) + ' seconds ago'
+    fullText = str(timePassed) + ' months ago'
+    if timePassed < 1:
+        timePassed = (now-then).days
+        fullText = str(timePassed) + ' days ago'
+    if timePassed < 1:
+        timePassed = (now-then).total_seconds()//3600
+        fullText = str(timePassed) + ' hours ago'
+    if timePassed < 1:
+        timePassed = (now-then).total_seconds()//60
+        fullText = str(timePassed) + ' minutes ago'
+    if timePassed < 1:
+        timePassed = (now-then).total_seconds()
+        fullText = str(timePassed) + ' seconds ago'
+    return result, fullText
     
-# adds a post
-def addPost(conn, date, postContentUrl, postUrl, postText):
+def addUser(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != "":
         content = postText
@@ -148,7 +127,6 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
     c.close()
     print("Added new post - {}".format(str(date)))
 
-# gets everything in the database(only useful for testing)
 def getAll(conn):
     c = conn.cursor()
     args = c.execute("SELECT Content FROM posts;")
