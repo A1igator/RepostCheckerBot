@@ -33,7 +33,7 @@ def isInt(s):
     except:
         return False
 
-def monthdelta(d1, d2):
+def monthDelta(d1, d2):
     delta = 0
     while True:
         mdays = monthrange(d1.year, d1.month)[1]
@@ -45,73 +45,113 @@ def monthdelta(d1, d2):
     return delta
 
 def isLogged(conn, postImageUrl, postText, date):
-    result = ''
+    result = []
     args = None
-    originalPostDate = None
+    originalPostDate = []
+    finalTimePassed = []
+    postsToRemove = []
+    delete = False
+    cntr = 0
+    returnResult = []
     c = conn.cursor()
-    if postText != '':
-        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postText),))
-        if list(args.fetchone())[0] != 0:
-            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postText),))
-            fullResult = list(args.fetchone())
-            result = fullResult[0]
-            originalPostDate = fullResult[1]
-    elif postImageUrl != '':
-        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl),))
-        if list(args.fetchone())[0] != 0:
-            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl),))
-            fullResult = list(args.fetchone())
-            print(result)
-            result = fullResult[0]
-            originalPostDate = fullResult[1]
-        elif postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
-            file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
-            img1 = Image.open(file1)
-            args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
+    args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
+    if list(args.fetchone())[0] != 0:
+            args = c.execute('SELECT Url, Date FROM Posts WHERE Date = ?;', (str(date),))
+            fullResult = list(args.fetchall())
+            for i in fullResult:
+                result.append(i[0])
+                originalPostDate.append(i[1])        
+    else:
+        if postText != '':
+                
+            args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postText),))
             if list(args.fetchone())[0] != 0:
-                args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
-                fullResult = list(args.fetchone())
-                result = fullResult[0]
-                originalPostDate = fullResult[1]
-            else:
-                args = c.execute('SELECT Content, Url, Date FROM posts;')
-                for hashed in args.fetchall():
-                    hashedReadable = hashed[0]
-                    if isInt(hashedReadable):
-                        hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
-                        print(hashedDifference)
-                        if hashedDifference < 10:
-                            result = hashed[1]
-                            originalPostDate = hashed[2]
+                args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postText),))
+                fullResult = list(args.fetchall())
+                for i in fullResult:
+                    result.append(i[0])
+                    originalPostDate.append(i[1])
+        if postImageUrl != '':
+            args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl),))
+            if list(args.fetchone())[0] != 0:
+                args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl),))
+                fullResult = list(args.fetchall())
+                for i in fullResult:
+                    result.append(i[0])
+                    originalPostDate.append(i[1])
+            if postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
+                try:
+                    file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
+                except:
+                    delete = True
+                if not delete:
+                    img1 = Image.open(file1)
+                    args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
+                    if list(args.fetchone())[0] != 0:
+                        args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
+                        fullResult = list(args.fetchall())
+                        for i in fullResult:
+                            result.append(i[0])
+                            originalPostDate.append(i[1])
+                    args = c.execute('SELECT Content, Url, Date FROM posts;')
+                    for hashed in args.fetchall():
+                        if hashed[1] not in result:
+                            hashedReadable = hashed[0]
+                            if isInt(hashedReadable):
+                                hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
+                                if hashedDifference < 10:
+                                    result.append(hashed[1])
+                                    originalPostDate.append(hashed[2])
+
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
-    timePassed = monthdelta(then, now)
-    if result != '':
-        if timePassed > 6 or reddit.submission(url = 'https://reddit.com' + result).selftext == '[deleted]' or reddit.submission(url = 'https://reddit.com' + result).selftext == '[removed]':
-            c.execute('DELETE FROM Posts WHERE Url = ?;', (str(result),))
-            result = ''
-            print('deleted')
-    c.close()
-    print('Found? {}'.format(result))
-    if originalPostDate != None:
-        then = datetime.datetime.fromtimestamp(originalPostDate)
-        timePassed = monthdelta(then, now)
-    fullText = str(timePassed) + ' months ago'
-    if timePassed < 1:
-        timePassed = (now-then).days
-        fullText = str(timePassed) + ' days ago'
-    if timePassed < 1:
-        timePassed = (now-then).total_seconds()//3600
-        fullText = str(timePassed) + ' hours ago'
-    if timePassed < 1:
-        timePassed = (now-then).total_seconds()//60
-        fullText = str(timePassed) + ' minutes ago'
-    if timePassed < 1:
-        timePassed = (now-then).total_seconds()
-        fullText = str(timePassed) + ' seconds ago'
-    return result, fullText
+    timePassed = monthDelta(then, now)
+
+    if timePassed > 6 or delete:
+        c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
+        result = []
+        originalPostDate = []
+        finalTimePassed = []
+        print('invalid check so it was ignored')
+    for i in result:
+        if i != '':
+            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]' or reddit.submission(url = 'https://reddit.com' + i).selftext == '[removed]':
+                c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
+                postsToRemove.append([i, originalPostDate[cntr]])
+                print('deleted ' + i)
+        cntr += 1
+
+    for i in postsToRemove:
+        result.remove(i[0])
+        originalPostDate.remove(i[1])
     
-def addUser(conn, date, postContentUrl, postUrl, postText):
+    c.close()
+    for i in originalPostDate:
+        then = datetime.datetime.fromtimestamp(i)
+        timePassed = monthDelta(then, now)
+        fullText = (str(timePassed) + ' months ago')
+        if timePassed < 1:
+            timePassed = (now-then).days
+            fullText = (str(timePassed) + ' days ago')
+        if timePassed < 1:
+            timePassed = (now-then).total_seconds()//3600
+            fullText = (str(timePassed) + ' hours ago')
+        if timePassed < 1:
+            timePassed = (now-then).total_seconds()//60
+            fullText = (str(timePassed) + ' minutes ago')
+        if timePassed < 1:
+            timePassed = (now-then).total_seconds()
+            fullText = (str(timePassed) + ' seconds ago')
+        finalTimePassed.append(fullText)
+    cntr = 0
+    for i in result:
+        returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr]])
+        cntr += 1
+    print('Found? {}'.format(returnResult))
+
+    return returnResult
+    
+def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != '':
         content = postText

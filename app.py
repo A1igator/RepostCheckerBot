@@ -23,36 +23,49 @@ conn = sqlite3.connect('Posts.db')
 def findPosts():
     print('Starting searching...')
     post = 0
-
     # first get 10000 posts from the top of the subreddit
     for submission in subreddit.top('all', limit=10000):
         post += 1
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
-        if (result[0] == ''):
-            Database.addUser(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
-            print('Added {}'.format(submission.permalink))
+        if result == [] or submission.created_utc != result[0][2]:
+            try:
+                Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
+                print('Added {}'.format(submission.permalink))
+            except:
+                print('image was removed so it was ignored')
     post = 0
-
     # then check posts as they come in
     for submission in subreddit.stream.submissions():
+        ignoreImage = False
         post += 1
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
-        if (result[0] == ''):
-            Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
-            print('Added {}'.format(submission.permalink))
-        elif post > 100:
-
-            # report and make a comment
-            submission.report('REPOST ALERT')
-            doThis = True
-            while doThis:
-                try:
-                    submission.reply('I have detected that this may be a [repost](https://reddit.com' + result[0] + ') from ' + result[1] + '\n\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries.')
-                    doThis = False
-                except:
+        if result == [] or submission.created_utc != result[0][2]:
+            try:
+                Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
+                print('Added {}'.format(submission.permalink))
+            except:
+                print('image was removed so it was ignored')
+                ignoreImage = True
+            if result != [] and post > 100 and not ignoreImage:
+                    print('reported')
+                    # report and make a comment
+                    submission.report('REPOST ALERT')
+                    cntr = 0
+                    table = ''
+                    for i in result:
+                        table = table + str(cntr) + '|[post](https://reddit.com' + i[0] + ')|' + i[1] + '\n'
+                        cntr += 1
+                    fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date\n:--:|:--:|:--:\n' + table + '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries.'
                     doThis = True
+                    while doThis:
+                        try:
+                            submission.reply(fullText)
+                            doThis = False
+                        except:
+                            doThis = True
+
 
 Database.initDatabase(conn)
 findPosts()
