@@ -54,60 +54,68 @@ def isLogged(conn, postImageUrl, postText, date):
     cntr = 0
     returnResult = []
     c = conn.cursor()
-    args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
-    if list(args.fetchone())[0] != 0:
-            args = c.execute('SELECT Url, Date FROM Posts WHERE Date = ?;', (str(date),))
-            fullResult = list(args.fetchall())
-            for i in fullResult:
-                result.append(i[0])
-                originalPostDate.append(i[1])        
-    else:
-        if postText != '':
-                
-            args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postText),))
-            if list(args.fetchone())[0] != 0:
-                args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postText),))
-                fullResult = list(args.fetchall())
-                for i in fullResult:
-                    result.append(i[0])
-                    originalPostDate.append(i[1])
-        if postImageUrl != '':
-            args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl),))
-            if list(args.fetchone())[0] != 0:
-                args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl),))
-                fullResult = list(args.fetchall())
-                for i in fullResult:
-                    result.append(i[0])
-                    originalPostDate.append(i[1])
-            if postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
-                try:
-                    file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
-                except:
-                    delete = True
-                if not delete:
-                    img1 = Image.open(file1)
-                    args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
-                    if list(args.fetchone())[0] != 0:
-                        args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
-                        fullResult = list(args.fetchall())
-                        for i in fullResult:
-                            result.append(i[0])
-                            originalPostDate.append(i[1])
-                    args = c.execute('SELECT Content, Url, Date FROM posts;')
-                    for hashed in args.fetchall():
-                        if hashed[1] not in result:
-                            hashedReadable = hashed[0]
-                            if isInt(hashedReadable):
-                                hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
-                                if hashedDifference < 10:
-                                    result.append(hashed[1])
-                                    originalPostDate.append(hashed[2])
 
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = monthDelta(then, now)
 
-    if timePassed > 6 or delete:
+    if timePassed > Config.days:
+        c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
+        result = []
+        originalPostDate = []
+        finalTimePassed = []
+        print('the post is older than needed')
+    else:
+        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
+        if list(args.fetchone())[0] != 0:
+                args = c.execute('SELECT Url, Date FROM Posts WHERE Date = ?;', (str(date),))
+                fullResult = list(args.fetchall())
+                for i in fullResult:
+                    result.append(i[0])
+                    originalPostDate.append(i[1])        
+        else:
+            if postText != '':
+                    
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postText),))
+                if list(args.fetchone())[0] != 0:
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postText),))
+                    fullResult = list(args.fetchall())
+                    for i in fullResult:
+                        result.append(i[0])
+                        originalPostDate.append(i[1])
+            if postImageUrl != '':
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl),))
+                if list(args.fetchone())[0] != 0:
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl),))
+                    fullResult = list(args.fetchall())
+                    for i in fullResult:
+                        result.append(i[0])
+                        originalPostDate.append(i[1])
+                if postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
+                    try:
+                        file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
+                    except:
+                        delete = True
+                    if not delete:
+                        img1 = Image.open(file1)
+                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
+                        if list(args.fetchone())[0] != 0:
+                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
+                            fullResult = list(args.fetchall())
+                            for i in fullResult:
+                                result.append(i[0])
+                                originalPostDate.append(i[1])
+                        args = c.execute('SELECT Content, Url, Date FROM posts;')
+                        for hashed in args.fetchall():
+                            if hashed[1] not in result:
+                                hashedReadable = hashed[0]
+                                if isInt(hashedReadable):
+                                    hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
+                                    if hashedDifference < config.threshold:
+                                        result.append(hashed[1])
+                                        originalPostDate.append(hashed[2])
+
+    if delete:
         c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
         result = []
         originalPostDate = []
