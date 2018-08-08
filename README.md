@@ -22,5 +22,6 @@ Feel free to fork the repository and tackle any issues. You may also open new is
 
 # Subreddits using the bot
 [r/ihadastroke](https://www.reddit.com/r/ihadastroke/)
+[r/ProgrammerHumor](https://www.reddit.com/r/ProgrammerHumor)
 
 if you are using the bot and your subreddit is not listed above, please [contact me](https://www.reddit.com/user/XXAligatorXx)
