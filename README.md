@@ -1,7 +1,7 @@
 # Repost Checker
 
 # Overview
-This bot is able to notice reposts of any kind(link, text, picture) where it has not been more than 6 months and the original post has not been removed(configurable), report the post, and make a comment with details about the original post. It can be configured to work with any subreddit.
+This bot is able to notice reposts of any kind(link, text, picture) where it has not been more than a certain number of months and the original post has not been removed(configurable), report the post, and make a comment with details about the original post. It can be configured to work with any subreddit.
 
 # Setup
 1. download python 3.6+
