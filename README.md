@@ -7,7 +7,7 @@ This bot is able to notice reposts of any kind(link, text, picture) where it has
 1. download python 3.6+
 2. "pip install" dependencies
 3. download/clone the repository
-4. fill out the config file with your bot [credintionals](https://github.com/reddit-archive/reddit/wiki/OAuth2) and subreddit
+4. set up environmental variables for the config file with your bot [credintionals](https://github.com/reddit-archive/reddit/wiki/OAuth2) and subreddit
 5. run app.py
 
 # Dependencies
