@@ -6,5 +6,5 @@ user_agent    = os.environ['BOT_USER_AGENT']
 username      = os.environ['BOT_USERNAME']
 password      = os.environ['BOT_PASSWORD']
 subreddit     = os.environ['BOT_SUBREDDIT']
-days          = os.environ['BOT_DAYS']
-threshold     = os.environ['BOT_THRESH']
+days          = int(os.environ['BOT_DAYS'])
+threshold     = int(os.environ['BOT_THRESH'])

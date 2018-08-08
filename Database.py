@@ -111,7 +111,7 @@ def isLogged(conn, postImageUrl, postText, date):
                                 hashedReadable = hashed[0]
                                 if isInt(hashedReadable):
                                     hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
-                                    if hashedDifference < config.threshold:
+                                    if hashedDifference < Config.threshold:
                                         result.append(hashed[1])
                                         originalPostDate.append(hashed[2])
 
