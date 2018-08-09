@@ -58,7 +58,7 @@ def isLogged(conn, postImageUrl, postText, date):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = monthDelta(then, now)
-
+    print(isInt(Config.days))
     if timePassed > Config.days:
         c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
         result = []
