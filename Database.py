@@ -61,8 +61,8 @@ def isLogged(conn, postImageUrl, postText, date):
     if timePassed > Config.days:
         c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
         result = ['delete']
-        originalPostDate = []
-        finalTimePassed = []
+        originalPostDate = [-10000]
+        finalTimePassed = [-10000]
         print('the post is older than needed')
     else:
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
