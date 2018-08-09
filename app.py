@@ -23,8 +23,17 @@ conn = sqlite3.connect('Posts.db')
 def findPosts():
     print('Starting searching...')
     post = 0
-    # first get 10000 posts from the top of the subreddit
-    for submission in subreddit.top('all', limit=10000):
+    # first get 1000 posts from the top of the subreddit
+    for submission in subreddit.top('all', limit=1000):
+        post += 1
+        print('{} --> Starting new submission {}'.format(post, submission.id))
+        result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
+        if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2]):
+            Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
+            print('Added {}'.format(submission.permalink))
+    post = 0
+    # then get 10000 posts from new of the subreddit
+    for submission in subreddit.top('new', limit=10000):
         post += 1
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
