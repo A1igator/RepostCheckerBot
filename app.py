@@ -29,8 +29,8 @@ def findPosts():
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2]):
-                Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
-                print('Added {}'.format(submission.permalink))
+            Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
+            print('Added {}'.format(submission.permalink))
     post = 0
     # then check posts as they come in
     for submission in subreddit.stream.submissions():
@@ -39,25 +39,25 @@ def findPosts():
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2
-                Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
-                print('Added {}'.format(submission.permalink))
-            if result != [] and post > 100:
-                    print('reported')
-                    # report and make a comment
-                    submission.report('REPOST ALERT')
-                    cntr = 0
-                    table = ''
-                    for i in result:
-                        table = table + str(cntr) + '|[post](https://reddit.com' + i[0] + ')|' + i[1] + '\n'
-                        cntr += 1
-                    fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date\n:--:|:--:|:--:\n' + table + '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries.'
-                    doThis = True
-                    while doThis:
-                        try:
-                            submission.reply(fullText)
-                            doThis = False
-                        except:
-                            doThis = True
+            Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
+            print('Added {}'.format(submission.permalink))
+        if result != [] and result != [['delete',-10000,-10000]] and post > 100:
+                print('reported')
+                # report and make a comment
+                submission.report('REPOST ALERT')
+                cntr = 0
+                table = ''
+                for i in result:
+                    table = table + str(cntr) + '|[post](https://reddit.com' + i[0] + ')|' + i[1] + '\n'
+                    cntr += 1
+                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date\n:--:|:--:|:--:\n' + table + '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries.'
+                doThis = True
+                while doThis:
+                    try:
+                        submission.reply(fullText)
+                        doThis = False
+                    except:
+                        doThis = True
 
 
 Database.initDatabase(conn)
