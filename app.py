@@ -38,7 +38,7 @@ def findPosts():
         post += 1
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
-        if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2
+        if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2]):
             Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
             print('Added {}'.format(submission.permalink))
         if result != [] and result != [['delete',-10000,-10000]] and post > 100:
