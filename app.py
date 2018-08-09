@@ -29,11 +29,8 @@ def findPosts():
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2]):
-            try:
                 Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
                 print('Added {}'.format(submission.permalink))
-            except:
-                print('image was removed so it was ignored')
     post = 0
     # then check posts as they come in
     for submission in subreddit.stream.submissions():
@@ -41,14 +38,10 @@ def findPosts():
         post += 1
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
-        if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2]):
-            try:
+        if result != [['delete',-10000,-10000]] and (result == [] or submission.created_utc != result[0][2
                 Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
                 print('Added {}'.format(submission.permalink))
-            except:
-                print('image was removed so it was ignored')
-                ignoreImage = True
-            if result != [] and post > 100 and not ignoreImage:
+            if result != [] and post > 100:
                     print('reported')
                     # report and make a comment
                     submission.report('REPOST ALERT')
