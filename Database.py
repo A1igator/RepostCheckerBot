@@ -60,7 +60,7 @@ def isLogged(conn, postImageUrl, postText, date):
     timePassed = (now-then).days
     if timePassed > Config.days:
         c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
-        result = []
+        result = ['delete']
         originalPostDate = []
         finalTimePassed = []
         print('the post is older than needed')
@@ -121,7 +121,7 @@ def isLogged(conn, postImageUrl, postText, date):
         finalTimePassed = []
         print('invalid check so it was ignored')
     for i in result:
-        if i != '':
+        if i != '' and i != 'delete':
             if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]' or reddit.submission(url = 'https://reddit.com' + i).selftext == '[removed]':
                 c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
                 postsToRemove.append([i, originalPostDate[cntr]])
