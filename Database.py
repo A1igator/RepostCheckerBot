@@ -50,6 +50,7 @@ def monthDelta(d1, d2):
     return delta
 
 def isLogged(conn, postImageUrl, postText, date):
+    print(postImageUrl)
     args = None
     result = []
     originalPostDate = []
