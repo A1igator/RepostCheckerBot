@@ -82,10 +82,11 @@ def isLogged(conn, postImageUrl, postText, date):
                     originalPostDate.append(i[1])
                     precentageMatched.append(100)        
         else:
-            if postText != '':      
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postText),))
+            if postText != '':
+                postTextHash = sha256(canonical(postText).encode()).hexdigest()      
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postText),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         result.append(i[0])
@@ -183,7 +184,6 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != '':
         content = sha256(canonical(postText).encode()).hexdigest()
-        print(content)
     else:
         if postContentUrl.endswith('png') or postContentUrl.endswith('jpg'):
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
