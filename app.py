@@ -61,7 +61,7 @@ def findPosts():
                 for i in result:
                     table = table + str(cntr) + '|[post](https://reddit.com' + i[0] + ')|' + i[1] + '|' + str(i[3]) + '%|' + i[4] + '\n'
                     cntr += 1
-                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match|Status\n:--:|:--:|:--:\n' + table + '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries.'
+                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match|Status\n:--:|:--:|:--:|:--:|:--:\n' + table + '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries.'
                 doThis = True
                 while doThis:
                     try:
