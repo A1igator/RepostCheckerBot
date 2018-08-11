@@ -101,6 +101,14 @@ def isLogged(conn, postImageUrl, postText, date):
                     for i in fullResult:
                         result.append(i[0])
                         originalPostDate.append(i[1])
+                        precentageMatched.append(100)
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl)+'&feature=youtu.be',))
+                if list(args.fetchone())[0] != 0:
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl)+'&feature=youtu.be',))
+                    fullResult = list(args.fetchall())
+                    for i in fullResult:
+                        result.append(i[0])
+                        originalPostDate.append(i[1])
                         precentageMatched.append(100)        
                 if postImageUrl.endswith('png') or postImageUrl.endswith('jpg') or postImageUrl.endswith('gif') or postImageUrl.endswith('mp4'):
                     try:
@@ -198,7 +206,6 @@ def isLogged(conn, postImageUrl, postText, date):
     
 def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
-    print(postContentUrl)
     if postText != '':
         content = sha256(canonical(postText).encode()).hexdigest()
     else:
@@ -211,7 +218,6 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
                         break
                     sha256.update(data)
                 content = sha256.hexdigest()
-                print(content)
             else:
                 img1 = Image.open(file1)
                 content = dhash.dhash_int(img1)
