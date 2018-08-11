@@ -85,9 +85,9 @@ def isLogged(conn, postImageUrl, postText, date):
         else:
             if postText != '':
                 postTextHash = sha256(canonical(postText).encode()).hexdigest()      
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash),))
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash).replace('&feature=youtu.be',''),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         result.append(i[0])
