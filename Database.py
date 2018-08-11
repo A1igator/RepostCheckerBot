@@ -110,12 +110,12 @@ def isLogged(conn, postImageUrl, postText, date):
                         result.append(i[0])
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)        
-                if postImageUrl.endswith('png') or postImageUrl.endswith('jpg') or postImageUrl.endswith('gif') or postImageUrl.endswith('mp4') or postImageUrl.endswith('mov'):
+                if 'png' in postImageUrl or 'jpg' in postImageUrl or 'gif' in postImageUrl or 'mp4' in postImageUrl or 'mov' in postImageUrl:
                     try:
                         file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
                     except:
                         delete = True
-                    if not delete and (postImageUrl.endswith('gif') or postImageUrl.endswith('mp4') or postImageUrl.endswith('mov')):
+                    if not delete and ('gif' in postImageUrl or 'mp4' in postImageUrl or 'mov' in postImageUrl):
                         while True:
                             data = file1.read(65536)
                             if not data:
@@ -209,9 +209,9 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
     if postText != '':
         content = sha256(canonical(postText).encode()).hexdigest()
     else:
-        if postContentUrl.endswith('png') or postContentUrl.endswith('jpg') or postContentUrl.endswith('gif') or postContentUrl.endswith('mp4') or postContentUrl.endswith('mov'):
+        if 'png' in postContentUrl or 'jpg' in postContentUrl or 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
-            if postContentUrl.endswith('gif') or postContentUrl.endswith('mp4') or postContentUrl.endswith('mov'):
+            if 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
                 while True:
                     data = file1.read(65536)
                     if not data:
