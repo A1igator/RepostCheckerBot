@@ -9,7 +9,7 @@ from io import BytesIO
 import ssl
 from PIL import Image
 import dhash
-from hashlib import sha256
+from hashlib import md5
 
 reddit = praw.Reddit(client_id=Config.client_id,
                      client_secret=Config.client_secret,
@@ -19,7 +19,7 @@ reddit = praw.Reddit(client_id=Config.client_id,
 
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
-sha256 = sha256()
+md5 = md5()
 
 def initDatabase(conn):
     c = conn.cursor()
@@ -85,7 +85,7 @@ def isLogged(conn, postImageUrl, postText, date):
                     precentageMatched.append(100)        
         else:
             if postText != '':
-                postTextHash = sha256(canonical(postText).encode()).hexdigest()      
+                postTextHash = md5(canonical(postText).encode()).hexdigest()      
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash).replace('&feature=youtu.be',''),))
@@ -121,8 +121,8 @@ def isLogged(conn, postImageUrl, postText, date):
                             data = file1.read(65536)
                             if not data:
                                 break
-                            sha256.update(data)
-                        postVidHash = sha256.hexdigest()
+                            md5.update(data)
+                        postVidHash = md5.hexdigest()
                         print(postVidHash)    
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postVidHash),))
                         if list(args.fetchone())[0] != 0:
@@ -209,7 +209,7 @@ def isLogged(conn, postImageUrl, postText, date):
 def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != '':
-        content = sha256(canonical(postText).encode()).hexdigest()
+        content = md5(canonical(postText).encode()).hexdigest()
     else:
         if 'png' in postContentUrl or 'jpg' in postContentUrl or 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
@@ -218,8 +218,8 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
                     data = file1.read(65536)
                     if not data:
                         break
-                    sha256.update(data)
-                content = sha256.hexdigest()
+                    md5.update(data)
+                content = md5.hexdigest()
             else:
                 img1 = Image.open(file1)
                 content = dhash.dhash_int(img1)
