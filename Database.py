@@ -120,7 +120,7 @@ def isLogged(conn, postImageUrl, postText, date):
                                     if hashedDifference < Config.threshold:
                                         result.append(hashed[1])
                                         originalPostDate.append(hashed[2])
-                                        precentageMatched.append(((20 - hashedDifference)/20)*100)        
+                                        precentageMatched.append(((Config.threshold - hashedDifference)/Config.threshold)*100)        
 
 
     if delete:
