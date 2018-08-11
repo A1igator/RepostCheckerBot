@@ -71,12 +71,12 @@ def isLogged(conn, postImageUrl, postText, date):
     else:
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
         if list(args.fetchone())[0] != 0:
-                args = c.execute('SELECT Url, Date FROM Posts WHERE Date = ?;', (str(date),))
-                fullResult = list(args.fetchall())
-                for i in fullResult:
-                    result.append(i[0])
-                    originalPostDate.append(i[1])
-                    precentageMatched.append(100)        
+            result = ['delete']
+            originalPostDate = [-1]
+            finalTimePassed = [-1]
+            precentageMatched = [-1]
+            status = [-1]
+            print('already done')   
         else:
             if postText != '':      
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postText),))
