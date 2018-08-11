@@ -45,10 +45,12 @@ def monthDelta(d1, d2):
     return delta
 
 def isLogged(conn, postImageUrl, postText, date):
-    result = []
     args = None
+    result = []
     originalPostDate = []
     finalTimePassed = []
+    status = []
+    precentageMatched = []
     postsToRemove = []
     delete = False
     cntr = 0
@@ -61,8 +63,9 @@ def isLogged(conn, postImageUrl, postText, date):
     if timePassed > Config.days:
         c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
         result = ['delete']
-        originalPostDate = [-10000]
-        finalTimePassed = [-10000]
+        originalPostDate = [-1]
+        finalTimePassed = [-1]
+        precentageMatched = [-1]
         print('the post is older than needed')
     else:
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
@@ -71,10 +74,10 @@ def isLogged(conn, postImageUrl, postText, date):
                 fullResult = list(args.fetchall())
                 for i in fullResult:
                     result.append(i[0])
-                    originalPostDate.append(i[1])        
+                    originalPostDate.append(i[1])
+                    precentageMatched.append(100)        
         else:
-            if postText != '':
-                    
+            if postText != '':      
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postText),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postText),))
@@ -82,6 +85,7 @@ def isLogged(conn, postImageUrl, postText, date):
                     for i in fullResult:
                         result.append(i[0])
                         originalPostDate.append(i[1])
+                        precentageMatched.append(100)        
             if postImageUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl),))
                 if list(args.fetchone())[0] != 0:
@@ -90,6 +94,7 @@ def isLogged(conn, postImageUrl, postText, date):
                     for i in fullResult:
                         result.append(i[0])
                         originalPostDate.append(i[1])
+                        precentageMatched.append(100)        
                 if postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
                     try:
                         file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
@@ -104,6 +109,7 @@ def isLogged(conn, postImageUrl, postText, date):
                             for i in fullResult:
                                 result.append(i[0])
                                 originalPostDate.append(i[1])
+                                precentageMatched.append(100)        
                         args = c.execute('SELECT Content, Url, Date FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[1] not in result:
@@ -113,6 +119,8 @@ def isLogged(conn, postImageUrl, postText, date):
                                     if hashedDifference < Config.threshold:
                                         result.append(hashed[1])
                                         originalPostDate.append(hashed[2])
+                                        precentageMatched.append(((20 - hashedDifference)/20)*100)        
+
 
     if delete:
         c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
@@ -122,12 +130,16 @@ def isLogged(conn, postImageUrl, postText, date):
         print('invalid check so it was ignored')
     for i in result:
         if i != '' and i != 'delete':
-            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]' or reddit.submission(url = 'https://reddit.com' + i).selftext == '[removed]':
+            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]':
                 c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
                 postsToRemove.append([i, originalPostDate[cntr]])
                 print('deleted ' + i)
+            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[removed]':
+                status.append('deleted')
+            else:
+                status.append('not deleted')
         cntr += 1
-
+            
     for i in postsToRemove:
         result.remove(i[0])
         originalPostDate.remove(i[1])
@@ -152,7 +164,7 @@ def isLogged(conn, postImageUrl, postText, date):
         finalTimePassed.append(fullText)
     cntr = 0
     for i in result:
-        returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr]])
+        returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr], status[cntr]])
         cntr += 1
     print('Found? {}'.format(returnResult))
 
