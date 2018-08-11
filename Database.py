@@ -129,6 +129,8 @@ def isLogged(conn, postImageUrl, postText, date):
         result = ['delete']
         originalPostDate = [-1]
         finalTimePassed = [-1]
+        precentageMatched = [-1]
+        status = [-1]
         print('invalid check so it was ignored')
     for i in result:
         if i != '' and i != 'delete':
