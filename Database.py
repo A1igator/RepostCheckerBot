@@ -126,8 +126,8 @@ def isLogged(conn, postImageUrl, postText, date):
     if delete:
         c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
         result = ['delete']
-        originalPostDate = [-10000]
-        finalTimePassed = [-10000]
+        originalPostDate = [-1]
+        finalTimePassed = [-1]
         print('invalid check so it was ignored')
     for i in result:
         if i != '' and i != 'delete':
