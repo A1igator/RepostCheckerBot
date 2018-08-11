@@ -211,7 +211,7 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
     else:
         if postContentUrl.endswith('png') or postContentUrl.endswith('jpg') or postContentUrl.endswith('gif') or postContentUrl.endswith('mp4') or postContentUrl.endswith('mov'):
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
-            if postImageUrl.endswith('gif') or postContentUrl.endswith('mp4') or postContentUrl.endswith('mov'):
+            if postContentUrl.endswith('gif') or postContentUrl.endswith('mp4') or postContentUrl.endswith('mov'):
                 while True:
                     data = file1.read(65536)
                     if not data:
