@@ -179,7 +179,8 @@ def isLogged(conn, postImageUrl, postText, date):
 def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != '':
-        content = postText
+        content = sha256(canonical(postText).encode()).hexdigest()
+        print(content)
     else:
         if postContentUrl.endswith('png') or postContentUrl.endswith('jpg'):
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
