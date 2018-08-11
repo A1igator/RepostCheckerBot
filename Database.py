@@ -27,6 +27,9 @@ def initDatabase(conn):
     c.close()
     print('Create table.')
 
+def canonical(s):
+    return ''.join([c for c in s if not c.isspace()])
+
 def isInt(s):
     try: 
         int(s)
