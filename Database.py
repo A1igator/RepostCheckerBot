@@ -19,6 +19,7 @@ reddit = praw.Reddit(client_id=Config.client_id,
 
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
+sha256 = sha256()
 
 def initDatabase(conn):
     c = conn.cursor()
@@ -190,6 +191,14 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
             img1 = Image.open(file1)
             content = dhash.dhash_int(img1)
+        elif postContentUrl.endswith('gif'):
+            f = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
+            while True:
+                data = f.read(BUF_SIZE)
+                if not data:
+                    break
+                sha256.update(data)
+            print(sha256.hexdigest())
         else:
             content = postContentUrl
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
