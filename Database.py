@@ -162,11 +162,11 @@ def isLogged(conn, postImageUrl, postText, date):
         print('invalid check so it was ignored')
     for i in result:
         if i != '' and i != 'delete':
-            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]':
-                status.append('deleted')
-            else:
-                status.append('not deleted')
             if reddit.submission(url = 'https://reddit.com' + i).selftext == '[removed]':
+                status.append('removed')
+            else:
+                status.append('not removed')
+            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]':
                 c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
                 postsToRemove.append([i, originalPostDate[cntr], precentageMatched[cntr], status[cntr]])
                 print('deleted ' + i)
