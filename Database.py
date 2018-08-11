@@ -9,7 +9,7 @@ from io import BytesIO
 import ssl
 from PIL import Image
 import dhash
-import hashlib
+from hashlib import sha256
 
 reddit = praw.Reddit(client_id=Config.client_id,
                      client_secret=Config.client_secret,
