@@ -182,6 +182,7 @@ def isLogged(conn, postImageUrl, postText, date):
     
 def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
+    print(postContentUrl)
     if postText != '':
         content = sha256(canonical(postText).encode()).hexdigest()
     else:
