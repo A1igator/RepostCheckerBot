@@ -122,7 +122,8 @@ def isLogged(conn, postImageUrl, postText, date):
                             if not data:
                                 break
                             sha256.update(data)
-                        postVidHash = sha256.hexdigest()    
+                        postVidHash = sha256.hexdigest()
+                        print(postVidHash)    
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postVidHash),))
                         if list(args.fetchone())[0] != 0:
                             args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postVidHash),))
