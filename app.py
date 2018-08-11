@@ -52,7 +52,7 @@ def findPosts():
         if result != [['delete',-1,-1,-1,-1]] and (result == [] or submission.created_utc != result[0][2]):
             Database.addPost(conn, submission.created_utc, submission.url, submission.permalink, submission.selftext)
             print('Added {}'.format(submission.permalink))
-        if result != [] and result != [['delete',-1,-1,-1,-1]] and post > 100:
+        if result != [] and result != [['delete',-1,-1,-1,-1]] and post > 0:
                 print('reported')
                 # report and make a comment
                 submission.report('REPOST ALERT')
