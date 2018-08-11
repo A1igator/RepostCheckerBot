@@ -66,6 +66,7 @@ def isLogged(conn, postImageUrl, postText, date):
         originalPostDate = [-1]
         finalTimePassed = [-1]
         precentageMatched = [-1]
+        status = [-1]
         print('the post is older than needed')
     else:
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
