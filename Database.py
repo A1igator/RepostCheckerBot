@@ -102,12 +102,27 @@ def isLogged(conn, postImageUrl, postText, date):
                         result.append(i[0])
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)        
-                if postImageUrl.endswith('png') or postImageUrl.endswith('jpg'):
+                if postImageUrl.endswith('png') or postImageUrl.endswith('jpg') or postImageUrl.endswith('gif'):
                     try:
                         file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
                     except:
                         delete = True
-                    if not delete:
+                    if not delete and postImageUrl.endswith('gif'):
+                        while True:
+                            data = file1.read(65536)
+                            if not data:
+                                break
+                            sha256.update(data)
+                        postVidHash = sha256.hexdigest()    
+                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postVidHash),))
+                        if list(args.fetchone())[0] != 0:
+                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postVidHash),))
+                            fullResult = list(args.fetchall())
+                            for i in fullResult:
+                                result.append(i[0])
+                                originalPostDate.append(i[1])
+                                precentageMatched.append(100)                          
+                    elif not delete:
                         img1 = Image.open(file1)
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
                         if list(args.fetchone())[0] != 0:
@@ -187,18 +202,19 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
     if postText != '':
         content = sha256(canonical(postText).encode()).hexdigest()
     else:
-        if postContentUrl.endswith('png') or postContentUrl.endswith('jpg'):
+        if postContentUrl.endswith('png') or postContentUrl.endswith('jpg') or postContentUrl.endswith('gif'):
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
-            img1 = Image.open(file1)
-            content = dhash.dhash_int(img1)
-        elif postContentUrl.endswith('gif'):
-            f = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
-            while True:
-                data = f.read(65536)
-                if not data:
-                    break
-                sha256.update(data)
-            print(sha256.hexdigest())
+            if postContentUrl.endswith('gif'):
+                while True:
+                    data = file1.read(65536)
+                    if not data:
+                        break
+                    sha256.update(data)
+                content = sha256.hexdigest()
+            else:
+                img1 = Image.open(file1)
+                content = dhash.dhash_int(img1)
+
         else:
             content = postContentUrl
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
