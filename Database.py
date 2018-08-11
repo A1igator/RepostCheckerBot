@@ -102,12 +102,12 @@ def isLogged(conn, postImageUrl, postText, date):
                         result.append(i[0])
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)        
-                if postImageUrl.endswith('png') or postImageUrl.endswith('jpg') or postImageUrl.endswith('gif'):
+                if postImageUrl.endswith('png') or postImageUrl.endswith('jpg') or postImageUrl.endswith('gif') or postImageUrl.endswith('mp4'):
                     try:
                         file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
                     except:
                         delete = True
-                    if not delete and postImageUrl.endswith('gif'):
+                    if not delete and (postImageUrl.endswith('gif') or postImageUrl.endswith('mp4')):
                         while True:
                             data = file1.read(65536)
                             if not data:
@@ -202,15 +202,16 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
     if postText != '':
         content = sha256(canonical(postText).encode()).hexdigest()
     else:
-        if postContentUrl.endswith('png') or postContentUrl.endswith('jpg') or postContentUrl.endswith('gif'):
+        if postContentUrl.endswith('png') or postContentUrl.endswith('jpg') or postContentUrl.endswith('gif') or postImageUrl.endswith('mp4'):
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
-            if postContentUrl.endswith('gif'):
+            if postImageUrl.endswith('gif') or postImageUrl.endswith('mp4'):
                 while True:
                     data = file1.read(65536)
                     if not data:
                         break
                     sha256.update(data)
                 content = sha256.hexdigest()
+                print(content)
             else:
                 img1 = Image.open(file1)
                 content = dhash.dhash_int(img1)
