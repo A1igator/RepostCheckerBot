@@ -194,7 +194,7 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
         elif postContentUrl.endswith('gif'):
             f = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
             while True:
-                data = f.read(BUF_SIZE)
+                data = f.read(65536)
                 if not data:
                     break
                 sha256.update(data)
