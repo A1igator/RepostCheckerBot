@@ -9,7 +9,7 @@ from io import BytesIO
 import ssl
 from PIL import Image
 import dhash
-from hashlib import pHash
+from hashlib import md5
 import av
 
 reddit = praw.Reddit(client_id=Config.client_id,
@@ -20,7 +20,7 @@ reddit = praw.Reddit(client_id=Config.client_id,
 
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
-pHash = pHash()
+md5 = md5()
 
 def initDatabase(conn):
     c = conn.cursor()
@@ -86,7 +86,7 @@ def isLogged(conn, postImageUrl, postText, date):
                     precentageMatched.append(100)        
         else:
             if postText != '':
-                postTextHash = pHash(canonical(postText).encode()).hexdigest()      
+                postTextHash = md5(canonical(postText).encode()).hexdigest()      
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash),))
@@ -188,7 +188,7 @@ def isLogged(conn, postImageUrl, postText, date):
 def addPost(conn, date, postContentUrl, postUrl, postText):
     c = conn.cursor()
     if postText != '':
-        content = pHash(canonical(postText).encode()).hexdigest()
+        content = md5(canonical(postText).encode()).hexdigest()
     else:
         if 'png' in postContentUrl or 'jpg' in postContentUrl:
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
