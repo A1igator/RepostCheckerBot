@@ -10,6 +10,7 @@ import ssl
 from PIL import Image
 import dhash
 from hashlib import pHash
+import av
 
 reddit = praw.Reddit(client_id=Config.client_id,
                      client_secret=Config.client_secret,
@@ -86,53 +87,31 @@ def isLogged(conn, postImageUrl, postText, date):
         else:
             if postText != '':
                 postTextHash = pHash(canonical(postText).encode()).hexdigest()      
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash).replace('&feature=youtu.be',''),))
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash).replace('&feature=youtu.be',''),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash)),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         result.append(i[0])
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)        
             if postImageUrl != '':
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl),))
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl).replace('&feature=youtu.be',''),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         result.append(i[0])
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl)+'&feature=youtu.be',))
-                if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl)+'&feature=youtu.be',))
-                    fullResult = list(args.fetchall())
-                    for i in fullResult:
-                        result.append(i[0])
-                        originalPostDate.append(i[1])
-                        precentageMatched.append(100)        
-                if 'png' in postImageUrl or 'jpg' in postImageUrl or 'gif' in postImageUrl or 'mp4' in postImageUrl or 'mov' in postImageUrl:
+                if 'gif' in postImageUrl or 'mp4' in postImageUrl or 'mov' in postImageUrl:
+
+                if 'png' in postImageUrl or 'jpg' in postImageUrl:
                     try:
                         file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
                     except:
-                        delete = True
-                    if not delete and ('gif' in postImageUrl or 'mp4' in postImageUrl or 'mov' in postImageUrl):
-                        while True:
-                            data = file1.read(65536)
-                            if not data:
-                                break
-                            pHash.update(data)
-                        postVidHash = pHash.hexdigest()
-                        print(postVidHash)    
-                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postVidHash),))
-                        if list(args.fetchone())[0] != 0:
-                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postVidHash),))
-                            fullResult = list(args.fetchall())
-                            for i in fullResult:
-                                result.append(i[0])
-                                originalPostDate.append(i[1])
-                                precentageMatched.append(100)                          
-                    elif not delete:
+                        delete = True                        
+                    if not delete:
                         img1 = Image.open(file1)
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
                         if list(args.fetchone())[0] != 0:
@@ -211,19 +190,14 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
     if postText != '':
         content = pHash(canonical(postText).encode()).hexdigest()
     else:
-        if 'png' in postContentUrl or 'jpg' in postContentUrl or 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
+        if 'png' in postContentUrl or 'jpg' in postContentUrl:
             file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
-            if 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
-                while True:
-                    data = file1.read(65536)
-                    if not data:
-                        break
-                    pHash.update(data)
-                content = pHash.hexdigest()
-            else:
-                img1 = Image.open(file1)
-                content = dhash.dhash_int(img1)
-
+            img1 = Image.open(file1)
+            content = dhash.dhash_int(img1)
+        elif 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
+            container = av.open(postContentUrl)
+                for frame in container.decode(video=0):
+                    print(dhash.dhash_int(frame))
         else:
             content = postContentUrl
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
