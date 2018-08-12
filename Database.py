@@ -196,7 +196,7 @@ def addPost(conn, date, postMedia, postUrl, postText):
             img1 = Image.open(file1)
             content = dhash.dhash_int(img1)
        # elif 'gif' in postMedia or 'mp4' in postMedia or 'mov' in postMedia:
-        container = av.open('https://v.redd.it/449t3dsvvof11/DASH_600_K')
+        container = av.open(postMedia['reddit_video']['fallback_url'])
         for frame in container.decode(video=0):
             print(dhash.dhash_int(frame.to_image()))
         else:
