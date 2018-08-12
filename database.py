@@ -101,7 +101,6 @@ def isLogged(conn, postContentUrl, postText, date):
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
         if list(args.fetchone())[0] != 0:
             ignore()
-            print(result)
             print('already done')
         else:
             if postText != '':
@@ -143,7 +142,7 @@ def isLogged(conn, postContentUrl, postText, date):
         if i != '' and i != 'delete':
             if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]':
                 c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
-                postsToRemove.append([i, originalPostDate[cntr], precentageMatched[cntr], status[cntr]])
+                postsToRemove.append([i, originalPostDate[cntr], precentageMatched[cntr]])
                 print('deleted ' + i)
         cntr += 1
             
@@ -151,7 +150,6 @@ def isLogged(conn, postContentUrl, postText, date):
         result.remove(i[0])
         originalPostDate.remove(i[1])
         precentageMatched.remove(i[2])
-        status.remove(i[3])
     
     c.close()
     for i in originalPostDate:
