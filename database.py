@@ -21,6 +21,11 @@ reddit = praw.Reddit(client_id=config.client_id,
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
+result = []
+originalPostDate = []
+finalTimePassed = []
+precentageMatched = []
+
 def initDatabase(conn):
     c = conn.cursor()
     c.execute('CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);')
@@ -77,11 +82,6 @@ def addToFound(post, precentage):
 
 def isLogged(conn, postContentUrl, postText, date):
     args = None
-    result = []
-    originalPostDate = []
-    finalTimePassed = []
-    status = []
-    precentageMatched = []
     postsToRemove = []
     delete = False
     cntr = 0
