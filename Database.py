@@ -1,5 +1,5 @@
 import praw
-import Config
+import config
 import sqlite3
 import datetime
 from datetime import timedelta
@@ -12,11 +12,11 @@ import dhash
 from hashlib import md5
 import av
 
-reddit = praw.Reddit(client_id=Config.client_id,
-                     client_secret=Config.client_secret,
-                     username=Config.username,
-                     password=Config.password,
-                     user_agent=Config.user_agent)
+reddit = praw.Reddit(client_id=config.client_id,
+                     client_secret=config.client_secret,
+                     username=config.username,
+                     password=config.password,
+                     user_agent=config.user_agent)
 
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
@@ -61,15 +61,17 @@ def hashImg(imgUrl):
         img = Image.open(f)
         return dhash.dhash_int(img)
 
-
 def delete(itemUrl):
     c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
     result = ['delete']
     originalPostDate = [-1]
     finalTimePassed = [-1]
     precentageMatched = [-1]
-    status = [-1]
       
+def addToFound(post, precentage):
+    result.append(post[0])
+    originalPostDate.append(post[1])
+    precentageMatched.append(precentage) 
 
 def isLogged(conn, postContentUrl, postText, date):
     args = None
@@ -87,7 +89,7 @@ def isLogged(conn, postContentUrl, postText, date):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
-    if timePassed > Config.days:
+    if timePassed > config.days:
         delete(imgUrl)
         print('the post is older than needed')
     else:
@@ -96,9 +98,7 @@ def isLogged(conn, postContentUrl, postText, date):
                 args = c.execute('SELECT Url, Date FROM Posts WHERE Date = ?;', (str(date),))
                 fullResult = list(args.fetchall())
                 for i in fullResult:
-                    result.append(i[0])
-                    originalPostDate.append(i[1])
-                    precentageMatched.append(100)        
+                    addToFound(i, 100)
         else:
             if postText != '':
                 #postTextHash = md5(canonical(postText).encode()).hexdigest()
@@ -108,18 +108,14 @@ def isLogged(conn, postContentUrl, postText, date):
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
-                        result.append(i[0])
-                        originalPostDate.append(i[1])
-                        precentageMatched.append(100)        
+                        addToFound(i, 100)      
             if postContentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
-                        result.append(i[0])
-                        originalPostDate.append(i[1])
-                        precentageMatched.append(100)
+                        addToFound(i, 100)
                 if 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
                     print('boop')
                 if 'png' in postContentUrl or 'jpg' in postContentUrl:
@@ -130,26 +126,18 @@ def isLogged(conn, postContentUrl, postText, date):
                             args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(imgHash),))
                             fullResult = list(args.fetchall())
                             for i in fullResult:
-                                result.append(i[0])
-                                originalPostDate.append(i[1])
-                                precentageMatched.append(100)        
-                        args = c.execute('SELECT Content, Url, Date FROM posts;')
+                                addToFound(i, 100)
+                        args = c.execute('SELECT Url, Date, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[1] not in result:
-                                hashedReadable = hashed[0]
+                                hashedReadable = hashed[2]
                                 if isInt(hashedReadable):
                                     hashedDifference = dhash.get_num_bits_different(imgHash, int(hashedReadable))
-                                    if hashedDifference < Config.threshold:
-                                        result.append(hashed[1])
-                                        originalPostDate.append(hashed[2])
-                                        precentageMatched.append(((Config.threshold - hashedDifference)/Config.threshold)*100)     
+                                    if hashedDifference < config.threshold:
+                                        addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100) 
 
     for i in result:
         if i != '' and i != 'delete':
-            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[removed]':
-                status.append('removed')
-            else:
-                status.append('not removed')
             if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]':
                 c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
                 postsToRemove.append([i, originalPostDate[cntr], precentageMatched[cntr], status[cntr]])
@@ -182,7 +170,7 @@ def isLogged(conn, postContentUrl, postText, date):
         finalTimePassed.append(fullText)
     cntr = 0
     for i in result:
-        returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr], status[cntr]])
+        returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
         cntr += 1
     print('Found? {}'.format(returnResult))
 
