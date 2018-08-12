@@ -197,7 +197,7 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
        # elif 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
         container = av.open('https://v.redd.it/449t3dsvvof11/DASH_600_K')
         for frame in container.decode(video=0):
-            img1 = Image.open(frame)
+            img1 = Image.open(frame.to_image())
             print(dhash.dhash_int(img1))
         else:
             content = postContentUrl
