@@ -73,11 +73,10 @@ def delete(itemUrl):
     ignore()
 
 def ignore():
-    result = ['delete']
-    print(result)
-    originalPostDate = [-1]
-    finalTimePassed = [-1]
-    precentageMatched = [-1]
+    result[:] = ['delete']
+    originalPostDate[:] = [-1]
+    finalTimePassed[:] = [-1]
+    precentageMatched[:] = [-1]
       
 def addToFound(post, precentage):
     result.append(post[0])
