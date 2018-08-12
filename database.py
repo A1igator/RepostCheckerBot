@@ -73,7 +73,7 @@ def hashVid(vidUrl):
     container = av.open(vidUrl)
     for frame in container.decode(video=0):
         dhash.dhash_int(frame.to_image())
-        hash += str(dhash.dhash_int(frame.to_image()))
+        hash += str(dhash.dhash_int(frame.to_image())) + ' '
     return hash
 
 def delete(itemUrl):
@@ -126,9 +126,7 @@ def isLogged(conn, postContentUrl, postText, date):
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
-                if 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
-                    print('boop')
-                if 'png' in postContentUrl or 'jpg' in postContentUrl:
+                if 'png' in postContentUrl or 'jpg' in postContentUrl or 'gif' in postContentUrl:
                     imgHash = hashImg(postContentUrl)
                     if isInt(imgHash):
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
@@ -139,7 +137,7 @@ def isLogged(conn, postContentUrl, postText, date):
                                 addToFound(i, 100)
                         args = c.execute('SELECT Url, Date, Content FROM posts;')
                         for hashed in args.fetchall():
-                            if hashed[1] not in result:
+                            if hashed[0] not in result:
                                 hashedReadable = hashed[2]
                                 if isInt(hashedReadable):
                                     hashedDifference = dhash.get_num_bits_different(imgHash, int(hashedReadable))
