@@ -70,6 +70,9 @@ def hashText(txt):
 
 def delete(itemUrl):
     c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
+    ignore()
+
+def ignore():
     result = ['delete']
     originalPostDate = [-1]
     finalTimePassed = [-1]
@@ -97,10 +100,8 @@ def isLogged(conn, postContentUrl, postText, date):
     else:
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
         if list(args.fetchone())[0] != 0:
-                args = c.execute('SELECT Url, Date FROM Posts WHERE Date = ?;', (str(date),))
-                fullResult = list(args.fetchall())
-                for i in fullResult:
-                    addToFound(i, 100)
+            ignore()
+            print('already done')
         else:
             if postText != '':
                 textHash = hashText(postText)
