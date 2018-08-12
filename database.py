@@ -171,6 +171,7 @@ def isLogged(conn, postContentUrl, postText, date):
             fullText = (str(timePassed) + ' seconds ago')
         finalTimePassed.append(fullText)
     cntr = 0
+    print(result)
     for i in result:
         returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
         cntr += 1
