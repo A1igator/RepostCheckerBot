@@ -52,7 +52,7 @@ def monthDelta(d1, d2):
 
 def hashImg(imgUrl):
     try:
-        f = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
+        f = BytesIO(urlopen(Request(str(imgUrl), headers={'User-Agent': user_agent}), context = context).read())
     except:
         delete(imgUrl)
         print('invalid check so it was ignored')
