@@ -185,7 +185,7 @@ def isLogged(conn, postImageUrl, postText, date):
 
     return returnResult
     
-def addPost(conn, date, postContenUrl, postMedia, postUrl, postText):
+def addPost(conn, date, postContentUrl, postMedia, postUrl, postText):
     c = conn.cursor()
     if postText != '':
         content = md5(canonical(postText).encode()).hexdigest()
