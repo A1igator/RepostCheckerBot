@@ -71,6 +71,6 @@ def findPosts():
                         doThis = True
 
 
-database.initdatabase(conn)
+database.initDatabase(conn)
 findPosts()
 print(database.getAll(conn))
