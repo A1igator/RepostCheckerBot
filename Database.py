@@ -50,7 +50,28 @@ def monthDelta(d1, d2):
             break
     return delta
 
-def isLogged(conn, postImageUrl, postText, date):
+def hashImg(imgUrl):
+    try:
+        f = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
+    except:
+        delete(imgUrl)
+        print('invalid check so it was ignored')
+        return ''
+    else:
+        img = Image.open(f)
+        return dhash.dhash_int(img)
+
+
+def delete(itemUrl):
+    c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
+    result = ['delete']
+    originalPostDate = [-1]
+    finalTimePassed = [-1]
+    precentageMatched = [-1]
+    status = [-1]
+      
+
+def isLogged(conn, postContentUrl, postText, date):
     args = None
     result = []
     originalPostDate = []
@@ -67,12 +88,7 @@ def isLogged(conn, postImageUrl, postText, date):
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
     if timePassed > Config.days:
-        c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
-        result = ['delete']
-        originalPostDate = [-1]
-        finalTimePassed = [-1]
-        precentageMatched = [-1]
-        status = [-1]
+        delete(imgUrl)
         print('the post is older than needed')
     else:
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
@@ -95,27 +111,23 @@ def isLogged(conn, postImageUrl, postText, date):
                         result.append(i[0])
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)        
-            if postImageUrl != '':
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postImageUrl).replace('&feature=youtu.be',''),))
+            if postContentUrl != '':
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postImageUrl).replace('&feature=youtu.be',''),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         result.append(i[0])
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)
-                if 'gif' in postImageUrl or 'mp4' in postImageUrl or 'mov' in postImageUrl:
+                if 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
                     print('boop')
-                if 'png' in postImageUrl or 'jpg' in postImageUrl:
-                    try:
-                        file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
-                    except:
-                        delete = True                        
-                    if not delete:
-                        img1 = Image.open(file1)
-                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
+                if 'png' in postContentUrl or 'jpg' in postContentUrl:
+                    imgHash = hashImg(postContentUrl)
+                    if isInt(imgHash):
+                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
                         if list(args.fetchone())[0] != 0:
-                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(dhash.dhash_int(img1)),))
+                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(imgHash),))
                             fullResult = list(args.fetchall())
                             for i in fullResult:
                                 result.append(i[0])
@@ -126,21 +138,12 @@ def isLogged(conn, postImageUrl, postText, date):
                             if hashed[1] not in result:
                                 hashedReadable = hashed[0]
                                 if isInt(hashedReadable):
-                                    hashedDifference = dhash.get_num_bits_different(dhash.dhash_int(img1), int(hashedReadable))
+                                    hashedDifference = dhash.get_num_bits_different(imgHash, int(hashedReadable))
                                     if hashedDifference < Config.threshold:
                                         result.append(hashed[1])
                                         originalPostDate.append(hashed[2])
-                                        precentageMatched.append(((Config.threshold - hashedDifference)/Config.threshold)*100)        
+                                        precentageMatched.append(((Config.threshold - hashedDifference)/Config.threshold)*100)     
 
-
-    if delete:
-        c.execute('DELETE FROM Posts WHERE Url = ?;', (str(postImageUrl),))
-        result = ['delete']
-        originalPostDate = [-1]
-        finalTimePassed = [-1]
-        precentageMatched = [-1]
-        status = [-1]
-        print('invalid check so it was ignored')
     for i in result:
         if i != '' and i != 'delete':
             if reddit.submission(url = 'https://reddit.com' + i).selftext == '[removed]':
@@ -191,9 +194,9 @@ def addPost(conn, date, postContentUrl, postMedia, postUrl, postText):
         content = md5(canonical(postText).encode()).hexdigest()
     else:
         if 'png' in postContentUrl or 'jpg' in postContentUrl:
-            file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
-            img1 = Image.open(file1)
-            content = dhash.dhash_int(img1)
+            imgHash = hashImg(postContentUrl)
+            if isInt(imgHash):
+                content = imgHash
         elif 'gif' in postContentUrl:
             container = av.open(postContentUrl)
             for frame in container.decode(video=0):
