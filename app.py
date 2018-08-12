@@ -48,7 +48,6 @@ def findPosts():
         ignoreImage = False
         post += 1
         print('{} --> Starting new submission {}'.format(post, submission.id))
-        print(submission.media)
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if result != [['delete',-1,-1,-1,-1]] and (result == [] or submission.created_utc != result[0][2]):
             Database.addPost(conn, submission.created_utc, submission.media, submission.permalink, submission.selftext)
