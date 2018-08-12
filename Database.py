@@ -196,8 +196,8 @@ def addPost(conn, date, postContentUrl, postUrl, postText):
             content = dhash.dhash_int(img1)
         elif 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
             container = av.open(postContentUrl)
-                for frame in container.decode(video=0):
-                    print(dhash.dhash_int(frame))
+            for frame in container.decode(video=0):
+                print(dhash.dhash_int(frame))
         else:
             content = postContentUrl
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
