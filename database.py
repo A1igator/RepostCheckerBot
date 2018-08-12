@@ -60,6 +60,10 @@ def hashImg(imgUrl):
         img = Image.open(f)
         return dhash.dhash_int(img)
 
+def hashText(txt):
+    m = md5().update(canonical(txt).encode())
+    return m.hexdigest()
+
 def delete(itemUrl):
     c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
     result = ['delete']
@@ -100,10 +104,10 @@ def isLogged(conn, postContentUrl, postText, date):
                     addToFound(i, 100)
         else:
             if postText != '':
-                postTextHash = md5().update(canonical(postText).encode()).hexdigest()
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash),))
+                textHash = hashText(postText)
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)      
@@ -177,7 +181,7 @@ def isLogged(conn, postContentUrl, postText, date):
 def addPost(conn, date, postContentUrl, postMedia, postUrl, postText):
     c = conn.cursor()
     if postText != '':
-        content = md5().update(canonical(postText).encode()).hexdigest()
+        content = hashText(postText)
     else:
         if 'png' in postContentUrl or 'jpg' in postContentUrl:
             imgHash = hashImg(postContentUrl)
