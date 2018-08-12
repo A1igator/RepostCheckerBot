@@ -185,21 +185,22 @@ def isLogged(conn, postImageUrl, postText, date):
 
     return returnResult
     
-def addPost(conn, date, postContentUrl, postUrl, postText):
+def addPost(conn, date, postMedia, postUrl, postText):
+    print(postMedia)
     c = conn.cursor()
     if postText != '':
         content = md5(canonical(postText).encode()).hexdigest()
     else:
-        if 'png' in postContentUrl or 'jpg' in postContentUrl:
-            file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
+        if 'png' in postMedia or 'jpg' in postMedia:
+            file1 = BytesIO(urlopen(Request(str(postMedia), headers={'User-Agent': user_agent}), context = context).read())
             img1 = Image.open(file1)
             content = dhash.dhash_int(img1)
-       # elif 'gif' in postContentUrl or 'mp4' in postContentUrl or 'mov' in postContentUrl:
+       # elif 'gif' in postMedia or 'mp4' in postMedia or 'mov' in postMedia:
         container = av.open('https://v.redd.it/449t3dsvvof11/DASH_600_K')
         for frame in container.decode(video=0):
             print(dhash.dhash_int(frame.to_image()))
         else:
-            content = postContentUrl
+            content = postMedia
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
     conn.commit()
     c.close()
