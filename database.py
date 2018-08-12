@@ -68,6 +68,11 @@ def hashImg(imgUrl):
 def hashText(txt):
     return md5(txt.encode('utf-8')).hexdigest()
 
+def hashVid(vidUrl):
+    container = av.open(vidUrl)
+    for frame in container.decode(video=0):
+    print(dhash.dhash_int(frame.to_image()))
+
 def delete(itemUrl):
     c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
     ignore()
@@ -187,13 +192,9 @@ def addPost(conn, date, postContentUrl, postMedia, postUrl, postText):
             if isInt(imgHash):
                 content = imgHash
         elif 'gif' in postContentUrl:
-            container = av.open(postContentUrl)
-            for frame in container.decode(video=0):
-                print(dhash.dhash_int(frame.to_image()))
+            hashVid(postContentUrl)
         elif postMedia != None:
-            container = av.open(postMedia['reddit_video']['fallback_url'])
-            for frame in container.decode(video=0):
-                print(dhash.dhash_int(frame.to_image()))
+            hashVid(postMedia['reddit_video']['fallback_url'])
         else:
             content = postContentUrl
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
