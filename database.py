@@ -71,7 +71,7 @@ def hashText(txt):
 def hashVid(vidUrl):
     container = av.open(vidUrl)
     for frame in container.decode(video=0):
-    print(dhash.dhash_int(frame.to_image()))
+        print(dhash.dhash_int(frame.to_image()))
 
 def delete(itemUrl):
     c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
