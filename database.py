@@ -192,8 +192,8 @@ def addPost(conn, date, postContentUrl, postMedia, postUrl, postText):
             if isInt(imgHash):
                 content = imgHash
         elif 'gif' in postContentUrl:
-            print(postContentUrl)
-            hashVid(postContentUrl)
+            imgHash = hashImg(postContentUrl)
+            print(imgHash)
         elif postMedia != None:
             hashVid(postMedia['reddit_video']['fallback_url'])
         else:
