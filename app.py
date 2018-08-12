@@ -31,7 +31,7 @@ def findPosts():
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if result != [['delete',-1,-1,-1,-1]] and (result == [] or submission.created_utc != result[0][2]):
-            Database.addPost(conn, submission.created_utc, submission.mdeia, submission.permalink, submission.selftext)
+            Database.addPost(conn, submission.created_utc, submission.media, submission.permalink, submission.selftext)
             print('Added {}'.format(submission.permalink))
     post = 0
     # then get 10000 posts from new of the subreddit
@@ -40,7 +40,7 @@ def findPosts():
         print('{} --> Starting new submission {}'.format(post, submission.id))
         result = Database.isLogged(conn, submission.url, submission.selftext, submission.created_utc)
         if result != [['delete',-1,-1,-1,-1]] and (result == [] or submission.created_utc != result[0][2]):
-            Database.addPost(conn, submission.created_utc, submission.mdeia, submission.permalink, submission.selftext)
+            Database.addPost(conn, submission.created_utc, submission.media, submission.permalink, submission.selftext)
             print('Added {}'.format(submission.permalink))
     post = 0
     # then check posts as they come in
