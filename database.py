@@ -74,6 +74,7 @@ def delete(itemUrl):
 
 def ignore():
     result = ['delete']
+    print(result)
     originalPostDate = [-1]
     finalTimePassed = [-1]
     precentageMatched = [-1]
@@ -101,6 +102,7 @@ def isLogged(conn, postContentUrl, postText, date):
         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
         if list(args.fetchone())[0] != 0:
             ignore()
+            print(result)
             print('already done')
         else:
             if postText != '':
@@ -171,7 +173,6 @@ def isLogged(conn, postContentUrl, postText, date):
             fullText = (str(timePassed) + ' seconds ago')
         finalTimePassed.append(fullText)
     cntr = 0
-    print(result)
     for i in result:
         returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
         cntr += 1
