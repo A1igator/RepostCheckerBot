@@ -100,7 +100,7 @@ def isLogged(conn, postContentUrl, postText, date):
                     addToFound(i, 100)
         else:
             if postText != '':
-                postTextHash = md5().update(canonical(postText)).hexdigest()
+                postTextHash = md5().update(canonical(postText).encode()).hexdigest()
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash),))
@@ -177,7 +177,7 @@ def isLogged(conn, postContentUrl, postText, date):
 def addPost(conn, date, postContentUrl, postMedia, postUrl, postText):
     c = conn.cursor()
     if postText != '':
-        content = md5().update(canonical(postText)).hexdigest()
+        content = md5().update(canonical(postText).encode()).hexdigest()
     else:
         if 'png' in postContentUrl or 'jpg' in postContentUrl:
             imgHash = hashImg(postContentUrl)
