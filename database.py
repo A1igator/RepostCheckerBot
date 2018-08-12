@@ -61,8 +61,7 @@ def hashImg(imgUrl):
         return dhash.dhash_int(img)
 
 def hashText(txt):
-    m = md5().update(canonical(txt).encode())
-    return m.hexdigest()
+    return md5(txt.encode('utf-8')).hexdigest()
 
 def delete(itemUrl):
     c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
