@@ -86,7 +86,7 @@ def isLogged(conn, postImageUrl, postText, date):
                     precentageMatched.append(100)        
         else:
             if postText != '':
-                postTextHash = md5(canonical(postText).encode()).hexdigest()      
+                #postTextHash = md5(canonical(postText).encode()).hexdigest()      
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postTextHash),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postTextHash),))
