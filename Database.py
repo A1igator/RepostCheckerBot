@@ -185,22 +185,25 @@ def isLogged(conn, postImageUrl, postText, date):
 
     return returnResult
     
-def addPost(conn, date, postMedia, postUrl, postText):
-    print(postMedia)
+def addPost(conn, date, postContenUrl, postMedia, postUrl, postText):
     c = conn.cursor()
     if postText != '':
         content = md5(canonical(postText).encode()).hexdigest()
     else:
-        # if 'png' in postMedia or 'jpg' in postMedia:
-        #     file1 = BytesIO(urlopen(Request(str(postMedia), headers={'User-Agent': user_agent}), context = context).read())
-        #     img1 = Image.open(file1)
-        #     content = dhash.dhash_int(img1)
-       # elif 'gif' in postMedia or 'mp4' in postMedia or 'mov' in postMedia:
-        container = av.open('https://g.redditmedia.com/2QXto_jljQ4WOIFVaoinuBHC8w5A7Msr5ecOCl_kpbI.gif?fm=mp4&mp4-fragmented=false&s=0d5a4a8fb5b8a963d7d105191dac4a80')
-        for frame in container.decode(video=0):
-            print(dhash.dhash_int(frame.to_image()))
+        if 'png' in postContentUrl or 'jpg' in postContentUrl:
+            file1 = BytesIO(urlopen(Request(str(postContentUrl), headers={'User-Agent': user_agent}), context = context).read())
+            img1 = Image.open(file1)
+            content = dhash.dhash_int(img1)
+        elif 'gif' in postContentUrl:
+            container = av.open(postContentUrl)
+            for frame in container.decode(video=0):
+                print(dhash.dhash_int(frame.to_image()))
+        elif postMedia != None:
+            container = av.open(postMedia['reddit_video']['fallback_url'])
+            for frame in container.decode(video=0):
+                print(dhash.dhash_int(frame.to_image()))
         else:
-            content = postMedia
+            content = postContentUrl
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
     conn.commit()
     c.close()
