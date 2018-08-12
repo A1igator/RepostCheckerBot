@@ -105,7 +105,7 @@ def isLogged(conn, postImageUrl, postText, date):
                         originalPostDate.append(i[1])
                         precentageMatched.append(100)
                 if 'gif' in postImageUrl or 'mp4' in postImageUrl or 'mov' in postImageUrl:
-
+                    print('boop')
                 if 'png' in postImageUrl or 'jpg' in postImageUrl:
                     try:
                         file1 = BytesIO(urlopen(Request(str(postImageUrl), headers={'User-Agent': user_agent}), context = context).read())
