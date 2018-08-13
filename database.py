@@ -91,7 +91,7 @@ def addToFound(post, precentage):
     originalPostDate.append(post[1])
     precentageMatched.append(precentage) 
 
-def isLogged(conn, postContentUrl, postText, date):
+def isLogged(conn, postContentUrl, postMedia, postText, date):
     result[:] = []
     originalPostDate[:] = []
     finalTimePassed[:] = []
@@ -117,12 +117,13 @@ def isLogged(conn, postContentUrl, postText, date):
         else:
             if postText != '':
                 textHash = hashText(postText)
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
-                if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
-                    fullResult = list(args.fetchall())
-                    for i in fullResult:
-                        addToFound(i, 100)      
+                content = textHash
+            args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
+            if list(args.fetchone())[0] != 0:
+                args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
+                fullResult = list(args.fetchall())
+                for i in fullResult:
+                    addToFound(i, 100)      
             if postContentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
@@ -139,7 +140,7 @@ def isLogged(conn, postContentUrl, postText, date):
                             fullResult = list(args.fetchall())
                             for i in fullResult:
                                 addToFound(i, 100)
-                        args = c.execute('SELECT Url, Date, Content FROM posts;')
+                    args = c.execute('SELECT Url, Date, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
