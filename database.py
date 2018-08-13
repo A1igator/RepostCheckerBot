@@ -92,6 +92,10 @@ def addToFound(post, precentage):
     precentageMatched.append(precentage) 
 
 def isLogged(conn, postContentUrl, postText, date):
+    result[:] = []
+    originalPostDate[:] = []
+    finalTimePassed[:] = []
+    precentageMatched[:] = []
     args = None
     postsToRemove = []
     delete = False
