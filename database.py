@@ -54,11 +54,11 @@ def monthDelta(d1, d2):
             break
     return delta
 
-def hashImg(imgUrl):
+def hashImg(conn, imgUrl, url):
     try:
         f = BytesIO(urlopen(Request(str(imgUrl), headers={'User-Agent': user_agent}), context = context).read())
     except:
-        delete(imgUrl)
+        deleteItem(conn, url)
         print('invalid check so it was ignored')
         return ''
     else:
@@ -76,8 +76,26 @@ def hashVid(vidUrl):
         hash += str(dhash.dhash_int(frame.to_image())) + ' '
     return hash
 
-def delete(itemUrl):
-    c.execute('DELETE FROM Posts WHERE Url = ?;', (str(itemUrl),))
+def hashVidDifference(originalHash, newHash):
+    cntr = 0
+    originalHashList = originalHash.split()
+    newHashList = newHash.split()
+    frameDifferences = []
+    minDifferences = []
+    for i in originalHashList:
+        for j in newHashList:         
+            frameDifferences.append(dhash.dhash_int(i, j))
+            cntr += 1
+        minDifferences.append(min(frameDifferences))
+        frameDifferences = []
+    
+    return sum(frameDifferences)/len(frameDifferences)
+
+def deleteItem(conn, url):
+    c = conn.cursor()
+    c.execute('DELETE FROM Posts WHERE Url = ?;', (str(url),))
+    conn.commit()
+    c.close()
     ignore()
 
 def ignore():
@@ -91,14 +109,13 @@ def addToFound(post, precentage):
     originalPostDate.append(post[1])
     precentageMatched.append(precentage) 
 
-def isLogged(conn, postContentUrl, postMedia, postText, date):
+def isLogged(conn, contentUrl, media, text, url, date):
     result[:] = []
     originalPostDate[:] = []
     finalTimePassed[:] = []
     precentageMatched[:] = []
     args = None
     postsToRemove = []
-    delete = False
     cntr = 0
     returnResult = []
     c = conn.cursor()
@@ -107,26 +124,25 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
     if timePassed > config.days:
-        delete(imgUrl)
+        deleteItem(conn, url)
         print('the post is older than needed')
     else:
-        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Date = ?;', (str(date),))
+        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
         if list(args.fetchone())[0] != 0:
             ignore()
             print('already done')
         else:
-            if postText != '':
-                textHash = hashText(postText)
-                content = textHash
+            if text != '':
+                textHash = hashText(text)
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
-            elif postMedia != None:
-                vidHash = hashVid(postMedia['reddit_video']['fallback_url'])
-                if isInt(vidHash):
+            elif media != None:
+                vidHash = hashVid(media['reddit_video']['fallback_url'])
+                if isInt(vidHash.replace(' ', '')):
                     # args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
                     # if list(args.fetchone())[0] != 0:
                     #     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(vidHash),))
@@ -137,20 +153,19 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
                     for hashed in args.fetchall():
                         if hashed[0] not in result:
                             hashedReadable = hashed[2]
-                            print(hashedReadable.split())
-                            # if isInt(hashedReadable):
-                            #     hashedDifference = dhash.get_num_bits_different(vidHash, int(hashedReadable))
-                            #     if hashedDifference < config.threshold:
-                            #         addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100)   
-            elif postContentUrl != '':
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
+                            if isInt(hashedReadable.replace(' ', '')):
+                                hashedDifference = hashVidDifference(hashedReadable, vidHash)
+                                if hashedDifference < config.threshold:
+                                    addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100)   
+            elif contentUrl != '':
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(contentUrl).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(contentUrl).replace('&feature=youtu.be',''),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
-                if 'png' in postContentUrl or 'jpg' in postContentUrl or 'gif' in postContentUrl:
-                    imgHash = hashImg(postContentUrl)
+                if 'png' in contentUrl or 'jpg' in contentUrl or 'gif' in contentUrl:
+                    imgHash = hashImg(conn, contentUrl, url)
                     if isInt(imgHash):
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
                         if list(args.fetchone())[0] != 0:
@@ -206,20 +221,20 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
 
     return returnResult
     
-def addPost(conn, date, postContentUrl, postMedia, postUrl, postText):
+def addPost(conn, date, contentUrl, media, url, text):
     c = conn.cursor()
-    if postText != '':
-        content = hashText(postText)
+    if text != '':
+        content = hashText(text)
     else:
-        if postMedia != None:
-            content = hashVid(postMedia['reddit_video']['fallback_url'])
-        elif 'png' in postContentUrl or 'jpg' in postContentUrl or 'gif' in postContentUrl:
-            imgHash = hashImg(postContentUrl)
+        if media != None:
+            content = hashVid(media['reddit_video']['fallback_url'])
+        elif 'png' in contentUrl or 'jpg' in contentUrl or 'gif' in contentUrl:
+            imgHash = hashImg(conn, contentUrl, url)
             if isInt(imgHash):
                 content = imgHash
         else:
-            content = postContentUrl
-    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(postUrl),))
+            content = contentUrl
+    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(url),))
     conn.commit()
     c.close()
     print('Added new post - {}'.format(str(date)))
