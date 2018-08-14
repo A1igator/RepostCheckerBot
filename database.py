@@ -135,6 +135,7 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
                         for i in fullResult:
                             addToFound(i, 100)
                     args = c.execute('SELECT Url, Date, Content FROM posts;')
+                    print(args.fetchall())
                     for hashed in args.fetchall():
                         print(hashed)
                         if hashed[0] not in result:
