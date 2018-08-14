@@ -126,7 +126,6 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
                         addToFound(i, 100)
             elif postMedia != None:
                 vidHash = hashVid(postMedia['reddit_video']['fallback_url'])
-                print(isInt(vidHash.replace(' ', '')))
                 if isInt(vidHash.replace(' ', '')):
                     args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
                     if list(args.fetchone())[0] != 0:
@@ -136,6 +135,7 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
                             addToFound(i, 100)
                     args = c.execute('SELECT Url, Date, Content FROM posts;')
                     for hashed in args.fetchall():
+                        print(hashed)
                         if hashed[0] not in result:
                             hashedReadable = hashed[2]
                             print(hashedReadable.split())
