@@ -125,7 +125,24 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
                     for i in fullResult:
                         addToFound(i, 100)
             elif postMedia != None:
-                print('boob')      
+                vidHash = hashVid(postMedia['reddit_video']['fallback_url'])
+                print(vidHash)
+                if isInt(vidHash):
+                    args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
+                    if list(args.fetchone())[0] != 0:
+                        args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(vidHash),))
+                        fullResult = list(args.fetchall())
+                        for i in fullResult:
+                            addToFound(i, 100)
+                    args = c.execute('SELECT Url, Date, Content FROM posts;')
+                    for hashed in args.fetchall():
+                        if hashed[0] not in result:
+                            hashedReadable = hashed[2]
+                            print(hashedReadable.split())
+                            # if isInt(hashedReadable):
+                            #     hashedDifference = dhash.get_num_bits_different(vidHash, int(hashedReadable))
+                            #     if hashedDifference < config.threshold:
+                            #         addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100)   
             elif postContentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
