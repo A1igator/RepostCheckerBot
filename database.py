@@ -140,7 +140,11 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
                         print(hashed)
                         if hashed[0] not in result:
                             hashedReadable = hashed[2]
+                            print(hashedReadable)
+                            print('--------------------------------------------')
                             print(hashedReadable.split())
+                            print('--------------------------------------------')
+                            print(hashedReadable[0].split())
                             # if isInt(hashedReadable):
                             #     hashedDifference = dhash.get_num_bits_different(vidHash, int(hashedReadable))
                             #     if hashedDifference < config.threshold:
