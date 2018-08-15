@@ -80,7 +80,7 @@ def hashVid(conn, vidUrl, url):
     for frame in container.decode(video=0):
         dhash.dhash_int(frame.to_image())
         vidHash += str(dhash.dhash_int(frame.to_image())) + ' '
-return vidHash
+    return vidHash
 
 def hashVidDifference(originalHash, newHash):
     cntr = 0
