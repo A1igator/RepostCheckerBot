@@ -233,6 +233,7 @@ def addPost(conn, date, contentUrl, media, url, text):
     if text != '':
         content = hashText(text)
     else:
+        print(media)
         if media != None:
             vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
             if isInt(vidHash.replace(' ', '')):
