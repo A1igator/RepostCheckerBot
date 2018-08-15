@@ -84,7 +84,7 @@ def hashVidDifference(originalHash, newHash):
     minDifferences = []
     for i in originalHashList:
         for j in newHashList:
-            frameDifferences.append(dhash.dhash_int(int(i), int(j)))
+            frameDifferences.append(dhash.get_num_bits_different(int(i), int(j)))
             cntr += 1
         minDifferences.append(min(frameDifferences))
         frameDifferences = []
