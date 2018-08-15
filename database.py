@@ -242,6 +242,7 @@ def addPost(conn, date, contentUrl, media, url, text):
                 content = imgHash
         else:
             content = contentUrl
+    print(content)
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(url),))
     conn.commit()
     c.close()
