@@ -70,12 +70,13 @@ def hashText(txt):
     return md5(txt.encode('utf-8')).hexdigest()
 
 def hashVid(conn, vidUrl, url):
-    vidHash = 'invalid'
+    vidHash = ''
     try:
         container = av.open(vidUrl)
     except:
         deleteItem(conn, url)
         print('invalid check so it was ignored')
+        vidHash = 'invalid'
     else:
         for frame in container.decode(video=0):
             dhash.dhash_int(frame.to_image())
@@ -234,9 +235,7 @@ def addPost(conn, date, contentUrl, media, url, text):
     else:
         if media != None:
             vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
-            print(vidHash.replace(' ', ''))
             if isInt(vidHash.replace(' ', '')):
-                print('test')
                 content = vidHash   
         elif 'png' in contentUrl or 'jpg' in contentUrl or 'gif' in contentUrl:
             imgHash = hashImg(conn, contentUrl, url)
