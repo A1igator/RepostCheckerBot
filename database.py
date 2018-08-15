@@ -88,9 +88,9 @@ def hashGif(conn, gifUrl, url):
     # try:
     f = BytesIO(urlopen(Request(str(gifUrl), headers={'User-Agent': user_agent}), context = context).read())
     # except:
-    deleteItem(conn, url)
-    print('invalid check so it was ignored')
-    gifHash = 'invalid'
+    # deleteItem(conn, url)
+    # print('invalid check so it was ignored')
+    # gifHash = 'invalid'
     # else:
     frame = Image.open(f)
     while frame:
