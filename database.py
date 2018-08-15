@@ -85,21 +85,21 @@ def hashVid(conn, vidUrl, url):
 def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
-    try:
-         frame = Image.open(gifUrl)
-    except:
-        deleteItem(conn, url)
-        print('invalid check so it was ignored')
-        gifHash = 'invalid'
-    else:
-        while frame:
-            dhash.dhash_int(frame)
-            gifHash += str(dhash.dhash_int(frame)) + ' '
-            nframes += 1
-            try:
-                frame.seek( nframes )
-            except EOFError:
-                break           
+    # try:
+    frame = Image.open(gifUrl)
+    # except:
+    deleteItem(conn, url)
+    print('invalid check so it was ignored')
+    gifHash = 'invalid'
+    # else:
+    while frame:
+        dhash.dhash_int(frame)
+        gifHash += str(dhash.dhash_int(frame)) + ' '
+        nframes += 1
+        try:
+            frame.seek( nframes )
+        except EOFError:
+            break           
     return gifHash
 
 def hashVidDifference(originalHash, newHash):
