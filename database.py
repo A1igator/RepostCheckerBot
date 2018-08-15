@@ -79,9 +79,28 @@ def hashVid(conn, vidUrl, url):
         vidHash = 'invalid'
     else:
         for frame in container.decode(video=0):
-            dhash.dhash_int(frame.to_image())
             vidHash += str(dhash.dhash_int(frame.to_image())) + ' '
     return vidHash
+
+def hashGif(conn, gifUrl, url):
+    gifHash = ''
+    nframes = 0
+    try:
+         frame = Image.open(gifUrl)
+    except:
+        deleteItem(conn, url)
+        print('invalid check so it was ignored')
+        gifHash = 'invalid'
+    else:
+        while frame:
+            dhash.dhash_int(frame)
+            gifHash += str(dhash.dhash_int(frame)) + ' '
+            nframes += 1
+            try:
+                frame.seek( nframes )
+            except EOFError:
+                break           
+    return gifHash
 
 def hashVidDifference(originalHash, newHash):
     cntr = 0
@@ -171,7 +190,24 @@ def isLogged(conn, contentUrl, media, text, url, date):
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
-                if 'png' in contentUrl or 'jpg' in contentUrl or 'gif' in contentUrl:
+                if 'gif' in contentUrl:
+                    gifHash = hashGif(conn, contentUrl, url)
+                    if isInt(vidHash.replace(' ', '')):
+                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
+                        if list(args.fetchone())[0] != 0:
+                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
+                            fullResult = list(args.fetchall())
+                            for i in fullResult:
+                                addToFound(i, 100)
+                        args = c.execute('SELECT Url, Date, Content FROM posts;')
+                        for hashed in args.fetchall():
+                            if hashed[0] not in result:
+                                hashedReadable = hashed[2]
+                                if isInt(hashedReadable.replace(' ', '')):
+                                    hashedDifference = hashVidDifference(hashedReadable, gifHash)
+                                    if hashedDifference < config.threshold:
+                                        addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100)   
+                elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
                     if isInt(imgHash):
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
@@ -233,12 +269,16 @@ def addPost(conn, date, contentUrl, media, url, text):
     if text != '':
         content = hashText(text)
     else:
-        print(media)
         if media != None:
             vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
             if isInt(vidHash.replace(' ', '')):
-                content = vidHash   
-        elif 'png' in contentUrl or 'jpg' in contentUrl or 'gif' in contentUrl:
+                content = vidHash  
+        elif 'gif' in contentUrl:
+            gifHash = hashGif(conn, contentUrl, url)
+            if isInt(gifHash.replace(' ', '')):
+                content = gifHash
+                print(content)
+        elif 'png' in contentUrl or 'jpg' in contentUrl:
             imgHash = hashImg(conn, contentUrl, url)
             if isInt(imgHash):
                 content = imgHash
