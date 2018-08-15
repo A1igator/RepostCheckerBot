@@ -194,12 +194,12 @@ def isLogged(conn, contentUrl, media, text, url, date):
                 if 'gif' in contentUrl:
                     gifHash = hashGif(conn, contentUrl, url)
                     if isInt(gifHash.replace(' ', '')):
-                        # args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
-                        # if list(args.fetchone())[0] != 0:
-                        #     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
-                        #     fullResult = list(args.fetchall())
-                        #     for i in fullResult:
-                        #         addToFound(i, 100)
+                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
+                        if list(args.fetchone())[0] != 0:
+                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
+                            fullResult = list(args.fetchall())
+                            for i in fullResult:
+                                addToFound(i, 100)
                         args = c.execute('SELECT Url, Date, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
