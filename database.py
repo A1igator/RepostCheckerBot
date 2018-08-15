@@ -168,6 +168,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
                     for i in fullResult:
                         addToFound(i, 100)
             elif media != None:
+                print(media)
                 vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
                 if isInt(vidHash.replace(' ', '')):
                     args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
