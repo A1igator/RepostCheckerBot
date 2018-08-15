@@ -55,26 +55,32 @@ def monthDelta(d1, d2):
     return delta
 
 def hashImg(conn, imgUrl, url):
+    imgHash = 'invalid'
     try:
         f = BytesIO(urlopen(Request(str(imgUrl), headers={'User-Agent': user_agent}), context = context).read())
     except:
         deleteItem(conn, url)
         print('invalid check so it was ignored')
-        return ''
     else:
         img = Image.open(f)
-        return dhash.dhash_int(img)
+        imgHash = dhash.dhash_int(img)
+    return imgHash
 
 def hashText(txt):
     return md5(txt.encode('utf-8')).hexdigest()
 
-def hashVid(vidUrl):
-    hash = ''
-    container = av.open(vidUrl)
-    for frame in container.decode(video=0):
-        dhash.dhash_int(frame.to_image())
-        hash += str(dhash.dhash_int(frame.to_image())) + ' '
-    return hash
+def hashVid(conn, vidUrl, url):
+    vidHash = 'invalid'
+    try:
+        container = av.open(vidUrl)
+    except:
+        deleteItem(conn, url)
+        print('invalid check so it was ignored')
+    else:
+        for frame in container.decode(video=0):
+            dhash.dhash_int(frame.to_image())
+            vidHash += str(dhash.dhash_int(frame.to_image())) + ' '
+    return vidHash
 
 def hashVidDifference(originalHash, newHash):
     cntr = 0
@@ -141,7 +147,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
                     for i in fullResult:
                         addToFound(i, 100)
             elif media != None:
-                vidHash = hashVid(media['reddit_video']['fallback_url'])
+                vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
                 if isInt(vidHash.replace(' ', '')):
                     args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
                     if list(args.fetchone())[0] != 0:
@@ -227,7 +233,9 @@ def addPost(conn, date, contentUrl, media, url, text):
         content = hashText(text)
     else:
         if media != None:
-            content = hashVid(media['reddit_video']['fallback_url'])
+            vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
+            if isInt(vidHash.replace(' ', '')):
+                content = vidHash   
         elif 'png' in contentUrl or 'jpg' in contentUrl or 'gif' in contentUrl:
             imgHash = hashImg(conn, contentUrl, url)
             if isInt(imgHash):
