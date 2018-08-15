@@ -71,16 +71,15 @@ def hashText(txt):
 
 def hashVid(conn, vidUrl, url):
     vidHash = 'invalid'
-    # try:
-    container = av.open(vidUrl)
-    # except:
-    # deleteItem(conn, url)
-    # print('invalid check so it was ignored')
-    # else:
-    for frame in container.decode(video=0):
-        dhash.dhash_int(frame.to_image())
-        vidHash += str(dhash.dhash_int(frame.to_image())) + ' '
-    print(vidHash)
+    try:
+        container = av.open(vidUrl)
+    except:
+        deleteItem(conn, url)
+        print('invalid check so it was ignored')
+    else:
+        for frame in container.decode(video=0):
+            dhash.dhash_int(frame.to_image())
+            vidHash += str(dhash.dhash_int(frame.to_image())) + ' '
     return vidHash
 
 def hashVidDifference(originalHash, newHash):
@@ -235,6 +234,7 @@ def addPost(conn, date, contentUrl, media, url, text):
     else:
         if media != None:
             vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
+            print(vidHash.replace(' ', ''))
             if isInt(vidHash.replace(' ', '')):
                 print('test')
                 content = vidHash   
