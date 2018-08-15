@@ -74,8 +74,8 @@ def hashVid(conn, vidUrl, url):
     # try:
     container = av.open(vidUrl)
     # except:
-    deleteItem(conn, url)
-    print('invalid check so it was ignored')
+    # deleteItem(conn, url)
+    # print('invalid check so it was ignored')
     # else:
     for frame in container.decode(video=0):
         dhash.dhash_int(frame.to_image())
