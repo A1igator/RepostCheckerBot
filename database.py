@@ -85,22 +85,22 @@ def hashVid(conn, vidUrl, url):
 def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
-    # try:
-    f = BytesIO(urlopen(Request(str(gifUrl), headers={'User-Agent': user_agent}), context = context).read())
-    # except:
-    # deleteItem(conn, url)
-    # print('invalid check so it was ignored')
-    # gifHash = 'invalid'
-    # else:
-    frame = Image.open(f)
-    while frame:
-        dhash.dhash_int(frame)
-        gifHash += str(dhash.dhash_int(frame)) + ' '
-        nframes += 1
-        try:
-            frame.seek( nframes )
-        except EOFError:
-            break           
+    try:
+        f = BytesIO(urlopen(Request(str(gifUrl), headers={'User-Agent': user_agent}), context = context).read())
+    except:
+        deleteItem(conn, url)
+        print('invalid check so it was ignored')
+        gifHash = 'invalid'
+    else:
+        frame = Image.open(f)
+        while frame:
+            dhash.dhash_int(frame)
+            gifHash += str(dhash.dhash_int(frame)) + ' '
+            nframes += 1
+            try:
+                frame.seek( nframes )
+            except EOFError:
+                break           
     return gifHash
 
 def hashVidDifference(originalHash, newHash):
@@ -194,12 +194,12 @@ def isLogged(conn, contentUrl, media, text, url, date):
                 if 'gif' in contentUrl:
                     gifHash = hashGif(conn, contentUrl, url)
                     if isInt(gifHash.replace(' ', '')):
-                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
-                        if list(args.fetchone())[0] != 0:
-                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
-                            fullResult = list(args.fetchall())
-                            for i in fullResult:
-                                addToFound(i, 100)
+                        # args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
+                        # if list(args.fetchone())[0] != 0:
+                        #     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
+                        #     fullResult = list(args.fetchall())
+                        #     for i in fullResult:
+                        #         addToFound(i, 100)
                         args = c.execute('SELECT Url, Date, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
@@ -278,7 +278,6 @@ def addPost(conn, date, contentUrl, media, url, text):
             gifHash = hashGif(conn, contentUrl, url)
             if isInt(gifHash.replace(' ', '')):
                 content = gifHash
-                print(content)
         elif 'png' in contentUrl or 'jpg' in contentUrl:
             imgHash = hashImg(conn, contentUrl, url)
             if isInt(imgHash):
