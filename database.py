@@ -235,6 +235,7 @@ def addPost(conn, date, contentUrl, media, url, text):
         if media != None:
             vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
             if isInt(vidHash.replace(' ', '')):
+                print('test')
                 content = vidHash   
         elif 'png' in contentUrl or 'jpg' in contentUrl or 'gif' in contentUrl:
             imgHash = hashImg(conn, contentUrl, url)
