@@ -106,6 +106,9 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
+    print(postContentUrl)
+    print(postMedia)
+    print(postText)
     if timePassed > config.days:
         delete(imgUrl)
         print('the post is older than needed')
