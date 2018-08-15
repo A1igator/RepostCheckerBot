@@ -86,12 +86,13 @@ def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
     # try:
-    frame = Image.open(gifUrl)
+    f = BytesIO(urlopen(Request(str(gifUrl), headers={'User-Agent': user_agent}), context = context).read())
     # except:
     deleteItem(conn, url)
     print('invalid check so it was ignored')
     gifHash = 'invalid'
     # else:
+    frame = Image.open(f)
     while frame:
         dhash.dhash_int(frame)
         gifHash += str(dhash.dhash_int(frame)) + ' '
