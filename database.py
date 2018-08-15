@@ -121,13 +121,15 @@ def isLogged(conn, postContentUrl, postMedia, postText, date):
             if postText != '':
                 textHash = hashText(postText)
                 content = textHash
-            args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
-            if list(args.fetchone())[0] != 0:
-                args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
-                fullResult = list(args.fetchall())
-                for i in fullResult:
-                    addToFound(i, 100)      
-            if postContentUrl != '':
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
+                if list(args.fetchone())[0] != 0:
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
+                    fullResult = list(args.fetchall())
+                    for i in fullResult:
+                        addToFound(i, 100)
+            elif postMedia != None:
+                print('boob')      
+            elif postContentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(postContentUrl).replace('&feature=youtu.be',''),))
