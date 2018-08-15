@@ -88,8 +88,8 @@ def hashVidDifference(originalHash, newHash):
             cntr += 1
         minDifferences.append(min(frameDifferences))
         frameDifferences = []
-    
-    return sum(frameDifferences)/len(frameDifferences)
+    print(sum(minDifferences)/len(minDifferences))
+    return sum(minDifferences)/len(minDifferences)
 
 def deleteItem(conn, url):
     c = conn.cursor()
