@@ -271,7 +271,6 @@ def addPost(conn, date, contentUrl, media, url, text):
         content = hashText(text)
     else:
         if media != None:
-            print(media)
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash  
