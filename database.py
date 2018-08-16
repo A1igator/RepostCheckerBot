@@ -191,7 +191,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
-                if 'gif' in contentUrl:
+                if 'gif' in contentUrl and not contentUrl.endswith('gifv'):
                     gifHash = hashGif(conn, contentUrl, url)
                     if isInt(gifHash.replace(' ', '')):
                         args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
@@ -274,7 +274,7 @@ def addPost(conn, date, contentUrl, media, url, text):
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash  
-        elif 'gif' in contentUrl:
+        elif 'gif' in contentUrl and not contentUrl.endswith('gifv'):
             gifHash = hashGif(conn, contentUrl, url)
             if isInt(gifHash.replace(' ', '')):
                 content = gifHash
