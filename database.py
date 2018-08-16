@@ -72,7 +72,7 @@ def hashText(txt):
 def hashVid(conn, vidUrl, url):
     vidHash = ''
     try:
-        container = av.open(vidUrl)
+        container = av.open(vidUrl['reddit_video']['fallback_url'])
     except:
         deleteItem(conn, url)
         print('invalid check so it was ignored')
@@ -168,8 +168,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
                     for i in fullResult:
                         addToFound(i, 100)
             elif media != None:
-                print(media)
-                vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
+                vidHash = hashVid(conn, media, url)
                 if isInt(vidHash.replace(' ', '')):
                     args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
                     if list(args.fetchone())[0] != 0:
@@ -273,7 +272,7 @@ def addPost(conn, date, contentUrl, media, url, text):
     else:
         if media != None:
             print(media)
-            vidHash = hashVid(conn, media['reddit_video']['fallback_url'], url)
+            vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash  
         elif 'gif' in contentUrl:
