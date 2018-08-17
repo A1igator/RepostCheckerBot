@@ -71,12 +71,12 @@ def findPosts():
                                 doThis = False
                             except:
                                 doThis = True
-    except ValueError as e:
-        if '503' in str(e):
-            raise
-        else:
-            sys.exit(str(e))
-            break
+        except ValueError as e:
+            if '503' in str(e):
+                raise
+            else:
+                sys.exit(str(e))
+                break
 
 database.initDatabase(conn)
 findPosts()
