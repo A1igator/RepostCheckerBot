@@ -73,10 +73,10 @@ def findPosts():
                                 doThis = True
         except ValueError as e:
             if '503' in str(e):
-                raise
+                print('503 from server')
             else:
-                sys.exit(str(e))
-                break
+                f = open('errs.txt', 'a')
+                f.write(str(e)) 
 
 database.initDatabase(conn)
 findPosts()
