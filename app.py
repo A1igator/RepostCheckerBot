@@ -71,7 +71,7 @@ def findPosts():
                                 doThis = False
                             except:
                                 doThis = True
-        except ValueError as e:
+        except Exception as e:
             if '503' in str(e):
                 print('503 from server')
             else:
