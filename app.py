@@ -6,6 +6,7 @@ import sqlite3
 import random
 import sys
 import threading
+import time
 
 # other files
 import config
@@ -107,7 +108,8 @@ findThread = threading.Thread(target=findPosts)
 
 deleteThread.start()
 findThread.start()
-
+while True:
+    time.sleep(100)
 deleteThread.join()
 findThread.join()
 
