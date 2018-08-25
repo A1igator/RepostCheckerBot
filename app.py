@@ -22,6 +22,10 @@ conn = sqlite3.connect('Posts'+config.subreddit+'.db')
 
 c = conn.cursor()
 
+def deleteComment():
+    for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
+        dir(comment)
+
 # the main function
 def findPosts():
     while True:
@@ -63,7 +67,7 @@ def findPosts():
                         for i in result:
                             table = table + str(cntr) + '|[post](https://reddit.com' + i[0] + ')|' + i[1] + '|' + str(i[3]) + '%' + '\n'
                             cntr += 1
-                        fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries.'
+                        fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message after -2 score'
                         doThis = True
                         while doThis:
                             try:
@@ -78,6 +82,7 @@ def findPosts():
                 f = open('errs.txt', 'a')
                 f.write(str(e)) 
 
+deleteComment()
 database.initDatabase(conn)
 findPosts()
 print(database.getAll(conn))
