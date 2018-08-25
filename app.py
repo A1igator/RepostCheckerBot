@@ -23,10 +23,10 @@ conn = sqlite3.connect('Posts'+config.subreddit+'.db')
 
 
 def deleteComment():
-    for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
-        print(comment.score)
-        if(comment.score is 0):
-            comment.delete()
+    while True:
+        for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
+            if(comment.score is 0):
+                comment.delete()
 
 # the main function
 
@@ -92,7 +92,9 @@ def findPosts():
         except Exception as e:
             if '503' in str(e):
                 print('503 from server')
-            elif 'KeyboardIntrupt' not in str(e):
+            elif 'KeyboardIntrupt' in str(e):
+                raise(e)
+            else:
                 f = open('errs.txt', 'a')
                 f.write(str(e))
 
