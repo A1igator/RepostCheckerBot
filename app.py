@@ -6,6 +6,7 @@ import sqlite3
 import random
 import sys
 import threading
+import time
 
 # other files
 import config
@@ -93,13 +94,16 @@ database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
 
+findThread.daemon = True
+
 deleteThread.start()
 
 while True:
     if not findThread.is_alive():
         try:
             findThread.start()
-
+            while True:
+                time.sleep(100)
         # except KeyboardInterrupt:
         #     raise
 
@@ -109,7 +113,6 @@ while True:
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(e))
-            findThread.deleteThread()
 
 deleteThread.join()
 findThread.join()
