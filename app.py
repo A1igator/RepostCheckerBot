@@ -25,7 +25,7 @@ c = conn.cursor()
 
 def deleteComment():
     for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
-        if(comment.score < -2):
+        if(comment.score is 0):
             comment.delete()
 
 # the main function
