@@ -31,6 +31,7 @@ def deleteComment():
 
 
 def findPosts():
+    conn = sqlite3.connect('Posts'+config.subreddit+'.db')
     while True:
         try:
             print('Starting searching...')
@@ -95,7 +96,7 @@ def findPosts():
                 f.write(str(e))
 
 
-database.initDatabase(conn)
+database.initDatabase()
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
 
