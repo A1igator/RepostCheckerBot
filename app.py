@@ -104,8 +104,9 @@ while True:
             findThread.start()
             while True:
                 time.sleep(100)
-        # except KeyboardInterrupt:
-        #     raise
+
+        except KeyboardInterrupt as e:
+            print(e)
 
         except Exception as e:
             if '503' in str(e):
