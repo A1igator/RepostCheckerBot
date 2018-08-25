@@ -109,7 +109,7 @@ while True:
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(e))
-            findThread.join()
+            findThread.deleteThread()
 
 deleteThread.join()
 findThread.join()
