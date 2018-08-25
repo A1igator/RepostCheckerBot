@@ -6,7 +6,6 @@ import sqlite3
 import random
 import sys
 import threading
-import time
 
 # other files
 import config
@@ -34,8 +33,6 @@ def deleteComment():
 
 def findPosts():
     conn = sqlite3.connect('Posts'+config.subreddit+'.db')
-    # while True:
-    #     try:
     print('Starting searching...')
     post = 0
     # first get 1000 posts from the top of the subreddit
@@ -91,25 +88,27 @@ def findPosts():
                 except:
                     doThis = True
 
-        # except KeyboardInterrupt:
-        #     raise
-
-        # except Exception as e:
-        #     if '503' in str(e):
-        #         print('503 from server')
-        #     else:
-        #         f = open('errs.txt', 'a')
-        #         f.write(str(e))
-
 
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
 
 deleteThread.start()
-findThread.start()
+
 while True:
-    time.sleep(100)
+    try:
+        findThread.start()
+
+    except KeyboardInterrupt:
+        raise
+
+    except Exception as e:
+        if '503' in str(e):
+            print('503 from server')
+        else:
+            f = open('errs.txt', 'a')
+            f.write(str(e))
+
 deleteThread.join()
 findThread.join()
 
