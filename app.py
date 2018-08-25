@@ -6,6 +6,7 @@ import sqlite3
 import random
 import sys
 import threading
+import signal
 
 # other files
 import config
@@ -98,6 +99,7 @@ deleteThread.start()
 while True:
     try:
         findThread.start()
+        signal.pause()
 
     except KeyboardInterrupt:
         raise
