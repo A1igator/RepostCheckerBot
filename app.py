@@ -114,6 +114,7 @@ while True:
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(e))
+            print('tesst')
             sys.exit()
 
 deleteThread.join()
