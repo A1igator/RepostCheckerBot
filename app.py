@@ -24,7 +24,7 @@ c = conn.cursor()
 
 def deleteComment():
     for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
-        print(dir(comment))
+        print(comment.score)
 
 # the main function
 def findPosts():
