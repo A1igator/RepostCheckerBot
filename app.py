@@ -6,7 +6,6 @@ import sqlite3
 import random
 import sys
 import threading
-import signal
 
 # other files
 import config
@@ -99,7 +98,6 @@ deleteThread.start()
 while True:
     try:
         findThread.start()
-        signal.pause()
 
     except KeyboardInterrupt:
         raise
@@ -107,9 +105,9 @@ while True:
     except Exception as e:
         if '503' in str(e):
             print('503 from server')
-        # else:
-        #     f = open('errs.txt', 'a')
-        #     f.write(str(e))
+        else:
+            f = open('errs.txt', 'a')
+            f.write(str(e))
 
 deleteThread.join()
 findThread.join()
