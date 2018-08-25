@@ -24,6 +24,7 @@ conn = sqlite3.connect('Posts'+config.subreddit+'.db')
 
 def deleteComment():
     for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
+        print(comment.score)
         if(comment.score is 0):
             comment.delete()
 
