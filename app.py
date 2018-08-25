@@ -96,7 +96,7 @@ def findPosts():
                 f.write(str(e))
 
 
-database.initDatabase()
+database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
 
