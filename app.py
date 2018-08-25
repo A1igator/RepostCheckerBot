@@ -107,9 +107,9 @@ while True:
     except Exception as e:
         if '503' in str(e):
             print('503 from server')
-        else:
-            f = open('errs.txt', 'a')
-            f.write(str(e))
+        # else:
+        #     f = open('errs.txt', 'a')
+        #     f.write(str(e))
 
 deleteThread.join()
 findThread.join()
