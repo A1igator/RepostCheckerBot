@@ -90,10 +90,11 @@ def findPosts():
                         except:
                             doThis = True
 
-        except KeyboardInterrupt:
-            sys.exit()
+        # except KeyboardInterrupt:
+        #     sys.exit()
 
         except Exception as e:
+            print('test')
             if '503' in str(e):
                 print('503 from server')
             else:
