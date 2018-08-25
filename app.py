@@ -93,7 +93,7 @@ def findPosts():
             if '503' in str(e):
                 print('503 from server')
             elif 'KeyboardIntrupt' in str(e):
-                raise(e)
+                raise e
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(e))
