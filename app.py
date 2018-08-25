@@ -105,8 +105,8 @@ while True:
             while True:
                 time.sleep(100)
 
-        except KeyboardInterrupt as e:
-            print(e)
+        # except KeyboardInterrupt as e:
+        #     print(e)
 
         except Exception as e:
             if '503' in str(e):
@@ -114,6 +114,7 @@ while True:
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(e))
+            sys.exit()
 
 deleteThread.join()
 findThread.join()
