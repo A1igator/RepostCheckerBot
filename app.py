@@ -89,11 +89,13 @@ def findPosts():
                             doThis = False
                         except:
                             doThis = True
+
+        except KeyboardInterrupt:
+            raise
+
         except Exception as e:
             if '503' in str(e):
                 print('503 from server')
-            elif 'KeyboardInterrupt' in str(e):
-                raise e
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(e))
