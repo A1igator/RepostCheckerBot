@@ -5,6 +5,7 @@ import praw
 import sqlite3
 import random
 import sys
+import threading
 
 # other files
 import config
@@ -83,7 +84,14 @@ def findPosts():
                 f = open('errs.txt', 'a')
                 f.write(str(e)) 
 
-deleteComment()
 database.initDatabase(conn)
-findPosts()
+deleteThread = threading.Thread(target=deleteComment)
+findThread = threading.Thread(target=findPosts)
+
+deleteThread.start()
+findThread.start()
+
+deleteThread.join()
+findThread.join()
+
 print(database.getAll(conn))
