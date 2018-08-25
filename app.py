@@ -96,18 +96,19 @@ findThread = threading.Thread(target=findPosts)
 deleteThread.start()
 
 while True:
-    try:
-        findThread.start()
+    if not findThread.is_alive:
+        try:
+            findThread.start()
 
-    except KeyboardInterrupt:
-        raise
+        except KeyboardInterrupt:
+            raise
 
-    except Exception as e:
-        if '503' in str(e):
-            print('503 from server')
-        else:
-            f = open('errs.txt', 'a')
-            f.write(str(e))
+        except Exception as e:
+            if '503' in str(e):
+                print('503 from server')
+            else:
+                f = open('errs.txt', 'a')
+                f.write(str(e))
 
 deleteThread.join()
 findThread.join()
