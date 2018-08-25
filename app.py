@@ -92,7 +92,7 @@ def findPosts():
         except Exception as e:
             if '503' in str(e):
                 print('503 from server')
-            elif 'KeyboardIntrupt' in str(e):
+            elif 'KeyboardInterrupt' in str(e):
                 raise e
             else:
                 f = open('errs.txt', 'a')
