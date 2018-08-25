@@ -96,7 +96,7 @@ findThread = threading.Thread(target=findPosts)
 deleteThread.start()
 
 while True:
-    if not findThread.is_alive:
+    if findThread.is_alive == False:
         try:
             findThread.start()
 
