@@ -119,7 +119,7 @@ findThread = threading.Thread(target=findPosts)
 deleteThread.start()
 findThread.start()
 
-deleteThread.join()
-findThread.join()
+# deleteThread.join()
+# findThread.join()
 
 print(database.getAll(conn))
