@@ -25,8 +25,7 @@ conn = sqlite3.connect('Posts'+config.subreddit+'.db')
 def deleteComment():
     while True:
         try:
-            for comment in reddit.redditor('RepostCheckerBot').stream.comments(limit=50):
-                print(comment.body)
+            for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
                 if(comment.score < -1):
                     f = open('fails.txt', 'a')
                     f.write(str(comment.body))
