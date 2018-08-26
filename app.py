@@ -6,6 +6,7 @@ import sqlite3
 import random
 import sys
 import threading
+import Queue
 
 # other files
 import config
@@ -42,6 +43,11 @@ def deleteComment():
 
 
 class findPosts(threading.Thread):
+
+    def __init__(self, bucket):
+        threading.Thread.__init__(self)
+        self.bucket = bucket
+
     def run(self):
         conn = sqlite3.connect('Posts'+config.subreddit+'.db')
         while True:
@@ -105,8 +111,8 @@ class findPosts(threading.Thread):
                             except:
                                 doThis = True
 
-            # except KeyboardInterrupt:
-            #     sys.exit()
+            except KeyboardInterrupt:
+                self.bucket.put(sys.exc_info())
 
             except Exception as e:
                 print('test')
@@ -119,10 +125,25 @@ class findPosts(threading.Thread):
 
 database.initDatabase(conn)
 # deleteThread = threading.Thread(target=deleteComment)
-findThread = findPosts()
+# findThread = findPosts()
+bucket = Queue.Queue()
+thread_obj = findPosts(bucket)
+thread_obj.start()
 
+while True:
+    try:
+        exc = bucket.get(block=False)
+    except Queue.Empty:
+        pass
+    else:
+        exc_type, exc_obj, exc_trace = exc
+        # deal with the exception
+        print(exc_type, exc_obj)
+        print(exc_trace)
+
+    thread_obj.join(0.1)
 # deleteThread.start()
-findThread.start()
+# findThread.start()
 
 # deleteThread.join()
 # findThread.join()
