@@ -24,10 +24,20 @@ conn = sqlite3.connect('Posts'+config.subreddit+'.db')
 
 def deleteComment():
     while True:
-        for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
-            if(comment.score is 0):
-                comment.delete()
+        try:
+            for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
+                if(comment.score is 0):
+                    comment.delete()
+        except KeyboardInterrupt:
+            print('test')
 
+        except Exception as e:
+            print('test')
+            if '503' in str(e):
+                print('503 from server')
+            else:
+                f = open('errs.txt', 'a')
+                f.write(str(e))
 # the main function
 
 
