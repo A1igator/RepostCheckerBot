@@ -6,7 +6,6 @@ import sqlite3
 import random
 import sys
 import threading
-import queue
 
 # other files
 import config
@@ -130,33 +129,13 @@ class findPosts(threading.Thread):
 
 
 database.initDatabase(conn)
-# deleteThread = threading.Thread(target=deleteComment)
-# findThread = findPosts()
-bucket = queue.Queue()
-thread_obj = findPosts(bucket)
-thread_obj.start()
+deleteThread = threading.Thread(target=deleteComment)
+findThread = threading.Thread(target=findPosts)
 
-while True:
-    try:
-        exc = bucket.get(block=False)
-    except queue.Empty:
-        pass
-    else:
-        exc_type, exc_obj, exc_trace = exc
-        # deal with the exception
-        print(exc_type, exc_obj)
-        print(exc_trace)
+deleteThread.start()
+findThread.start()
 
-    thread_obj.join(0.1)
-    if thread_obj.isAlive():
-        continue
-    else:
-        break
-
-# deleteThread.start()
-# findThread.start()
-
-# deleteThread.join()
-# findThread.join()
+deleteThread.join()
+findThread.join()
 
 print(database.getAll(conn))
