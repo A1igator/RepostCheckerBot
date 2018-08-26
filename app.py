@@ -122,7 +122,7 @@ findThread.start()
 try:
     deleteThread.join()
 except Exception as e:
-    print(e)
+    print('test')
 # findThread.join()
 
 print(database.getAll(conn))
