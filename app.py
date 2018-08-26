@@ -26,13 +26,13 @@ def deleteComment():
     while True:
         try:
             for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
-                if(comment.score is 0):
+                print(comment.body)
+                if(comment.score < -1):
+                    f = open('fails.txt', 'a')
+                    f.write(str(comment.selfText))
                     comment.delete()
-        except KeyboardInterrupt:
-            print('test')
 
         except Exception as e:
-            print('test')
             if '503' in str(e):
                 print('503 from server')
             else:
