@@ -41,7 +41,7 @@ def deleteComment():
 # the main function
 
 
-def findPosts(self):
+def findPosts():
     conn = sqlite3.connect('Posts'+config.subreddit+'.db')
     while True:
         try:
