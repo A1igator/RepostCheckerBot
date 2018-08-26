@@ -106,7 +106,7 @@ def findPosts():
                             doThis = True
 
         except Exception as e:
-            print('test')
+            print(e)
             if '503' in str(e):
                 print('503 from server')
             else:
