@@ -112,7 +112,11 @@ class findPosts(threading.Thread):
                                 doThis = True
 
             except KeyboardInterrupt:
-                self.bucket.put(sys.exc_info())
+                try:
+                    print('test')
+                    raise
+                except:
+                    self.bucket.put(sys.exc_info())
 
             except Exception as e:
                 print('test')
