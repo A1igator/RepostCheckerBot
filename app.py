@@ -105,21 +105,13 @@ def findPosts():
                         except:
                             doThis = True
 
-        # except KeyboardInterrupt:
-        #     try:
-        #         print('test')
-        #         raise
-        #     except:
-        #         self.bucket.put(sys.exc_info())
-        except Exception:
-            print('bs')
-            # except Exception as e:
-            #     print('test')
-            #     if '503' in str(e):
-            #         print('503 from server')
-            #     else:
-            #         f = open('errs.txt', 'a')
-            #         f.write(str(e))
+        except Exception as e:
+            print('test')
+            if '503' in str(e):
+                print('503 from server')
+            else:
+                f = open('errs.txt', 'a')
+                f.write(str(e))
 
 
 database.initDatabase(conn)
