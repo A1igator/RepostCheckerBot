@@ -119,7 +119,7 @@ class findPosts(threading.Thread):
             #     except:
             #         self.bucket.put(sys.exc_info())
             except Exception:
-                self.bucket.put(sys.exc_info())
+                print('bs')
                 # except Exception as e:
                 #     print('test')
                 #     if '503' in str(e):
