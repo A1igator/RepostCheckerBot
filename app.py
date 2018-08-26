@@ -6,7 +6,7 @@ import sqlite3
 import random
 import sys
 import threading
-import Queue
+import queue
 
 # other files
 import config
@@ -126,14 +126,14 @@ class findPosts(threading.Thread):
 database.initDatabase(conn)
 # deleteThread = threading.Thread(target=deleteComment)
 # findThread = findPosts()
-bucket = Queue.Queue()
+bucket = queue.Queue()
 thread_obj = findPosts(bucket)
 thread_obj.start()
 
 while True:
     try:
         exc = bucket.get(block=False)
-    except Queue.Empty:
+    except queue.Empty:
         pass
     else:
         exc_type, exc_obj, exc_trace = exc
