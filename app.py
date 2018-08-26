@@ -142,6 +142,11 @@ while True:
         print(exc_trace)
 
     thread_obj.join(0.1)
+    if thread_obj.isAlive():
+        continue
+    else:
+        break
+
 # deleteThread.start()
 # findThread.start()
 
