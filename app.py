@@ -50,7 +50,7 @@ class findPosts(threading.Thread):
 
     def run(self):
         try:
-            raise Exception('An error occured here.')
+            print('test')
         except Exception:
             self.bucket.put(sys.exc_info())
 
