@@ -73,7 +73,6 @@ def findPosts():
             post = 0
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
-                raise ConnectionError
                 post += 1
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
@@ -106,7 +105,6 @@ def findPosts():
                             doThis = True
 
         except Exception as e:
-            print(repr(e))
             if '503' in str(e):
                 print('503 from server')
             else:
