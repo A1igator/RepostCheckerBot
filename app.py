@@ -80,6 +80,7 @@ class findPosts(threading.Thread):
                 post = 0
                 # then check posts as they come in
                 for submission in subreddit.stream.submissions():
+                    raise ConnectionError
                     post += 1
                     print(
                         '{} --> Starting new submission {}'.format(post, submission.id))
@@ -117,7 +118,6 @@ class findPosts(threading.Thread):
             #         raise
             #     except:
             #         self.bucket.put(sys.exc_info())
-                raise('fuck')
             except Exception:
                 self.bucket.put(sys.exc_info())
                 # except Exception as e:
