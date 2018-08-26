@@ -117,7 +117,7 @@ class findPosts(threading.Thread):
             #         raise
             #     except:
             #         self.bucket.put(sys.exc_info())
-                raise HTTPError
+                raise ConnectionError
             except Exception:
                 self.bucket.put(sys.exc_info())
                 # except Exception as e:
