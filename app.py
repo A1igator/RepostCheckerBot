@@ -6,6 +6,7 @@ import sqlite3
 import random
 import sys
 import threading
+import traceback
 
 # other files
 import config
@@ -36,7 +37,7 @@ def deleteComment():
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(e))
+                f.write(str(traceback.format_exc()))
 # the main function
 
 
@@ -108,7 +109,7 @@ def findPosts():
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(e))
+                f.write(str(traceback.format_exc()))
 
 
 database.initDatabase(conn)
