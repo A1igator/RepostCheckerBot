@@ -109,7 +109,7 @@ def findPosts():
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()))
+                f.write(str(repr(e)))
 
 
 database.initDatabase(conn)
