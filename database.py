@@ -62,7 +62,6 @@ def monthDelta(d1, d2):
 
 def hashImg(conn, imgUrl, url):
     imgHash = 'invalid'
-    print(imgUrl)
     try:
         f = BytesIO(urlopen(Request(str(imgUrl), headers={
                     'User-Agent': user_agent}), context=context).read())
@@ -96,6 +95,7 @@ def hashVid(conn, vidUrl, url):
 def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
+    print(gifUrl)
     try:
         f = BytesIO(urlopen(Request(str(gifUrl), headers={
                     'User-Agent': user_agent}), context=context).read())
