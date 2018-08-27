@@ -33,6 +33,8 @@ def deleteComment():
                     comment.delete()
 
         except Exception as e:
+            print(e)
+            print(repr(e))
             if '503' in str(e):
                 print('503 from server')
             else:
@@ -105,11 +107,13 @@ def findPosts():
                             doThis = True
 
         except Exception as e:
+            print(e)
+            print(repr(e))
             if '503' in str(e):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(repr(e)))
+                f.write(str(traceback.format_exc()))
 
 
 database.initDatabase(conn)
