@@ -95,7 +95,6 @@ def hashVid(conn, vidUrl, url):
 def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
-    print(gifUrl)
     try:
         f = BytesIO(urlopen(Request(str(gifUrl), headers={
                     'User-Agent': user_agent}), context=context).read())
@@ -218,7 +217,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
-                if 'gif' in contentUrl and not contentUrl.endswith('gifv'):
+                if 'gif' in contentUrl and not (contentUrl.endswith('gifv') or 'gifs' in contentUrl):
                     gifHash = hashGif(conn, contentUrl, url)
                     if isInt(gifHash.replace(' ', '')):
                         args = c.execute(
@@ -314,7 +313,7 @@ def addPost(conn, date, contentUrl, media, url, text):
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash
-        elif 'gif' in contentUrl and not contentUrl.endswith('gifv'):
+        elif 'gif' in contentUrl and not (contentUrl.endswith('gifv') or 'gifs' in contentUrl):
             gifHash = hashGif(conn, contentUrl, url)
             if isInt(gifHash.replace(' ', '')):
                 content = gifHash
