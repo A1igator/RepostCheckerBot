@@ -26,22 +26,27 @@ originalPostDate = []
 finalTimePassed = []
 precentageMatched = []
 
+
 def initDatabase(conn):
     c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);')
+    c.execute(
+        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);')
     conn.commit()
     c.close()
     print('Create table.')
 
+
 def canonical(s):
     return ''.join([c for c in s if not c.isspace()])
 
+
 def isInt(s):
-    try: 
+    try:
         int(s)
         return True
     except:
         return False
+
 
 def monthDelta(d1, d2):
     delta = 0
@@ -54,10 +59,13 @@ def monthDelta(d1, d2):
             break
     return delta
 
+
 def hashImg(conn, imgUrl, url):
     imgHash = 'invalid'
+    print(imgUrl)
     try:
-        f = BytesIO(urlopen(Request(str(imgUrl), headers={'User-Agent': user_agent}), context = context).read())
+        f = BytesIO(urlopen(Request(str(imgUrl), headers={
+                    'User-Agent': user_agent}), context=context).read())
     except:
         deleteItem(conn, url)
         print('invalid check so it was ignored')
@@ -66,8 +74,10 @@ def hashImg(conn, imgUrl, url):
         imgHash = dhash.dhash_int(img)
     return imgHash
 
+
 def hashText(txt):
     return md5(txt.encode('utf-8')).hexdigest()
+
 
 def hashVid(conn, vidUrl, url):
     vidHash = ''
@@ -82,11 +92,13 @@ def hashVid(conn, vidUrl, url):
             vidHash += str(dhash.dhash_int(frame.to_image())) + ' '
     return vidHash
 
+
 def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
     try:
-        f = BytesIO(urlopen(Request(str(gifUrl), headers={'User-Agent': user_agent}), context = context).read())
+        f = BytesIO(urlopen(Request(str(gifUrl), headers={
+                    'User-Agent': user_agent}), context=context).read())
     except:
         deleteItem(conn, url)
         print('invalid check so it was ignored')
@@ -98,10 +110,11 @@ def hashGif(conn, gifUrl, url):
             gifHash += str(dhash.dhash_int(frame)) + ' '
             nframes += 1
             try:
-                frame.seek( nframes )
+                frame.seek(nframes)
             except EOFError:
-                break           
+                break
     return gifHash
+
 
 def hashVidDifference(originalHash, newHash):
     cntr = 0
@@ -111,12 +124,14 @@ def hashVidDifference(originalHash, newHash):
     minDifferences = []
     for i in originalHashList:
         for j in newHashList:
-            frameDifferences.append(dhash.get_num_bits_different(int(i), int(j)))
+            frameDifferences.append(
+                dhash.get_num_bits_different(int(i), int(j)))
             cntr += 1
         minDifferences.append(min(frameDifferences))
         frameDifferences = []
     print(sum(minDifferences)/len(minDifferences))
     return sum(minDifferences)/len(minDifferences)
+
 
 def deleteItem(conn, url):
     c = conn.cursor()
@@ -125,16 +140,19 @@ def deleteItem(conn, url):
     c.close()
     ignore()
 
+
 def ignore():
     result[:] = ['delete']
     originalPostDate[:] = [-1]
     finalTimePassed[:] = [-1]
     precentageMatched[:] = [-1]
-      
+
+
 def addToFound(post, precentage):
     result.append(post[0])
     originalPostDate.append(post[1])
-    precentageMatched.append(precentage) 
+    precentageMatched.append(precentage)
+
 
 def isLogged(conn, contentUrl, media, text, url, date):
     result[:] = []
@@ -154,25 +172,30 @@ def isLogged(conn, contentUrl, media, text, url, date):
         deleteItem(conn, url)
         print('the post is older than needed')
     else:
-        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
+        args = c.execute(
+            'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
         if list(args.fetchone())[0] != 0:
             ignore()
             print('already done')
         else:
             if text != '':
                 textHash = hashText(text)
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
+                args = c.execute(
+                    'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
+                    args = c.execute(
+                        'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
             elif media != None:
                 vidHash = hashVid(conn, media, url)
                 if isInt(vidHash.replace(' ', '')):
-                    args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
+                    args = c.execute(
+                        'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
                     if list(args.fetchone())[0] != 0:
-                        args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(vidHash),))
+                        args = c.execute(
+                            'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(vidHash),))
                         fullResult = list(args.fetchall())
                         for i in fullResult:
                             addToFound(i, 100)
@@ -181,64 +204,79 @@ def isLogged(conn, contentUrl, media, text, url, date):
                         if hashed[0] not in result:
                             hashedReadable = hashed[2]
                             if isInt(hashedReadable.replace(' ', '')):
-                                hashedDifference = hashVidDifference(hashedReadable, vidHash)
+                                hashedDifference = hashVidDifference(
+                                    hashedReadable, vidHash)
                                 if hashedDifference < config.threshold:
-                                    addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100)   
+                                    addToFound(
+                                        hashed, ((config.threshold - hashedDifference)/config.threshold)*100)
             elif contentUrl != '':
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(contentUrl).replace('&feature=youtu.be',''),))
+                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(
+                    contentUrl).replace('&feature=youtu.be', ''),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(contentUrl).replace('&feature=youtu.be',''),))
+                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(
+                        contentUrl).replace('&feature=youtu.be', ''),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
                 if 'gif' in contentUrl and not contentUrl.endswith('gifv'):
                     gifHash = hashGif(conn, contentUrl, url)
                     if isInt(gifHash.replace(' ', '')):
-                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
+                        args = c.execute(
+                            'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
                         if list(args.fetchone())[0] != 0:
-                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
+                            args = c.execute(
+                                'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
                             fullResult = list(args.fetchall())
                             for i in fullResult:
                                 addToFound(i, 100)
-                        args = c.execute('SELECT Url, Date, Content FROM posts;')
+                        args = c.execute(
+                            'SELECT Url, Date, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
                                 if isInt(hashedReadable.replace(' ', '')):
-                                    hashedDifference = hashVidDifference(hashedReadable, gifHash)
+                                    hashedDifference = hashVidDifference(
+                                        hashedReadable, gifHash)
                                     if hashedDifference < config.threshold:
-                                        addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100)   
+                                        addToFound(
+                                            hashed, ((config.threshold - hashedDifference)/config.threshold)*100)
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
                     if isInt(imgHash):
-                        args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
+                        args = c.execute(
+                            'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
                         if list(args.fetchone())[0] != 0:
-                            args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(imgHash),))
+                            args = c.execute(
+                                'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(imgHash),))
                             fullResult = list(args.fetchall())
                             for i in fullResult:
                                 addToFound(i, 100)
-                        args = c.execute('SELECT Url, Date, Content FROM posts;')
+                        args = c.execute(
+                            'SELECT Url, Date, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
                                 if isInt(hashedReadable):
-                                    hashedDifference = dhash.get_num_bits_different(imgHash, int(hashedReadable))
+                                    hashedDifference = dhash.get_num_bits_different(
+                                        imgHash, int(hashedReadable))
                                     if hashedDifference < config.threshold:
-                                        addToFound(hashed, ((config.threshold - hashedDifference)/config.threshold)*100) 
+                                        addToFound(
+                                            hashed, ((config.threshold - hashedDifference)/config.threshold)*100)
 
     for i in result:
         if i != '' and i != 'delete':
-            if reddit.submission(url = 'https://reddit.com' + i).selftext == '[deleted]':
+            if reddit.submission(url='https://reddit.com' + i).selftext == '[deleted]':
                 c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
-                postsToRemove.append([i, originalPostDate[cntr], precentageMatched[cntr]])
+                postsToRemove.append(
+                    [i, originalPostDate[cntr], precentageMatched[cntr]])
                 print('deleted ' + i)
         cntr += 1
-            
+
     for i in postsToRemove:
         result.remove(i[0])
         originalPostDate.remove(i[1])
         precentageMatched.remove(i[2])
-    
+
     c.close()
     for i in originalPostDate:
         then = datetime.datetime.fromtimestamp(i)
@@ -259,12 +297,14 @@ def isLogged(conn, contentUrl, media, text, url, date):
         finalTimePassed.append(fullText)
     cntr = 0
     for i in result:
-        returnResult.append([i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
+        returnResult.append(
+            [i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
         cntr += 1
     print('Found? {}'.format(returnResult))
 
     return returnResult
-    
+
+
 def addPost(conn, date, contentUrl, media, url, text):
     c = conn.cursor()
     if text != '':
@@ -273,7 +313,7 @@ def addPost(conn, date, contentUrl, media, url, text):
         if media != None:
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
-                content = vidHash  
+                content = vidHash
         elif 'gif' in contentUrl and not contentUrl.endswith('gifv'):
             gifHash = hashGif(conn, contentUrl, url)
             if isInt(gifHash.replace(' ', '')):
@@ -284,10 +324,12 @@ def addPost(conn, date, contentUrl, media, url, text):
                 content = imgHash
         else:
             content = contentUrl
-    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);', (int(date), str(content), str(url),))
+    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);',
+              (int(date), str(content), str(url),))
     conn.commit()
     c.close()
     print('Added new post - {}'.format(str(date)))
+
 
 def getAll(conn):
     c = conn.cursor()
