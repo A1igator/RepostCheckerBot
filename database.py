@@ -313,14 +313,20 @@ def addPost(conn, date, contentUrl, media, url, text):
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash
+            else:
+                content = contentUrl
         elif 'gif' in contentUrl and not (contentUrl.endswith('gifv') or 'gifs' in contentUrl):
             gifHash = hashGif(conn, contentUrl, url)
             if isInt(gifHash.replace(' ', '')):
                 content = gifHash
+            else:
+                content = contentUrl
         elif 'png' in contentUrl or 'jpg' in contentUrl:
             imgHash = hashImg(conn, contentUrl, url)
             if isInt(imgHash):
                 content = imgHash
+            else:
+                content = contentUrl
         else:
             content = contentUrl
     c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);',
