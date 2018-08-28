@@ -307,7 +307,6 @@ def isLogged(conn, contentUrl, media, text, url, date):
 def addPost(conn, date, contentUrl, media, url, text):
     c = conn.cursor()
     if text != '&#x200B;':
-        print('test')
         content = hashText(text)
     else:
         if media != None:
