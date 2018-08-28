@@ -177,7 +177,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
             ignore()
             print('already done')
         else:
-            if text != '':
+            if text != '&#x200B;':
                 textHash = hashText(text)
                 args = c.execute(
                     'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
@@ -306,7 +306,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
 
 def addPost(conn, date, contentUrl, media, url, text):
     c = conn.cursor()
-    if text != '':
+    if text != '&#x200B;':
         content = hashText(text)
     else:
         if media != None:

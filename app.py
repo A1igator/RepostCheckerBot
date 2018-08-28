@@ -76,8 +76,6 @@ def findPosts():
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
                 post += 1
-                print(submission.selftext, submission.url,
-                      submission.media, submission.permalink)
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
                 result = database.isLogged(conn, submission.url, submission.media,
