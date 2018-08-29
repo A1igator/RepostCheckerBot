@@ -156,8 +156,8 @@ def deleteOldFromDatabase():
     conn = sqlite3.connect('Posts'+config.subreddit+'.db')
     c = conn.cursor()
     args = c.execute('SELECT Date FROM posts;')
-    print(x)
     for x in args.fetchall():
+        print(x)
         if x > config.days:
             c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x),))
             print('deleted an old post')
