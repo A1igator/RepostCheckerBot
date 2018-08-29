@@ -153,7 +153,7 @@ def addToFound(post, precentage):
     precentageMatched.append(precentage)
 
 def deleteOldFromDatabase(conn):
-    c = conn.cursur()
+    c = conn.cursor()
     args = c.execute('SELECT Date FROM posts;')
     for x in args.fetchall():
         if x > config.days:
