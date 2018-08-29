@@ -156,6 +156,7 @@ def deleteOldFromDatabase(conn):
     c = conn.cursur()
     args = c.execute('SELECT Date FROM posts;')
     for x in args.fetchall():
+        print(x)
         if x > config.days:
             c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x),))
             print('deleted an old post')
