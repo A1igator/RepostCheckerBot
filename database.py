@@ -157,9 +157,8 @@ def deleteOldFromDatabase():
     c = conn.cursor()
     args = c.execute('SELECT Date FROM posts;')
     for x in args.fetchall():
-        print(x)
-        if x > config.days:
-            c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x),))
+        if x[0] > config.days:
+            c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
             print('deleted an old post')
 
 def isLogged(conn, contentUrl, media, text, url, date):
