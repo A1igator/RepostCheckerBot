@@ -120,7 +120,7 @@ database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
 deleteOldThread = threading.Thread(
-    target=database.deleteOldFromDatabase, args=(conn,))
+    target=database.deleteOldFromDatabase)
 
 deleteThread.start()
 findThread.start()

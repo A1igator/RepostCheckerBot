@@ -152,7 +152,8 @@ def addToFound(post, precentage):
     originalPostDate.append(post[1])
     precentageMatched.append(precentage)
 
-def deleteOldFromDatabase(conn):
+def deleteOldFromDatabase():
+    conn = sqlite3.connect('Posts'+config.subreddit+'.db')
     c = conn.cursor()
     args = c.execute('SELECT Date FROM posts;')
     for x in args.fetchall():
