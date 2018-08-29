@@ -119,11 +119,15 @@ def findPosts():
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
+deleteOldThread = threading.Thread(
+    target=database.deleteOldFromDatabase, args=conn)
 
 deleteThread.start()
 findThread.start()
+deleteOldThread.start()
 
 deleteThread.join()
 findThread.join()
+deleteOldThread.join()
 
 print(database.getAll(conn))

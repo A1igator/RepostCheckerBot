@@ -152,6 +152,13 @@ def addToFound(post, precentage):
     originalPostDate.append(post[1])
     precentageMatched.append(precentage)
 
+def deleteOldFromDatabase(conn):
+    c = conn.cursur()
+    args = c.execute('SELECT Date FROM posts;')
+    for x in args.fetchall():
+        if x > config.days:
+            c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x),))
+            print('deleted an old post')
 
 def isLogged(conn, contentUrl, media, text, url, date):
     result[:] = []
@@ -168,7 +175,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
     if timePassed > config.days:
-        deleteItem(conn, url)
+        ignore()
         print('the post is older than needed')
     else:
         args = c.execute(
