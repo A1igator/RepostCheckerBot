@@ -155,10 +155,10 @@ def addToFound(post, precentage):
 def deleteOldFromDatabase(conn):
     c = conn.cursur()
     args = c.execute('SELECT Date FROM posts;')
-    for x in args.fetchall():
-        print(x)
-        if x > config.days:
-            c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x),))
+    result = [x[0] for x in args.fetchall()]
+    for y in result:
+        if y > config.days:
+            c.execute('DELETE FROM Posts WHERE Date = ?;', (int(y),))
             print('deleted an old post')
 
 def isLogged(conn, contentUrl, media, text, url, date):
