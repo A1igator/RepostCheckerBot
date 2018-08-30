@@ -11,9 +11,9 @@ subSettings = [
         int(os.environ['BOT_DAYS']),
         int(os.environ['BOT_THRESH'])
     ],
-    [
-        os.environ['BOT_SUBREDDIT2'],
-        int(os.environ['BOT_DAYS2']),
-        int(os.environ['BOT_THRESH2'])
-    ],
+    # [
+    #     os.environ['BOT_SUBREDDIT2'],
+    #     int(os.environ['BOT_DAYS2']),
+    #     int(os.environ['BOT_THRESH2'])
+    # ],
 ]
