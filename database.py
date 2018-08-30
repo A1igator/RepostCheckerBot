@@ -153,14 +153,14 @@ def addToFound(post, precentage):
     precentageMatched.append(precentage)
 
 def deleteOldFromDatabase():
-    conn = sqlite3.connect('Posts'+config.subreddit+'.db')
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     c = conn.cursor()
     args = c.execute('SELECT Date FROM posts;')
     now = datetime.datetime.utcnow()
     for x in args.fetchall():
         then = datetime.datetime.fromtimestamp(x[0])
         timePassed = (now-then).days
-        if timePassed > config.days:
+        if timePassed > config.subSettings[0][1]:
             c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
             print('deleted an old post')
 
@@ -178,7 +178,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
-    if timePassed > config.days:
+    if timePassed > config.subSettings[0][1]:
         ignore()
         print('the post is older than needed')
     else:
@@ -216,9 +216,9 @@ def isLogged(conn, contentUrl, media, text, url, date):
                             if isInt(hashedReadable.replace(' ', '')):
                                 hashedDifference = hashVidDifference(
                                     hashedReadable, vidHash)
-                                if hashedDifference < config.threshold:
+                                if hashedDifference < config.subSettings[0][2]:
                                     addToFound(
-                                        hashed, ((config.threshold - hashedDifference)/config.threshold)*100)
+                                        hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
             elif contentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(
                     contentUrl).replace('&feature=youtu.be', ''),))
@@ -247,9 +247,9 @@ def isLogged(conn, contentUrl, media, text, url, date):
                                 if isInt(hashedReadable.replace(' ', '')):
                                     hashedDifference = hashVidDifference(
                                         hashedReadable, gifHash)
-                                    if hashedDifference < config.threshold:
+                                    if hashedDifference < config.subSettings[0][2]:
                                         addToFound(
-                                            hashed, ((config.threshold - hashedDifference)/config.threshold)*100)
+                                            hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
                     if isInt(imgHash):
@@ -269,9 +269,9 @@ def isLogged(conn, contentUrl, media, text, url, date):
                                 if isInt(hashedReadable):
                                     hashedDifference = dhash.get_num_bits_different(
                                         imgHash, int(hashedReadable))
-                                    if hashedDifference < config.threshold:
+                                    if hashedDifference < config.subSettings[0][2]:
                                         addToFound(
-                                            hashed, ((config.threshold - hashedDifference)/config.threshold)*100)
+                                            hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
 
     for i in result:
         if i != '' and i != 'delete':

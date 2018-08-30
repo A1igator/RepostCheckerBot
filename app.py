@@ -18,9 +18,9 @@ reddit = praw.Reddit(client_id=config.client_id,
                      password=config.password,
                      user_agent=config.user_agent)
 
-subreddit = reddit.subreddit(config.subreddit)
+subreddit = reddit.subreddit(config.subSettings[0][0])
 
-conn = sqlite3.connect('Posts'+config.subreddit+'.db')
+conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
 
 
 def deleteComment():
@@ -44,7 +44,7 @@ def deleteComment():
 
 
 def findPosts():
-    conn = sqlite3.connect('Posts'+config.subreddit+'.db')
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     while True:
         try:
             print('Starting searching...')
