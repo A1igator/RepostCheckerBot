@@ -98,12 +98,12 @@ def hashGif(conn, gifUrl, url):
     try:
         f = BytesIO(urlopen(Request(str(gifUrl), headers={
                     'User-Agent': user_agent}), context=context).read())
+        frame = Image.open(f)
     except:
         deleteItem(conn, url)
         print('invalid check so it was ignored')
         gifHash = 'invalid'
     else:
-        frame = Image.open(f)
         while frame:
             dhash.dhash_int(frame)
             gifHash += str(dhash.dhash_int(frame)) + ' '
@@ -152,6 +152,7 @@ def addToFound(post, precentage):
     originalPostDate.append(post[1])
     precentageMatched.append(precentage)
 
+
 def deleteOldFromDatabase():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     c = conn.cursor()
@@ -163,6 +164,7 @@ def deleteOldFromDatabase():
         if timePassed > config.subSettings[0][1]:
             c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
             print('deleted an old post')
+
 
 def isLogged(conn, contentUrl, media, text, url, date):
     result[:] = []
