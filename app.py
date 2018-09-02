@@ -171,6 +171,8 @@ def findNewPosts(q):
                 print(q.get())
                 while q.get() == 'running':
                     time.sleep(0.1)
+                with q.mutex:
+                    q.queue.clear()
                 q.put('running')
                 post += 1
                 print(
@@ -197,6 +199,8 @@ def findNewPosts(q):
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
+                with q.mutex:
+                    q.queue.clear()
                 q.put('doneRunning')
             post = 0
             # then check posts as they come in
@@ -204,6 +208,8 @@ def findNewPosts(q):
                 print(q.get())
                 while q.get() == 'running':
                     time.sleep(0.1)
+                with q.mutex:
+                    q.queue.clear()
                 q.put('running')
                 top = False
                 hot = False
@@ -253,6 +259,8 @@ def findNewPosts(q):
                     #         doThis = False
                     #     except:
                     #         doThis = True
+                with q.mutex:
+                    q.queue.clear()
                 q.put('doneRunning')
 
         except Exception as e:
