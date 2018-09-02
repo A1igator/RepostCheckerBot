@@ -97,11 +97,11 @@ def findTopPosts(q):
 
 
 def findHotPosts(q):
-    print(q.get())
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
     while True:
+        print(q.get())
         try:
             post = 0
             # then get 50 posts from trending of the subreddit
