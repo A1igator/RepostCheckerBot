@@ -49,14 +49,15 @@ def findTopPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
+    print('Starting searching...')
     while True:
         try:
-            print('Starting searching...')
             post = 0
             top = False
             hot = True
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
+                q.put('starting')
                 top = True
                 hot = False
                 post += 1
