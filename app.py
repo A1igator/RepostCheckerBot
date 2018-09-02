@@ -61,7 +61,7 @@ def findTopPosts(q):
                 while q.get() == 'running':
                     time.sleep(0.1)
                 q.put('running')
-                print(q.get())
+                print('test')
                 top = True
                 hot = False
                 post += 1
