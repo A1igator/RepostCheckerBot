@@ -1,14 +1,14 @@
 # packages that need to be pip installed
 import praw
-from worker import create_worker, listen, sleep
 
 # packages that come with python
 import sqlite3
 import random
 import sys
-import threading
 import traceback
 import time
+from threading import Thread
+from queue import Queue
 
 # other files
 import config
@@ -45,8 +45,7 @@ def deleteComment():
 # the main function
 
 
-@create_worker
-def findTopPosts():
+def findTopPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
@@ -86,7 +85,7 @@ def findTopPosts():
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
-
+                    q.put('done')
         except Exception as e:
             print(e)
             print(repr(e))
@@ -97,7 +96,8 @@ def findTopPosts():
                 f.write(str(traceback.format_exc()))
 
 
-def findHotPosts():
+def findHotPosts(q):
+    print(q.get())
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
@@ -142,7 +142,7 @@ def findHotPosts():
                 f.write(str(traceback.format_exc()))
 
 
-def findNewPosts():
+def findNewPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = False
@@ -238,20 +238,23 @@ def findNewPosts():
 
 
 database.initDatabase(conn)
-deleteThread = threading.Thread(target=deleteComment)
-findTopPosts.start()
-# findTopPosts.pause()
-findHotThread = threading.Thread(target=findHotPosts)
-findNewThread = threading.Thread(target=findNewPosts)
-deleteOldThread = threading.Thread(
+
+q = Queue()
+deleteThread = Thread(target=deleteComment)
+findTopThread = Thread(target=findHotPosts, args=(q,))
+findHotThread = Thread(target=findHotPosts, args=(q,))
+findNewThread = Thread(target=findNewPosts, args=(q,))
+deleteOldThread = Thread(
     target=database.deleteOldFromDatabase)
 
 deleteThread.start()
+findTopThread.start()
 findHotThread.start()
 findNewThread.start()
 deleteOldThread.start()
 
 deleteThread.join()
+findTopThread.join()
 findHotThread.join()
 findNewThread.join()
 deleteOldThread.join()
