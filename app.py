@@ -85,7 +85,7 @@ def findTopPosts(q):
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
-                    q.put('done')
+                    q.put('doneOneTop')
         except Exception as e:
             print(e)
             print(repr(e))
@@ -102,45 +102,45 @@ def findHotPosts(q):
     top = False
     hot = True
     while True:
-        print(q.get())
-        try:
-            post = 0
-            # then get 50 posts from trending of the subreddit
-            for submission in subreddit.hot(limit=50):
-                post += 1
-                print(
-                    '{} --> Starting new submission {}'.format(post, submission.id))
-                result = database.isLogged(
-                    conn,
-                    submission.url,
-                    submission.media,
-                    submission.selftext,
-                    submission.permalink,
-                    submission.created_utc,
-                    top,
-                    hot,
-                )
-                if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                    database.addPost(
+        if q.get() == 'doneOneTop':
+            try:
+                post = 0
+                # then get 50 posts from trending of the subreddit
+                for submission in subreddit.hot(limit=50):
+                    post += 1
+                    print(
+                        '{} --> Starting new submission {}'.format(post, submission.id))
+                    result = database.isLogged(
                         conn,
-                        submission.created_utc,
                         submission.url,
                         submission.media,
-                        submission.permalink,
                         submission.selftext,
+                        submission.permalink,
+                        submission.created_utc,
                         top,
                         hot,
                     )
-                    print('Added {}'.format(submission.permalink))
+                    if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                        database.addPost(
+                            conn,
+                            submission.created_utc,
+                            submission.url,
+                            submission.media,
+                            submission.permalink,
+                            submission.selftext,
+                            top,
+                            hot,
+                        )
+                        print('Added {}'.format(submission.permalink))
 
-        except Exception as e:
-            print(e)
-            print(repr(e))
-            if '503' in str(e):
-                print('503 from server')
-            else:
-                f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()))
+            except Exception as e:
+                print(e)
+                print(repr(e))
+                if '503' in str(e):
+                    print('503 from server')
+                else:
+                    f = open('errs.txt', 'a')
+                    f.write(str(traceback.format_exc()))
 
 
 def findNewPosts(q):
