@@ -63,8 +63,17 @@ def monthDelta(d1, d2):
 def hashImg(conn, imgUrl, url):
     imgHash = 'invalid'
     try:
-        f = BytesIO(urlopen(Request(str(imgUrl), headers={
-                    'User-Agent': user_agent}), context=context).read())
+        f = BytesIO(
+            urlopen(
+                Request(
+                    str(imgUrl),
+                    headers={
+                        'User-Agent': user_agent
+                    }
+                ),
+                context=context
+            ).read()
+        )
     except:
         deleteItem(conn, url)
         print('invalid check so it was ignored')
@@ -96,8 +105,17 @@ def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
     try:
-        f = BytesIO(urlopen(Request(str(gifUrl), headers={
-                    'User-Agent': user_agent}), context=context).read())
+        f = BytesIO(
+            urlopen(
+                Request(
+                    str(gifUrl),
+                    headers={
+                        'User-Agent': user_agent
+                    }
+                ),
+                context=context
+            ).read()
+        )
         frame = Image.open(f)
     except:
         deleteItem(conn, url)
