@@ -196,6 +196,11 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
         args = c.execute(
             'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
         if list(args.fetchone())[0] != 0:
+            args = c.execute(
+                'SELECT Location FROM Posts WHERE Url = ?;', (str(url),))
+            fullResult = list(args.fetchall())
+            for i in fullResult:
+                print(i)
             ignore()
             print('already done')
         else:
