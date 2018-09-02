@@ -235,16 +235,20 @@ def findNewPosts():
 
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
-findThread = threading.Thread(target=findTopPosts)
-findThread = threading.Thread(target=findHotPosts)
-findThread = threading.Thread(target=findNewPosts)
+findTopThread = threading.Thread(target=findTopPosts)
+findHotThread = threading.Thread(target=findHotPosts)
+findNewThread = threading.Thread(target=findNewPosts)
 deleteOldThread = threading.Thread(
     target=database.deleteOldFromDatabase)
 
 deleteThread.start()
-findThread.start()
+findTopThread.start()
+findHotThread.start()
+findNewThread.start()
 deleteOldThread.start()
 
 deleteThread.join()
-findThread.join()
+findTopThread.join()
+findHotThread.join()
+findNewThread.join()
 deleteOldThread.join()
