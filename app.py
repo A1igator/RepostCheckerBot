@@ -96,7 +96,6 @@ def findTopPosts():
 
 
 def findHotPosts():
-    time.sleep(1)
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
@@ -142,7 +141,6 @@ def findHotPosts():
 
 
 def findNewPosts():
-    time.sleep(1)
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = False
