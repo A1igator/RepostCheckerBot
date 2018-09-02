@@ -1,5 +1,6 @@
 # packages that need to be pip installed
 import praw
+from worker import create_worker, listen, sleep
 
 # packages that come with python
 import sqlite3
@@ -44,6 +45,7 @@ def deleteComment():
 # the main function
 
 
+@create_worker
 def findTopPosts():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
@@ -237,20 +239,19 @@ def findNewPosts():
 
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
-findTopThread = threading.Thread(target=findTopPosts)
+findTopPosts.start()
+# findTopPosts.pause()
 findHotThread = threading.Thread(target=findHotPosts)
 findNewThread = threading.Thread(target=findNewPosts)
 deleteOldThread = threading.Thread(
     target=database.deleteOldFromDatabase)
 
 deleteThread.start()
-findTopThread.start()
 findHotThread.start()
 findNewThread.start()
 deleteOldThread.start()
 
 deleteThread.join()
-findTopThread.join()
 findHotThread.join()
 findNewThread.join()
 deleteOldThread.join()
