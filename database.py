@@ -315,7 +315,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     cntr = 0
     for i in result:
         returnResult.append(
-            [i, finalTimePassed[cntr], originalPostDate[cntr], location, precentageMatched[cntr]])
+            [i, finalTimePassed[cntr], originalPostDate[cntr], location[cntr], precentageMatched[cntr]])
         cntr += 1
     print('Found? {}'.format(returnResult))
 
