@@ -57,9 +57,7 @@ def findTopPosts(q):
             hot = True
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
-                print(q.empty())
                 if not q.empty():
-                    print(q.get())
                     while q.get() == 'running':
                         time.sleep(0.1)
                     with q.mutex:
@@ -116,11 +114,12 @@ def findHotPosts(q):
             post = 0
             # then get 50 posts from trending of the subreddit
             for submission in subreddit.hot(limit=50):
-                print(q.get())
-                while q.get() == 'running':
-                    time.sleep(0.1)
-                with q.mutex:
-                    q.queue.clear()
+                if not q.empty():
+                    print(q.get())
+                    while q.get() == 'running':
+                        time.sleep(0.1)
+                    with q.mutex:
+                        q.queue.clear()
                 q.put('running')
                 post += 1
                 print(
@@ -170,11 +169,12 @@ def findNewPosts(q):
             post = 0
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
-                print(q.get())
-                while q.get() == 'running':
-                    time.sleep(0.1)
-                with q.mutex:
-                    q.queue.clear()
+                if not q.empty():
+                    print(q.get())
+                    while q.get() == 'running':
+                        time.sleep(0.1)
+                    with q.mutex:
+                        q.queue.clear()
                 q.put('running')
                 post += 1
                 print(
