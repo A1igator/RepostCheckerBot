@@ -23,6 +23,7 @@ user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/
 
 result = []
 originalPostDate = []
+location = []
 finalTimePassed = []
 precentageMatched = []
 
@@ -143,6 +144,7 @@ def deleteItem(conn, url):
 def ignore():
     result[:] = ['delete']
     originalPostDate[:] = [-1]
+    location[:] = [-1]
     finalTimePassed[:] = [-1]
     precentageMatched[:] = [-1]
 
@@ -150,6 +152,7 @@ def ignore():
 def addToFound(post, precentage):
     result.append(post[0])
     originalPostDate.append(post[1])
+    location.append(post[2])
     precentageMatched.append(precentage)
 
 
@@ -197,7 +200,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                     'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute(
-                        'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
+                        'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(textHash),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
@@ -208,11 +211,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                         'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
                     if list(args.fetchone())[0] != 0:
                         args = c.execute(
-                            'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(vidHash),))
+                            'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(vidHash),))
                         fullResult = list(args.fetchall())
                         for i in fullResult:
                             addToFound(i, 100)
-                    args = c.execute('SELECT Url, Date, Content FROM posts;')
+                    args = c.execute(
+                        'SELECT Url, Date,, Location, Content FROM posts;')
                     for hashed in args.fetchall():
                         if hashed[0] not in result:
                             hashedReadable = hashed[2]
@@ -226,7 +230,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(
                     contentUrl).replace('&feature=youtu.be', ''),))
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(
+                    args = c.execute('SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(
                         contentUrl).replace('&feature=youtu.be', ''),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
@@ -238,12 +242,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                             'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
                         if list(args.fetchone())[0] != 0:
                             args = c.execute(
-                                'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
+                                'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(gifHash),))
                             fullResult = list(args.fetchall())
                             for i in fullResult:
                                 addToFound(i, 100)
                         args = c.execute(
-                            'SELECT Url, Date, Content FROM posts;')
+                            'SELECT Url, Date,, Location, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
@@ -260,12 +264,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                             'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
                         if list(args.fetchone())[0] != 0:
                             args = c.execute(
-                                'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(imgHash),))
+                                'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(imgHash),))
                             fullResult = list(args.fetchall())
                             for i in fullResult:
                                 addToFound(i, 100)
                         args = c.execute(
-                            'SELECT Url, Date, Content FROM posts;')
+                            'SELECT Url, Date, Location Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
@@ -311,7 +315,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     cntr = 0
     for i in result:
         returnResult.append(
-            [i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
+            [i, finalTimePassed[cntr], originalPostDate[cntr], location, precentageMatched[cntr]])
         cntr += 1
     print('Found? {}'.format(returnResult))
 
@@ -344,13 +348,13 @@ def addPost(conn, date, contentUrl, media, url, text, top, hot):
         else:
             content = contentUrl
     if top:
-        topOrHot = 'top'
+        locationVar = 'top'
     elif hot:
-        topOrHot = 'hot'
+        locationVar = 'hot'
     else:
-        topOrHot = 'false'
+        locationVar = 'new'
     c.execute('INSERT INTO Posts (Date, Content, Url, Location) VALUES (?, ?, ?, ?);',
-              (int(date), str(content), str(url), str(topOrHot),))
+              (int(date), str(content), str(url), str(locationVar),))
     conn.commit()
     c.close()
     print('Added new post - {}'.format(str(url)))
