@@ -57,6 +57,7 @@ def findTopPosts(q):
             hot = True
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
+                print('test')
                 q.put('starting')
                 top = True
                 hot = False
@@ -86,7 +87,7 @@ def findTopPosts(q):
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
-                    q.put('doneOneTop')
+                q.put('doneOneTop')
         except Exception as e:
             print(e)
             print(repr(e))
@@ -104,6 +105,7 @@ def findHotPosts(q):
     hot = True
     while True:
         if q.get() == 'doneOneTop':
+            print('test')
             try:
                 post = 0
                 # then get 50 posts from trending of the subreddit
