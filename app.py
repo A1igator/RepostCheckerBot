@@ -57,12 +57,11 @@ def findTopPosts(q):
             hot = True
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
-                print('test')
                 print(q.get())
                 while q.get() == 'running':
-                    print('test2')
                     time.sleep(0.1)
                 q.put('running')
+                print(q.get())
                 top = True
                 hot = False
                 post += 1
