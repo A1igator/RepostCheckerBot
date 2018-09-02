@@ -8,12 +8,8 @@ password = os.environ['BOT_PASSWORD']
 subSettings = [
     [
         os.environ['BOT_SUBREDDIT'],
-        int(os.environ['BOT_DAYS']),
+        int(os.environ['BOT_HOT_DAYS']),
+        int(os.environ['BOT_NEW_DAYS']),
         int(os.environ['BOT_THRESH'])
     ],
-    # [
-    #     os.environ['BOT_SUBREDDIT2'],
-    #     int(os.environ['BOT_DAYS2']),
-    #     int(os.environ['BOT_THRESH2'])
-    # ],
 ]

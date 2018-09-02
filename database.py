@@ -29,7 +29,8 @@ precentageMatched = []
 
 def initDatabase(conn):
     c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);')
+    c.execute(
+        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT,State INTEGER DEFAULT 1);')
     conn.commit()
     c.close()
     print('Create table.')
@@ -155,17 +156,18 @@ def addToFound(post, precentage):
 def deleteOldFromDatabase():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     c = conn.cursor()
-    args = c.execute('SELECT Date FROM posts;')
+    args = c.execute('SELECT Date, Location FROM posts;')
     now = datetime.datetime.utcnow()
     for x in args.fetchall():
-        then = datetime.datetime.fromtimestamp(x[0])
-        timePassed = (now-then).days
-        if timePassed > config.subSettings[0][1]:
-            c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
-            print('deleted an old post')
+        if x[1] is not 'top':
+            then = datetime.datetime.fromtimestamp(x[0])
+            timePassed = (now-then).days
+            if (timePassed > config.subSettings[0][2] and x[1] is 'false') or (timePassed > config.subSettings[0][1] and x[1] is 'hot'):
+                c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
+                print('deleted an old post')
 
 
-def isLogged(conn, contentUrl, media, text, url, date):
+def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     result[:] = []
     originalPostDate[:] = []
     finalTimePassed[:] = []
@@ -176,12 +178,13 @@ def isLogged(conn, contentUrl, media, text, url, date):
     returnResult = []
     c = conn.cursor()
 
-    now = datetime.datetime.utcnow()
-    then = datetime.datetime.fromtimestamp(date)
-    timePassed = (now-then).days
-    if timePassed > config.subSettings[0][1]:
-        ignore()
-        print('the post is older than needed')
+    if not top:
+        now = datetime.datetime.utcnow()
+        then = datetime.datetime.fromtimestamp(date)
+        timePassed = (now-then).days
+        if (timePassed > config.subSettings[0][2] and not hot) or (timePassed > config.subSettings[0][1] and hot):
+            ignore()
+            print('the post is older than needed')
     else:
         args = c.execute(
             'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
@@ -316,7 +319,7 @@ def isLogged(conn, contentUrl, media, text, url, date):
     return returnResult
 
 
-def addPost(conn, date, contentUrl, media, url, text):
+def addPost(conn, date, contentUrl, media, url, text, top, hot):
     c = conn.cursor()
     if text != '&#x200B;' and text != '':
         content = hashText(text)
@@ -341,11 +344,17 @@ def addPost(conn, date, contentUrl, media, url, text):
                 content = contentUrl
         else:
             content = contentUrl
-    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);',
-              (int(date), str(content), str(url),))
+    if top:
+        topOrHot = 'top'
+    elif hot:
+        topOrHot = 'hot'
+    else:
+        topOrHot = 'false'
+    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?, ?);',
+              (int(date), str(content), str(url), str(topOrHot)))
     conn.commit()
     c.close()
-    print('Added new post - {}'.format(str(date)))
+    print('Added new post - {}'.format(str(url)))
 
 
 def getAll(conn):

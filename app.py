@@ -51,6 +51,8 @@ def findPosts():
             post = 0
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
+                top = True
+                hot = False
                 post += 1
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
@@ -60,7 +62,9 @@ def findPosts():
                     submission.media,
                     submission.selftext,
                     submission.permalink,
-                    submission.created_utc
+                    submission.created_utc,
+                    top,
+                    hot,
                 )
                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                     database.addPost(
@@ -69,12 +73,16 @@ def findPosts():
                         submission.url,
                         submission.media,
                         submission.permalink,
-                        submission.selftext
+                        submission.selftext,
+                        top,
+                        hot,
                     )
                     print('Added {}'.format(submission.permalink))
             post = 0
             # then get 50 posts from trending of the subreddit
             for submission in subreddit.hot(limit=50):
+                top = False
+                hot = True
                 post += 1
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
@@ -84,7 +92,9 @@ def findPosts():
                     submission.media,
                     submission.selftext,
                     submission.permalink,
-                    submission.created_utc
+                    submission.created_utc,
+                    top,
+                    hot,
                 )
                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                     database.addPost(
@@ -93,12 +103,16 @@ def findPosts():
                         submission.url,
                         submission.media,
                         submission.permalink,
-                        submission.selftext
+                        submission.selftext,
+                        top,
+                        hot,
                     )
                     print('Added {}'.format(submission.permalink))
             post = 0
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
+                top = False
+                hot = False
                 post += 1
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
@@ -108,7 +122,9 @@ def findPosts():
                     submission.media,
                     submission.selftext,
                     submission.permalink,
-                    submission.created_utc
+                    submission.created_utc,
+                    top,
+                    hot,
                 )
                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                     database.addPost(
@@ -117,12 +133,16 @@ def findPosts():
                         submission.url,
                         submission.media,
                         submission.permalink,
-                        submission.selftext
+                        submission.selftext,
+                        top,
+                        hot,
                     )
                     print('Added {}'.format(submission.permalink))
             post = 0
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
+                top = False
+                hot - False
                 post += 1
                 print('{} --> Starting new submission {}'.format(post, submission.id))
                 result = database.isLogged(
@@ -131,7 +151,9 @@ def findPosts():
                     submission.media,
                     submission.selftext,
                     submission.permalink,
-                    submission.created_utc
+                    submission.created_utc,
+                    top,
+                    hot,
                 )
                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                     database.addPost(
@@ -140,7 +162,9 @@ def findPosts():
                         submission.url,
                         submission.media,
                         submission.permalink,
-                        submission.selftext
+                        submission.selftext,
+                        top,
+                        hot,
                     )
                     print('Added {}'.format(submission.permalink))
                 if result != [] and result != [['delete', -1, -1, -1]] and post > 1:
