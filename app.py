@@ -97,6 +97,7 @@ def findTopPosts(q):
 
 
 def findHotPosts(q):
+    print('test')
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
