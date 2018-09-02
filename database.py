@@ -155,11 +155,15 @@ def addToFound(post, precentage):
     location.append(post[2])
     precentageMatched.append(precentage)
 
+def updateDatabase(conn, url, updateVal):
+    c = conn.cursor()
+    c.execute('UPDATE Posts SET Location = ? WHERE Url = ?;', (str(updateVal),str(url),))
+    c.close()
 
 def deleteOldFromDatabase():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     c = conn.cursor()
-    args = c.execute('SELECT Date, Location FROM posts;')
+    args = c.execute('SELECT Date, Location FROM Posts;')
     now = datetime.datetime.utcnow()
     for x in args.fetchall():
         if x[1] is not 'top':
@@ -168,6 +172,7 @@ def deleteOldFromDatabase():
             if (timePassed > config.subSettings[0][2] and x[1] is 'false') or (timePassed > config.subSettings[0][1] and x[1] is 'hot'):
                 c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
                 print('deleted an old post')
+    c.close()
 
 
 def isLogged(conn, contentUrl, media, text, url, date, top, hot):
