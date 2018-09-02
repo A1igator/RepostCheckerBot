@@ -96,6 +96,7 @@ def findTopPosts():
 
 
 def findHotPosts():
+    time.sleep(1)
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
@@ -141,6 +142,7 @@ def findHotPosts():
 
 
 def findNewPosts():
+    time.sleep(1)
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = False
@@ -238,9 +240,7 @@ def findNewPosts():
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findTopThread = threading.Thread(target=findTopPosts)
-time.sleep(1000)
 findHotThread = threading.Thread(target=findHotPosts)
-time.sleep(1000)
 findNewThread = threading.Thread(target=findNewPosts)
 deleteOldThread = threading.Thread(
     target=database.deleteOldFromDatabase)
