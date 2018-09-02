@@ -212,5 +212,3 @@ deleteOldThread.start()
 deleteThread.join()
 findThread.join()
 deleteOldThread.join()
-
-print(database.getAll(conn))

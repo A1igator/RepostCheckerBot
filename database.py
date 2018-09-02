@@ -178,13 +178,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     returnResult = []
     c = conn.cursor()
 
-    if not top:
-        now = datetime.datetime.utcnow()
-        then = datetime.datetime.fromtimestamp(date)
-        timePassed = (now-then).days
-        if (timePassed > config.subSettings[0][2] and not hot) or (timePassed > config.subSettings[0][1] and hot):
-            ignore()
-            print('the post is older than needed')
+    now = datetime.datetime.utcnow()
+    then = datetime.datetime.fromtimestamp(date)
+    timePassed = (now-then).days
+    if ((timePassed > config.subSettings[0][2] and not hot) or (timePassed > config.subSettings[0][1] and hot)) and not top:
+        ignore()
+        print('the post is older than needed')
     else:
         args = c.execute(
             'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
@@ -355,11 +354,3 @@ def addPost(conn, date, contentUrl, media, url, text, top, hot):
     conn.commit()
     c.close()
     print('Added new post - {}'.format(str(url)))
-
-
-def getAll(conn):
-    c = conn.cursor()
-    args = c.execute('SELECT Content FROM posts;')
-    result = [x[0] for x in args.fetchall()]
-    c.close()
-    return result
