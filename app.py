@@ -57,44 +57,44 @@ def findTopPosts(q):
             hot = True
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
-                if q.empty():
+                if not q.empty():
                     print(q.get())
                     while q.get() == 'running':
                         time.sleep(0.1)
                     with q.mutex:
                         q.queue.clear()
-                    q.put('running')
-                    top = True
-                    hot = False
-                    post += 1
-                    print(
-                        '{} --> Starting new submission {}'.format(post, submission.id))
-                    result = database.isLogged(
+                q.put('running')
+                top = True
+                hot = False
+                post += 1
+                print(
+                    '{} --> Starting new submission {}'.format(post, submission.id))
+                result = database.isLogged(
+                    conn,
+                    submission.url,
+                    submission.media,
+                    submission.selftext,
+                    submission.permalink,
+                    submission.created_utc,
+                    top,
+                    hot,
+                )
+
+                if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                    database.addPost(
                         conn,
+                        submission.created_utc,
                         submission.url,
                         submission.media,
-                        submission.selftext,
                         submission.permalink,
-                        submission.created_utc,
+                        submission.selftext,
                         top,
                         hot,
                     )
-
-                    if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                        database.addPost(
-                            conn,
-                            submission.created_utc,
-                            submission.url,
-                            submission.media,
-                            submission.permalink,
-                            submission.selftext,
-                            top,
-                            hot,
-                        )
-                        print('Added {}'.format(submission.permalink))
-                    with q.mutex:
-                        q.queue.clear()
-                    q.put('doneRunning')
+                    print('Added {}'.format(submission.permalink))
+                with q.mutex:
+                    q.queue.clear()
+                q.put('doneRunning')
 
         except Exception as e:
             print(e)
