@@ -49,8 +49,33 @@ def findPosts():
         try:
             print('Starting searching...')
             post = 0
-            # first get 1000 posts from the top of the subreddit
-            for submission in subreddit.top('all', limit=1000):
+            print(dir(subreddit))
+            # first get 50 posts from the top of the subreddit
+            for submission in subreddit.top('all', limit=50):
+                post += 1
+                print(
+                    '{} --> Starting new submission {}'.format(post, submission.id))
+                result = database.isLogged(
+                    conn,
+                    submission.url,
+                    submission.media,
+                    submission.selftext,
+                    submission.permalink,
+                    submission.created_utc
+                )
+                if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                    database.addPost(
+                        conn,
+                        submission.created_utc,
+                        submission.url,
+                        submission.media,
+                        submission.permalink,
+                        submission.selftext
+                    )
+                    print('Added {}'.format(submission.permalink))
+            post = 0
+            # then get 50 posts from trending of the subreddit
+            for submission in subreddit.hot(limit=50):
                 post += 1
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
