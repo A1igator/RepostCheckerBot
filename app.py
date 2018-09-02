@@ -242,7 +242,7 @@ database.initDatabase(conn)
 
 q = Queue()
 deleteThread = Thread(target=deleteComment)
-findTopThread = Thread(target=findHotPosts, args=(q,))
+findTopThread = Thread(target=findTopPosts, args=(q,))
 findHotThread = Thread(target=findHotPosts, args=(q,))
 findNewThread = Thread(target=findNewPosts, args=(q,))
 deleteOldThread = Thread(
