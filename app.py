@@ -45,6 +45,8 @@ def deleteComment():
 
 def findTopPosts():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    top = False
+    hot = True
     while True:
         try:
             print('Starting searching...')
@@ -93,11 +95,11 @@ def findTopPosts():
 
 def findHotPosts():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    top = False
+    hot = True
     while True:
         try:
             post = 0
-            top = False
-            hot = True
             # then get 50 posts from trending of the subreddit
             for submission in subreddit.hot(limit=50):
                 post += 1
@@ -137,11 +139,12 @@ def findHotPosts():
 
 
 def findNewPosts():
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    top = False
+    hot = False
     while True:
         try:
             post = 0
-            top = False
-            hot = False
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
                 post += 1
