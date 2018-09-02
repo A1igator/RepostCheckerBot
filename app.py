@@ -115,7 +115,6 @@ def findHotPosts(q):
             # then get 50 posts from trending of the subreddit
             for submission in subreddit.hot(limit=50):
                 if not q.empty():
-                    print(q.get())
                     while q.get() == 'running':
                         time.sleep(0.1)
                     with q.mutex:
@@ -170,7 +169,6 @@ def findNewPosts(q):
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
                 if not q.empty():
-                    print(q.get())
                     while q.get() == 'running':
                         time.sleep(0.1)
                     with q.mutex:
@@ -242,25 +240,25 @@ def findNewPosts(q):
                     print('Added {}'.format(submission.permalink))
                 if result != [] and result != [['delete', -1, -1, -1, -1]] and post > 1:
                     print('reported')
-                    # # report and make a comment
-                    # submission.report('REPOST ALERT')
-                    # cntr = 0
-                    # table = ''
-                    # for i in result:
-                    #     table = table + \
-                    #         str(cntr) + '|[post](https://reddit.com' + \
-                    #         i[0] + ')|' + i[1] + '|' + \
-                    #         str(i[3]) + '%' + '\n'
-                    #     cntr += 1
-                    # fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
-                    #     '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                    # doThis = True
-                    # while doThis:
-                    #     try:
-                    #         submission.reply(fullText)
-                    #         doThis = False
-                    #     except:
-                    #         doThis = True
+                    # report and make a comment
+                    submission.report('REPOST ALERT')
+                    cntr = 0
+                    table = ''
+                    for i in result:
+                        table = table + \
+                            str(cntr) + '|[post](https://reddit.com' + \
+                            i[0] + ')|' + i[1] + '|' + \
+                            str(i[3]) + '%' + '\n'
+                        cntr += 1
+                    fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
+                        '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
+                    doThis = True
+                    while doThis:
+                        try:
+                            submission.reply(fullText)
+                            doThis = False
+                        except:
+                            doThis = True
                 with q.mutex:
                     q.queue.clear()
                 q.put('doneRunning')
