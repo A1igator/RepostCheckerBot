@@ -350,8 +350,8 @@ def addPost(conn, date, contentUrl, media, url, text, top, hot):
         topOrHot = 'hot'
     else:
         topOrHot = 'false'
-    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?, ?);',
-              (int(date), str(content), str(url), str(topOrHot)))
+    c.execute('INSERT INTO Posts (Date, Content, Url, Location) VALUES (?, ?, ?, ?);',
+              (int(date), str(content), str(url), str(topOrHot),))
     conn.commit()
     c.close()
     print('Added new post - {}'.format(str(url)))
