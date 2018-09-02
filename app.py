@@ -60,8 +60,9 @@ def findTopPosts(q):
                 print(q.get())
                 while q.get() == 'running':
                     time.sleep(0.1)
+                with q.mutex:
+                    q.queue.clear()
                 q.put('running')
-                print('test')
                 top = True
                 hot = False
                 post += 1
@@ -90,6 +91,8 @@ def findTopPosts(q):
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
+                with q.mutex:
+                    q.queue.clear()
                 q.put('doneRunning')
 
         except Exception as e:
@@ -114,6 +117,8 @@ def findHotPosts(q):
                 print(q.get())
                 while q.get() == 'running':
                     time.sleep(0.1)
+                with q.mutex:
+                    q.queue.clear()
                 q.put('running')
                 post += 1
                 print(
@@ -140,6 +145,8 @@ def findHotPosts(q):
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
+                with q.mutex:
+                    q.queue.clear()
                 q.put('doneRunning')
 
         except Exception as e:
