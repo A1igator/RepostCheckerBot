@@ -52,6 +52,7 @@ def findTopPosts(q):
     print('Starting searching...')
     while True:
         try:
+            print('test')
             post = 0
             top = False
             hot = True
