@@ -49,7 +49,6 @@ def findPosts():
         try:
             print('Starting searching...')
             post = 0
-            print(dir(subreddit))
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
                 post += 1
@@ -176,6 +175,7 @@ def findPosts():
                 f.write(str(traceback.format_exc()))
 
 
+print(dir(subreddit))
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
