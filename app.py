@@ -199,7 +199,6 @@ def findPosts():
                 f.write(str(traceback.format_exc()))
 
 
-print(dir(subreddit))
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findThread = threading.Thread(target=findPosts)
