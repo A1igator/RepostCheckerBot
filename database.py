@@ -169,7 +169,7 @@ def deleteOldFromDatabase():
         if x[1] is not 'top':
             then = datetime.datetime.fromtimestamp(x[0])
             timePassed = (now-then).days
-            if (timePassed > config.subSettings[0][2] and x[1] is 'false') or (timePassed > config.subSettings[0][1] and x[1] is 'hot'):
+            if (timePassed > config.subSettings[0][2] and x[1] is 'new') or (timePassed > config.subSettings[0][1] and x[1] is 'hot'):
                 c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
                 print('deleted an old post')
     c.close()
@@ -182,6 +182,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     precentageMatched[:] = []
     args = None
     postsToRemove = []
+    fiftyTopPosts = []
     cntr = 0
     returnResult = []
     c = conn.cursor()
@@ -196,11 +197,22 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
         args = c.execute(
             'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
         if list(args.fetchone())[0] != 0:
+            if top:
+                cntr += 1
+                updateDatabase(conn, url, 'top')
+                fiftyTopPosts.append(url)
             args = c.execute(
                 'SELECT Location FROM Posts WHERE Url = ?;', (str(url),))
             fullResult = list(args.fetchall())
             for i in fullResult:
-                print(i)
+                if i[0] is 'top' and cntr > 50 and i[0] not in fiftyTopPosts:
+                    updateDatabase(conn, url, 'new')
+                if cntr is 500:
+                    cntr = 0
+                if i[0] is 'new':
+                    if hot:
+                        updateDatabase(conn, url, 'hot')
+
             ignore()
             print('already done')
         else:
