@@ -43,12 +43,14 @@ def deleteComment():
 # the main function
 
 
-def findPosts():
+def findTopPosts():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     while True:
         try:
             print('Starting searching...')
             post = 0
+            top = False
+            hot = True
             # first get 50 posts from the top of the subreddit
             for submission in subreddit.top('all', limit=50):
                 top = True
@@ -78,11 +80,26 @@ def findPosts():
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
+
+        except Exception as e:
+            print(e)
+            print(repr(e))
+            if '503' in str(e):
+                print('503 from server')
+            else:
+                f = open('errs.txt', 'a')
+                f.write(str(traceback.format_exc()))
+
+
+def findHotPosts():
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    while True:
+        try:
             post = 0
+            top = False
+            hot = True
             # then get 50 posts from trending of the subreddit
             for submission in subreddit.hot(limit=50):
-                top = False
-                hot = True
                 post += 1
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
@@ -108,11 +125,25 @@ def findPosts():
                         hot,
                     )
                     print('Added {}'.format(submission.permalink))
+
+        except Exception as e:
+            print(e)
+            print(repr(e))
+            if '503' in str(e):
+                print('503 from server')
+            else:
+                f = open('errs.txt', 'a')
+                f.write(str(traceback.format_exc()))
+
+
+def findNewPosts():
+    while True:
+        try:
             post = 0
+            top = False
+            hot = False
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
-                top = False
-                hot = False
                 post += 1
                 print(
                     '{} --> Starting new submission {}'.format(post, submission.id))
@@ -201,7 +232,9 @@ def findPosts():
 
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
-findThread = threading.Thread(target=findPosts)
+findThread = threading.Thread(target=findTopPosts)
+findThread = threading.Thread(target=findHotPosts)
+findThread = threading.Thread(target=findNewPosts)
 deleteOldThread = threading.Thread(
     target=database.deleteOldFromDatabase)
 
