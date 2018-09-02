@@ -7,6 +7,7 @@ import random
 import sys
 import threading
 import traceback
+import time
 
 # other files
 import config
@@ -237,7 +238,9 @@ def findNewPosts():
 database.initDatabase(conn)
 deleteThread = threading.Thread(target=deleteComment)
 findTopThread = threading.Thread(target=findTopPosts)
+time.sleep(1000)
 findHotThread = threading.Thread(target=findHotPosts)
+time.sleep(1000)
 findNewThread = threading.Thread(target=findNewPosts)
 deleteOldThread = threading.Thread(
     target=database.deleteOldFromDatabase)
