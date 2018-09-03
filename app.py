@@ -97,6 +97,7 @@ def findTopPosts(q):
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningTop')
+                            print(q.get())
                             break
 
         except Exception as e:
