@@ -148,7 +148,6 @@ def findHotPosts(q):
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningHot')
-                            print(q.queue[0])
                             break
 
         except Exception as e:
@@ -171,6 +170,7 @@ def findNewPosts(q):
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
                 while True:
+                    print('test')
                     if not q.empty():
                         x = q.queue[0]
                         print(x)
