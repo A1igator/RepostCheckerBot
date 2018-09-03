@@ -159,8 +159,6 @@ def updateDatabase(conn, url, updateVal):
     print(updateVal)
     c = conn.cursor()
     c.execute('UPDATE Posts SET Location = ? WHERE Url = ?;', (str(updateVal),str(url),))
-    args = c.execute('SELECT * FROM Posts;')
-    print(args.fetchall())
     c.close()
 
 def deleteOldFromDatabase():
@@ -378,6 +376,7 @@ def addPost(conn, date, contentUrl, media, url, text, top, hot):
         locationVar = 'hot'
     else:
         locationVar = 'new'
+    print(locationVar)
     c.execute('INSERT INTO Posts (Date, Content, Url, Location) VALUES (?, ?, ?, ?);',
               (int(date), str(content), str(url), str(locationVar),))
     conn.commit()
