@@ -117,7 +117,6 @@ def findHotPosts(q):
                     if not q.empty():
                         print(q.queue)
                         x = q.queue[0]
-                        print(x + ' 2')
                         if x is 'doneRunningTop':
                             print('test2')
                             post += 1
@@ -171,7 +170,6 @@ def findNewPosts(q):
                     if not q.empty():
                         print(q.queue)
                         x = q.queue[0]
-                        print(x + ' 3')
                         if x is 'doneRunningHot':
                             print('test3')
                             post += 1
@@ -208,7 +206,6 @@ def findNewPosts(q):
                     if not q.empty():
                         print(q.queue)
                         x = q.queue[0]
-                        print(x + ' 4')
                         if x is 'doneRunningNew':
                             print('test4')
                             top = False
