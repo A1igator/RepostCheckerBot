@@ -122,6 +122,7 @@ def findHotPosts(q):
                     x = q.get()
                     if x is not 'doneRunningTop':
                         q.put(x)
+                        time.sleep(0.1)
                     else:
                         print('test3')
                         post += 1
@@ -173,6 +174,7 @@ def findNewPosts(q):
             for submission in subreddit.new(limit=1000):
                 while not q.empty():
                     x = q.get()
+                    print(x)
                     if x is not 'doneRunningHot':
                         q.put(x)
                     else:
