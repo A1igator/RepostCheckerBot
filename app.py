@@ -93,6 +93,7 @@ def findTopPosts(q):
                                 )
                                 print('Added {}'.format(submission.permalink))
                             q.put('doneRunningTop')
+                            print(q.get())
                             break
 
         except Exception as e:
