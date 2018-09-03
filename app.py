@@ -64,6 +64,7 @@ def findTopPosts(q):
                             firstTime = False
                             with q.mutex:
                                 q.queue.clear()
+                            print('test4')
                             q.put('running')
                             top = True
                             hot = False
@@ -123,6 +124,7 @@ def findHotPosts(q):
                             with q.mutex:
                                 q.queue.clear()
                             q.put('running')
+                            print('test3')
                             post += 1
                             print(
                                 '{} --> Starting new submission {}'.format(post, submission.id))
@@ -178,6 +180,7 @@ def findNewPosts(q):
                             with q.mutex:
                                 q.queue.clear()
                             q.put('running')
+                            print('test2')
                             post += 1
                             print(
                                 '{} --> Starting new submission {}'.format(post, submission.id))
@@ -216,7 +219,7 @@ def findNewPosts(q):
                             with q.mutex:
                                 q.queue.clear()
                             q.put('running')
-                            print('good')
+                            print('test4')
                             top = False
                             hot = False
                             post += 1
