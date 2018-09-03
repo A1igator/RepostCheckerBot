@@ -167,6 +167,7 @@ def findNewPosts(q):
     while True:
         try:
             post = 0
+            cntr = 0
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
                 cntr += 1
