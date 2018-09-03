@@ -173,7 +173,7 @@ def findNewPosts(q):
             for submission in subreddit.new(limit=1000):
                 while not q.empty():
                     x = q.get()
-                    print(x)
+                    print(q.get())
                     if x is not 'doneRunningHot':
                         q.put(x)
                     else:
