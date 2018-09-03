@@ -120,6 +120,7 @@ def findHotPosts(q):
             for submission in subreddit.hot(limit=50):
                 while True:
                     if not q.empty():
+                        print(q.get())
                         if q.get() is not 'running':
                             with q.mutex:
                                 q.queue.clear()
