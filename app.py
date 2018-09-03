@@ -91,6 +91,8 @@ def findTopPosts(q):
                                     hot,
                                 )
                                 print('Added {}'.format(submission.permalink))
+                            with q.mutex:
+                                q.queue.clear()
                             q.put('doneRunningTop')
                             break
 
@@ -144,6 +146,8 @@ def findHotPosts(q):
                                     hot,
                                 )
                                 print('Added {}'.format(submission.permalink))
+                            with q.mutex:
+                                q.queue.clear()
                             q.put('doneRunningHot')
                             break
 
@@ -196,6 +200,8 @@ def findNewPosts(q):
                                     hot,
                                 )
                                 print('Added {}'.format(submission.permalink))
+                            with q.mutex:
+                                q.queue.clear()
                             q.put('doneRunningNew')
                             break
             post = 0
@@ -255,6 +261,8 @@ def findNewPosts(q):
                                         doThis = False
                                     except:
                                         doThis = True
+                            with q.mutex:
+                                q.queue.clear()
                             q.put('doneRunningStream')
                             break
 
