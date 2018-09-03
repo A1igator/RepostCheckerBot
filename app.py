@@ -61,7 +61,6 @@ def findTopPosts(q):
                 while (not q.empty()) or firstTime:
                     if not firstTime:
                         x = q.get()
-                        print(x)
                         if x is not 'doneRunningStream':
                             q.put(x)
                     else:
@@ -170,104 +169,100 @@ def findNewPosts(q):
             post = 0
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
-                while True:
-                    if not q.empty():
-                        if q.get() is 'doneRunningHot':
-                            with q.mutex:
-                                q.queue.clear()
-                            q.put('running')
-                            print('test2')
-                            post += 1
-                            print(
-                                '{} --> Starting new submission {}'.format(post, submission.id))
-                            result = database.isLogged(
+                while not q.empty():
+                    x = q.get()
+                    if x is not 'doneRunningHot':
+                        q.put(x)
+                    else:
+                        q.put('running')
+                        print('test2')
+                        post += 1
+                        print(
+                            '{} --> Starting new submission {}'.format(post, submission.id))
+                        result = database.isLogged(
+                            conn,
+                            submission.url,
+                            submission.media,
+                            submission.selftext,
+                            submission.permalink,
+                            submission.created_utc,
+                            top,
+                            hot,
+                        )
+                        if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                            database.addPost(
                                 conn,
+                                submission.created_utc,
                                 submission.url,
                                 submission.media,
-                                submission.selftext,
                                 submission.permalink,
-                                submission.created_utc,
+                                submission.selftext,
                                 top,
                                 hot,
                             )
-                            if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                database.addPost(
-                                    conn,
-                                    submission.created_utc,
-                                    submission.url,
-                                    submission.media,
-                                    submission.permalink,
-                                    submission.selftext,
-                                    top,
-                                    hot,
-                                )
-                                print('Added {}'.format(submission.permalink))
-                            with q.mutex:
-                                q.queue.clear()
-                            q.put('doneRunningNew')
-                            break
+                            print('Added {}'.format(submission.permalink))
+                        q.put('doneRunningNew')
+                        break
             post = 0
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
-                while True:
-                    if not q.empty():
-                        if q.get() is 'doneRunningNew':
-                            with q.mutex:
-                                q.queue.clear()
-                            q.put('running')
-                            print('test4')
-                            top = False
-                            hot = False
-                            post += 1
-                            print(
-                                '{} --> Starting new submission {}'.format(post, submission.id))
-                            result = database.isLogged(
+                while not q.empty():
+                    x = q.get()
+                    if x is not 'doneRunningNew':
+                        q.put(x)
+                    else:
+                        q.put('running')
+                        print('test4')
+                        top = False
+                        hot = False
+                        post += 1
+                        print(
+                            '{} --> Starting new submission {}'.format(post, submission.id))
+                        result = database.isLogged(
+                            conn,
+                            submission.url,
+                            submission.media,
+                            submission.selftext,
+                            submission.permalink,
+                            submission.created_utc,
+                            top,
+                            hot,
+                        )
+                        if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                            database.addPost(
                                 conn,
+                                submission.created_utc,
                                 submission.url,
                                 submission.media,
-                                submission.selftext,
                                 submission.permalink,
-                                submission.created_utc,
+                                submission.selftext,
                                 top,
                                 hot,
                             )
-                            if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                database.addPost(
-                                    conn,
-                                    submission.created_utc,
-                                    submission.url,
-                                    submission.media,
-                                    submission.permalink,
-                                    submission.selftext,
-                                    top,
-                                    hot,
-                                )
-                                print('Added {}'.format(submission.permalink))
-                            if result != [] and result != [['delete', -1, -1, -1, -1]] and post > 1:
-                                print('reported')
-                                # report and make a comment
-                                submission.report('REPOST ALERT')
-                                cntr = 0
-                                table = ''
-                                for i in result:
-                                    table = table + \
-                                        str(cntr) + '|[post](https://reddit.com' + \
-                                        i[0] + ')|' + i[1] + '|' + \
-                                        str(i[3]) + '%' + '\n'
-                                    cntr += 1
-                                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
-                                    '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                                doThis = True
-                                while doThis:
-                                    try:
-                                        submission.reply(fullText)
-                                        doThis = False
-                                    except:
-                                        doThis = True
-                            with q.mutex:
-                                q.queue.clear()
-                            q.put('doneRunningStream')
-                            break
+                            print('Added {}'.format(submission.permalink))
+                        if result != [] and result != [['delete', -1, -1, -1, -1]] and post > 1:
+                            print('reported')
+                            # report and make a comment
+                            submission.report('REPOST ALERT')
+                            cntr = 0
+                            table = ''
+                            for i in result:
+                                table = table + \
+                                    str(cntr) + '|[post](https://reddit.com' + \
+                                    i[0] + ')|' + i[1] + '|' + \
+                                    str(i[3]) + '%' + '\n'
+                                cntr += 1
+                            fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
+                                '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
+                            doThis = True
+                            while doThis:
+                                try:
+                                    submission.reply(fullText)
+                                    doThis = False
+                                except:
+                                    doThis = True
+                        q.put('doneRunningStream')
+                        break
 
         except Exception as e:
             print(e)
@@ -285,18 +280,18 @@ q = Queue()
 deleteThread = Thread(target=deleteComment)
 findTopThread = Thread(target=findTopPosts, args=(q,))
 findHotThread = Thread(target=findHotPosts, args=(q,))
-# findNewThread = Thread(target=findNewPosts, args=(q,))
+findNewThread = Thread(target=findNewPosts, args=(q,))
 deleteOldThread = Thread(
     target=database.deleteOldFromDatabase)
 
 deleteThread.start()
 findTopThread.start()
 findHotThread.start()
-# findNewThread.start()
+findNewThread.start()
 deleteOldThread.start()
 
 deleteThread.join()
 findTopThread.join()
 findHotThread.join()
-# findNewThread.join()
+findNewThread.join()
 deleteOldThread.join()
