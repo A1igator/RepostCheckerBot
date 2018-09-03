@@ -63,6 +63,7 @@ def findTopPosts(q):
                         x = q.get()
                         if x is not 'doneRunningStream':
                             q.put(x)
+                            time.sleep(0.1)
                     else:
                         firstTime = False
                         print('test4')
