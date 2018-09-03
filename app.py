@@ -169,7 +169,6 @@ def findNewPosts(q):
             post = 0
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
-                print('test')
                 while True:
                     if not q.empty():
                         x = q.queue[0]
@@ -204,6 +203,7 @@ def findNewPosts(q):
                                 q.queue.clear()
                             q.put('doneRunningNew')
                             break
+                print('test')
             post = 0
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
