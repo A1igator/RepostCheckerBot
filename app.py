@@ -60,7 +60,7 @@ def findTopPosts(q):
             for submission in subreddit.top('all', limit=50):
                 while True:
                     if (not q.empty()) or firstTime:
-                        if q.get() is 'doneRunningStream' or firstTime:
+                        if firstTime or q.get() is 'doneRunningStream':
                             firstTime = False
                             print('test1')
                             top = True
