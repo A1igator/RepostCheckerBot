@@ -168,7 +168,6 @@ def findNewPosts(q):
             for submission in subreddit.new(limit=1000):
                 while True:
                     if not q.empty():
-                        print(q.queue)
                         x = q.queue[0]
                         if x is 'doneRunningHot':
                             print('test3')
