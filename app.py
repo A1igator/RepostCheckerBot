@@ -148,6 +148,7 @@ def findHotPosts(q):
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningHot')
+                            print(q.queue[0])
                             break
 
         except Exception as e:
