@@ -206,7 +206,7 @@ def findNewPosts(q):
                     if not q.empty():
                         x = q.get()
                         print(x + ' 4')
-                        if x is 'doneRunningNew:
+                        if x is 'doneRunningNew':
                             print('test4')
                             top = False
                             hot = False
