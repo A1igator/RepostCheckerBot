@@ -61,7 +61,6 @@ def findTopPosts(q):
                 while True:
                     if (not q.empty()) or firstTime:
                         if firstTime or q.get() is not 'running':
-                            print('test')
                             firstTime = False
                             with q.mutex:
                                 q.queue.clear()
@@ -217,6 +216,7 @@ def findNewPosts(q):
                             with q.mutex:
                                 q.queue.clear()
                             q.put('running')
+                            print('good')
                             top = False
                             hot = False
                             post += 1
