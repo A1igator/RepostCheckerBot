@@ -61,7 +61,7 @@ def findTopPosts(q):
                 while True:
                     if (not q.empty()) or firstTime:
                         print('test')
-                        if (q.get() is not 'running') or firstTime:
+                        if firstTime or q.get() is not 'running':
                             print('test')
                             firstTime = False
                             with q.mutex:
