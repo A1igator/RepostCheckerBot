@@ -223,9 +223,9 @@ def findStreamPosts(q):
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
                 while True:
+                    print('test')
                     if not q.empty():
                         x = q.queue[0]
-                        print(x)
                         if x is 'doneRunningNew':
                             print('test4')
                             top = False
