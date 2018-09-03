@@ -60,7 +60,6 @@ def findTopPosts(q):
             for submission in subreddit.top('all', limit=50):
                 while True:
                     if (not q.empty()) or firstTime:
-                        print('test')
                         if firstTime or q.get() is not 'running':
                             print('test')
                             firstTime = False
