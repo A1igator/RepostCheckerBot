@@ -92,6 +92,7 @@ def findTopPosts(q):
                                     hot,
                                 )
                                 print('Added {}'.format(submission.permalink))
+                            q.get()
                             q.put('doneRunningTop')
                             print(q.get())
                             break
