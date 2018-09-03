@@ -225,6 +225,7 @@ def findStreamPosts(q):
                 while True:
                     if not q.empty():
                         x = q.queue[0]
+                        print(x)
                         if x is 'doneRunningNew':
                             print('test4')
                             top = False
