@@ -59,7 +59,7 @@ def findTopPosts(q):
             for submission in subreddit.top('all', limit=50):
                 if not q.empty():
                     while q.get() == 'running':
-                        print('test')
+                        print('test4')
                         time.sleep(0.1)
                     with q.mutex:
                         q.queue.clear()
@@ -117,7 +117,7 @@ def findHotPosts(q):
             for submission in subreddit.hot(limit=50):
                 if not q.empty():
                     while q.get() == 'running':
-                        print('test')
+                        print('test3')
                         time.sleep(0.1)
                     with q.mutex:
                         q.queue.clear()
@@ -172,7 +172,7 @@ def findNewPosts(q):
             for submission in subreddit.new(limit=1000):
                 if not q.empty():
                     while q.get() == 'running':
-                        print('test')
+                        print('test2')
                         time.sleep(0.1)
                     with q.mutex:
                         q.queue.clear()
@@ -209,7 +209,7 @@ def findNewPosts(q):
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
                 while q.get() == 'running':
-                    print('test')
+                    print('test1')
                     time.sleep(0.1)
                 with q.mutex:
                     q.queue.clear()
