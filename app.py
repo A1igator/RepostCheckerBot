@@ -167,12 +167,9 @@ def findNewPosts(q):
     while True:
         try:
             post = 0
-            cntr = 0
             # then get 1000 posts from new of the subreddit
             for submission in subreddit.new(limit=1000):
-                cntr += 1
                 while True:
-                    print('test ' + str(cntr))
                     if not q.empty():
                         x = q.queue[0]
                         if x is 'doneRunningHot':
@@ -206,6 +203,22 @@ def findNewPosts(q):
                                 q.queue.clear()
                             q.put('doneRunningNew')
                             break
+        except Exception as e:
+            print(e)
+            print(repr(e))
+            if '503' in str(e):
+                print('503 from server')
+            else:
+                f = open('errs.txt', 'a')
+                f.write(str(traceback.format_exc()))
+
+
+def findStreamPosts(q):
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    top = False
+    hot = False
+    while True:
+        try:
             post = 0
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
@@ -284,6 +297,7 @@ deleteThread = Thread(target=deleteComment)
 findTopThread = Thread(target=findTopPosts, args=(q,))
 findHotThread = Thread(target=findHotPosts, args=(q,))
 findNewThread = Thread(target=findNewPosts, args=(q,))
+findStreamThread = Thread(target=findStreamPosts, args=(q,))
 deleteOldThread = Thread(
     target=database.deleteOldFromDatabase)
 
@@ -291,10 +305,12 @@ deleteThread.start()
 findTopThread.start()
 findHotThread.start()
 findNewThread.start()
+findStreamThread.start()
 deleteOldThread.start()
 
 deleteThread.join()
 findTopThread.join()
 findHotThread.join()
 findNewThread.join()
+findStreamThread.join()
 deleteOldThread.join()
