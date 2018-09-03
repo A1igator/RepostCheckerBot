@@ -60,12 +60,7 @@ def findTopPosts(q):
             for submission in subreddit.top('all', limit=50):
                 while True:
                     if (not q.empty()) or firstTime:
-                        if not firstTime:
-                            x = q.get()
-                            print(x + ' 1')
-                            if x is not 'doneRunningStream':
-                                q.put(x)
-                        else:
+                        if q.get() is 'doneRunningStream':
                             firstTime = False
                             print('test1')
                             top = True
@@ -122,9 +117,7 @@ def findHotPosts(q):
                     if not q.empty():
                         x = q.get()
                         print(x + ' 2')
-                        if x is not 'doneRunningTop':
-                            q.put(x)
-                        else:
+                        if x is 'doneRunningTop':
                             print('test2')
                             post += 1
                             print(
@@ -177,10 +170,7 @@ def findNewPosts(q):
                     if not q.empty():
                         x = q.get()
                         print(x + ' 3')
-                        if x is not 'doneRunningHot':
-                            q.put(x)
-                        else:
-                            q.put('running')
+                        if x is 'doneRunningHot':
                             print('test3')
                             post += 1
                             print(
@@ -216,10 +206,7 @@ def findNewPosts(q):
                     if not q.empty():
                         x = q.get()
                         print(x + ' 4')
-                        if x is not 'doneRunningNew':
-                            q.put(x)
-                        else:
-                            q.put('running')
+                        if x is 'doneRunningNew:
                             print('test4')
                             top = False
                             hot = False
