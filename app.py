@@ -173,7 +173,6 @@ def findNewPosts(q):
                 while True:
                     if not q.empty():
                         x = q.queue[0]
-                        print(x)
                         if x is 'doneRunningHot':
                             print('test3')
                             post += 1
