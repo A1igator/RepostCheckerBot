@@ -62,8 +62,6 @@ def findTopPosts(q):
                     if (not q.empty()) or firstTime:
                         if firstTime or q.get() is 'doneRunningStream':
                             firstTime = False
-                            with q.mutex:
-                                q.queue.clear()
                             print('test4')
                             q.put('running')
                             top = True
@@ -94,8 +92,6 @@ def findTopPosts(q):
                                     hot,
                                 )
                                 print('Added {}'.format(submission.permalink))
-                            with q.mutex:
-                                q.queue.clear()
                             q.put('doneRunningTop')
                             break
 
