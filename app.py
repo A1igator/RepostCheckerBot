@@ -117,7 +117,6 @@ def findHotPosts(q):
             for submission in subreddit.hot(limit=50):
                 while True:
                     if not q.empty():
-                        print(q.queue)
                         x = q.queue[0]
                         if x is 'doneRunningTop':
                             print('test2')
@@ -209,7 +208,6 @@ def findNewPosts(q):
             for submission in subreddit.stream.submissions():
                 while True:
                     if not q.empty():
-                        print(q.queue)
                         x = q.queue[0]
                         if x is 'doneRunningNew':
                             print('test4')
