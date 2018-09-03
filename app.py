@@ -60,7 +60,7 @@ def findTopPosts(q):
             for submission in subreddit.top('all', limit=50):
                 while True:
                     if (not q.empty()) or firstTime:
-                        if firstTime or q.get() is not 'running':
+                        if firstTime or q.get() is 'doneRunningStream':
                             firstTime = False
                             with q.mutex:
                                 q.queue.clear()
@@ -96,7 +96,7 @@ def findTopPosts(q):
                                 print('Added {}'.format(submission.permalink))
                             with q.mutex:
                                 q.queue.clear()
-                            q.put('doneRunning')
+                            q.put('doneRunningTop')
                             break
 
         except Exception as e:
@@ -120,9 +120,7 @@ def findHotPosts(q):
             for submission in subreddit.hot(limit=50):
                 while True:
                     if not q.empty():
-                        test = q.get()
-                        print(test)
-                        if test is not 'running':
+                        if q.get() is 'doneRunningTop':
                             with q.mutex:
                                 q.queue.clear()
                             q.put('running')
@@ -154,7 +152,7 @@ def findHotPosts(q):
                                 print('Added {}'.format(submission.permalink))
                             with q.mutex:
                                 q.queue.clear()
-                            q.put('doneRunning')
+                            q.put('doneRunningHot')
                             break
 
         except Exception as e:
@@ -178,7 +176,7 @@ def findNewPosts(q):
             for submission in subreddit.new(limit=1000):
                 while True:
                     if not q.empty():
-                        if q.get() is not 'running':
+                        if q.get() is 'doneRunningHot':
                             with q.mutex:
                                 q.queue.clear()
                             q.put('running')
@@ -210,14 +208,14 @@ def findNewPosts(q):
                                 print('Added {}'.format(submission.permalink))
                             with q.mutex:
                                 q.queue.clear()
-                            q.put('doneRunning')
+                            q.put('doneRunningNew')
                             break
             post = 0
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
                 while True:
                     if not q.empty():
-                        if q.get() is not 'running':
+                        if q.get() is 'doneRunningNew':
                             with q.mutex:
                                 q.queue.clear()
                             q.put('running')
@@ -272,7 +270,7 @@ def findNewPosts(q):
                                         doThis = True
                             with q.mutex:
                                 q.queue.clear()
-                            q.put('doneRunning')
+                            q.put('doneRunningStream')
                             break
 
         except Exception as e:
