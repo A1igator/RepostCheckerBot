@@ -61,12 +61,12 @@ def findTopPosts(q):
                 while (not q.empty()) or firstTime:
                     if not firstTime:
                         x = q.get()
+                        print(x + ' 1')
                         if x is not 'doneRunningStream':
                             q.put(x)
-                            time.sleep(0.1)
                     else:
                         firstTime = False
-                        print('test4')
+                        print('test1')
                         top = True
                         hot = False
                         post += 1
@@ -119,11 +119,11 @@ def findHotPosts(q):
             for submission in subreddit.hot(limit=50):
                 while not q.empty():
                     x = q.get()
+                    print(x + ' 2')
                     if x is not 'doneRunningTop':
                         q.put(x)
-                        time.sleep(0.1)
                     else:
-                        print('test3')
+                        print('test2')
                         post += 1
                         print(
                             '{} --> Starting new submission {}'.format(post, submission.id))
@@ -173,12 +173,12 @@ def findNewPosts(q):
             for submission in subreddit.new(limit=1000):
                 while not q.empty():
                     x = q.get()
-                    print(q.get())
+                    print(x + ' 3')
                     if x is not 'doneRunningHot':
                         q.put(x)
                     else:
                         q.put('running')
-                        print('test2')
+                        print('test3')
                         post += 1
                         print(
                             '{} --> Starting new submission {}'.format(post, submission.id))
@@ -211,6 +211,7 @@ def findNewPosts(q):
             for submission in subreddit.stream.submissions():
                 while not q.empty():
                     x = q.get()
+                    print(x + ' 4')
                     if x is not 'doneRunningNew':
                         q.put(x)
                     else:
