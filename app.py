@@ -119,6 +119,7 @@ def findHotPosts(q):
             # then get 50 posts from trending of the subreddit
             for submission in subreddit.hot(limit=50):
                 while True:
+                    print(q.empty())
                     if not q.empty():
                         print(q.get())
                         if q.get() is 'doneRunningTop':
