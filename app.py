@@ -205,7 +205,6 @@ def findNewPosts(q):
                                 submission.report('REPOST ALERT')
                                 cntr = 0
                                 table = ''
-                                print(result)
                                 for i in result:
                                     table = table + \
                                         str(cntr) + '|[post](https://reddit.com' + \
