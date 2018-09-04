@@ -221,8 +221,8 @@ def findStreamPosts(q):
         try:
             post = 0
             # then check posts as they come in
-            print(q.queue)
             for submission in subreddit.stream.submissions():
+                print(q.queue)
                 while True:
                     if not q.empty():
                         x = q.queue[0]
