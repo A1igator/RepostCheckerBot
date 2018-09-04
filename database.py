@@ -162,7 +162,7 @@ def updateDatabase(conn, url, updateVal):
     c.close()
 
 def deleteOldFromDatabase():
-    conn = sqlite3.connect('Posts1'+config.subSettings[0][0]+'.db')
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     c = conn.cursor()
     args = c.execute('SELECT Date, Location FROM Posts;')
     now = datetime.datetime.utcnow()
