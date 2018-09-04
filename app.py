@@ -60,7 +60,7 @@ def findTopPosts(q):
             for submission in subreddit.top('all', limit=50):
                 while True:
                     if (not q.empty()) or firstTime:
-                        if firstTime or q.queue[0] is 'doneRunningStream':
+                        if firstTime or q.queue[0] is 'doneRunningNew':
                             firstTime = False
                             print('test1')
                             top = True
@@ -199,6 +199,27 @@ def findNewPosts(q):
                                     hot,
                                 )
                                 print('Added {}'.format(submission.permalink))
+                            if result != [] and result != [['delete', -1, -1, -1, -1]]:
+                                print('reported')
+                                # report and make a comment
+                                submission.report('REPOST ALERT')
+                                cntr = 0
+                                table = ''
+                                for i in result:
+                                    table = table + \
+                                        str(cntr) + '|[post](https://reddit.com' + \
+                                        i[0] + ')|' + i[1] + '|' + \
+                                        str(i[3]) + '%' + '\n'
+                                    cntr += 1
+                                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
+                                    '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
+                                doThis = True
+                                while doThis:
+                                    try:
+                                        submission.reply(fullText)
+                                        doThis = False
+                                    except:
+                                        doThis = True
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningNew')
@@ -255,27 +276,7 @@ def findStreamPosts(q):
                                     hot,
                                 )
                                 print('Added {}'.format(submission.permalink))
-                            if result != [] and result != [['delete', -1, -1, -1, -1]] and post > 1:
-                                print('reported')
-                                # report and make a comment
-                                submission.report('REPOST ALERT')
-                                cntr = 0
-                                table = ''
-                                for i in result:
-                                    table = table + \
-                                        str(cntr) + '|[post](https://reddit.com' + \
-                                        i[0] + ')|' + i[1] + '|' + \
-                                        str(i[3]) + '%' + '\n'
-                                    cntr += 1
-                                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
-                                    '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                                doThis = True
-                                while doThis:
-                                    try:
-                                        submission.reply(fullText)
-                                        doThis = False
-                                    except:
-                                        doThis = True
+
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningStream')
@@ -298,20 +299,20 @@ deleteThread = Thread(target=deleteComment)
 findTopThread = Thread(target=findTopPosts, args=(q,))
 findHotThread = Thread(target=findHotPosts, args=(q,))
 findNewThread = Thread(target=findNewPosts, args=(q,))
-findStreamThread = Thread(target=findStreamPosts, args=(q,))
-# deleteOldThread = Thread(
-#     target=database.deleteOldFromDatabase)
+# findStreamThread = Thread(target=findStreamPosts, args=(q,))
+deleteOldThread = Thread(
+    target=database.deleteOldFromDatabase)
 
 deleteThread.start()
 findTopThread.start()
 findHotThread.start()
 findNewThread.start()
-findStreamThread.start()
-# deleteOldThread.start()
+# findStreamThread.start()
+deleteOldThread.start()
 
 deleteThread.join()
 findTopThread.join()
 findHotThread.join()
 findNewThread.join()
-findStreamThread.join()
-# deleteOldThread.join()
+# findStreamThread.join()
+deleteOldThread.join()
