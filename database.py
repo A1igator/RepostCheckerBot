@@ -209,6 +209,8 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
             for i in fullResult:
                 if i[0] is 'top' and cntr > 50 and i[0] not in fiftyTopPosts:
                     updateDatabase(conn, url, 'new')
+                args = c.execute('SELECT COUNT(*) FROM Posts;')
+                print(args.fetchall())
                 if cntr is 500:
                     cntr = 0
                 if i[0] is 'new':
