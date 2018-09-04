@@ -7,7 +7,7 @@ import random
 import sys
 import traceback
 import time
-from threading import Thread
+from threading import Thread, Timer
 from queue import Queue
 
 # other files
@@ -213,18 +213,6 @@ def findNewPosts(q):
                 f.write(str(traceback.format_exc()))
 
 
-# def stopCheckingAfterTime():
-
-#     timeout = 3
-
-#     timeout_start = time.time()
-
-#     while True:
-#         if time.time() > timeout_start + timeout:
-
-
-
-
 def findStreamPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
@@ -233,7 +221,7 @@ def findStreamPosts(q):
         try:
             post = 0
             # then check posts as they come in
-            print('test')
+            print(q.queue)
             for submission in subreddit.stream.submissions():
                 while True:
                     if not q.empty():
