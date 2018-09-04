@@ -61,7 +61,7 @@ def findTopPosts(q):
                 while True:
                     if (not q.empty()) or firstTime:
                         if firstTime or q.queue[0] is 'doneRunningStream':
-                            firstTime = False
+                            # firstTime = False
                             print('test1')
                             top = True
                             hot = False
