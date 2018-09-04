@@ -150,6 +150,7 @@ def ignore():
 
 
 def addToFound(post, precentage):
+    print(post)
     result.append(post[0])
     originalPostDate.append(post[1])
     location.append(post[2])
