@@ -182,6 +182,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     result[:] = []
     originalPostDate[:] = []
     finalTimePassed[:] = []
+    location[:] = []
     precentageMatched[:] = []
     args = None
     postsToRemove = []
