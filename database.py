@@ -159,6 +159,7 @@ def updateDatabase(conn, url, updateVal):
     print(updateVal)
     c = conn.cursor()
     c.execute('UPDATE Posts SET Location = ? WHERE Url = ?;', (str(updateVal),str(url),))
+    conn.commit()
     c.close()
 
 def deleteOldFromDatabase():
