@@ -343,6 +343,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
             fullText = (str(timePassed) + ' seconds ago')
         finalTimePassed.append(fullText)
     cntr = 0
+    print(location)
     for i in result:
         returnResult.append(
             [i, finalTimePassed[cntr], originalPostDate[cntr], location[cntr], precentageMatched[cntr]])
