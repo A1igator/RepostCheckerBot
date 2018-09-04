@@ -218,7 +218,6 @@ def findStreamPosts(q):
     top = False
     hot = False
     while True:
-        print('test')
         try:
             post = 0
             # then check posts as they come in
