@@ -8,6 +8,7 @@ import sys
 import traceback
 import time
 from threading import Thread
+from interruptingcow import timeout
 from queue import Queue
 
 # other files
@@ -222,64 +223,69 @@ def findStreamPosts(q):
             post = 0
             # then check posts as they come in
             for submission in subreddit.stream.submissions():
-                while True:
-                    if not q.empty():
-                        x = q.queue[0]
-                        if x is 'doneRunningNew':
-                            print('test4')
-                            top = False
-                            hot = False
-                            post += 1
-                            print(
-                                '{} --> Starting new submission {}'.format(post, submission.id))
-                            result = database.isLogged(
-                                conn,
-                                submission.url,
-                                submission.media,
-                                submission.selftext,
-                                submission.permalink,
-                                submission.created_utc,
-                                top,
-                                hot,
-                            )
-                            if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                database.addPost(
-                                    conn,
-                                    submission.created_utc,
-                                    submission.url,
-                                    submission.media,
-                                    submission.permalink,
-                                    submission.selftext,
-                                    top,
-                                    hot,
-                                )
-                                print('Added {}'.format(submission.permalink))
-                            if result != [] and result != [['delete', -1, -1, -1, -1]] and post > 1:
-                                print('reported')
-                                # report and make a comment
-                                submission.report('REPOST ALERT')
-                                cntr = 0
-                                table = ''
-                                for i in result:
-                                    table = table + \
-                                        str(cntr) + '|[post](https://reddit.com' + \
-                                        i[0] + ')|' + i[1] + '|' + \
-                                        str(i[3]) + '%' + '\n'
-                                    cntr += 1
-                                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
-                                    '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                                doThis = True
-                                while doThis:
-                                    try:
-                                        submission.reply(fullText)
-                                        doThis = False
-                                    except:
+                try:
+                    with timeout(60*5, exception=RuntimeError):
+                        while True:
+                            if not q.empty():
+                                x = q.queue[0]
+                                if x is 'doneRunningNew':
+                                    print('test4')
+                                    top = False
+                                    hot = False
+                                    post += 1
+                                    print(
+                                        '{} --> Starting new submission {}'.format(post, submission.id))
+                                    result = database.isLogged(
+                                        conn,
+                                        submission.url,
+                                        submission.media,
+                                        submission.selftext,
+                                        submission.permalink,
+                                        submission.created_utc,
+                                        top,
+                                        hot,
+                                    )
+                                    if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                                        database.addPost(
+                                            conn,
+                                            submission.created_utc,
+                                            submission.url,
+                                            submission.media,
+                                            submission.permalink,
+                                            submission.selftext,
+                                            top,
+                                            hot,
+                                        )
+                                        print('Added {}'.format(
+                                            submission.permalink))
+                                    if result != [] and result != [['delete', -1, -1, -1, -1]] and post > 1:
+                                        print('reported')
+                                        # report and make a comment
+                                        submission.report('REPOST ALERT')
+                                        cntr = 0
+                                        table = ''
+                                        for i in result:
+                                            table = table + \
+                                                str(cntr) + '|[post](https://reddit.com' + \
+                                                i[0] + ')|' + i[1] + '|' + \
+                                                str(i[3]) + '%' + '\n'
+                                            cntr += 1
+                                        fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
+                                            '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
                                         doThis = True
-                            with q.mutex:
-                                q.queue.clear()
-                            q.put('doneRunningStream')
-                            break
-
+                                        while doThis:
+                                            try:
+                                                submission.reply(fullText)
+                                                doThis = False
+                                            except:
+                                                doThis = True
+                                    with q.mutex:
+                                        q.queue.clear()
+                                    q.put('doneRunningStream')
+                                    break
+                except RuntimeError:
+                    q.put('doneRunningStream')
+                    pass
         except Exception as e:
             print(e)
             print(repr(e))
