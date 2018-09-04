@@ -276,7 +276,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                             for i in fullResult:
                                 addToFound(i, 100)
                         args = c.execute(
-                            'SELECT Url, Date,, Location, Content FROM posts;')
+                            'SELECT Url, Date, Location, Content FROM posts;')
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
