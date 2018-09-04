@@ -156,7 +156,6 @@ def addToFound(post, precentage):
     precentageMatched.append(precentage)
 
 def updateDatabase(conn, url, updateVal):
-    print(updateVal)
     c = conn.cursor()
     c.execute('UPDATE Posts SET Location = ? WHERE Url = ?;', (str(updateVal),str(url),))
     conn.commit()
@@ -171,8 +170,9 @@ def deleteOldFromDatabase():
         if x[1] is not 'top':
             then = datetime.datetime.fromtimestamp(x[0])
             timePassed = (now-then).days
-            if (timePassed > config.subSettings[0][2] and x[1] is 'new') or (timePassed > config.subSettings[0][1] and x[1] is 'hot'):
+            if timePassed > config.subSettings[0][2] and x[1] is 'new':
                 c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
+                conn.commit()
                 print('deleted an old post')
     c.close()
 
@@ -210,9 +210,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                 if i[0] is 'top' and cntr > 50 and i[0] not in fiftyTopPosts:
                     updateDatabase(conn, url, 'new')
                 args = c.execute('SELECT COUNT(*) FROM Posts;')
-                print(args.fetchall()[0][0])
-                if cntr is 500:
+                rowCount = args.fetchall()[0][0]
+                if cntr is rowCount:
                     cntr = 0
+                if i[0] is 'hot':
+                    if timePassed > config.subSettings[0][1] and timePassed < config.subSettings[0][2]:
+                        updateDatabase(conn, url, 'new')
                 if i[0] is 'new':
                     if hot:
                         updateDatabase(conn, url, 'hot')
