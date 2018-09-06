@@ -225,7 +225,6 @@ def findNewPosts(q):
                                 q.queue.clear()
                             q.put('doneRunningNew')
                             break
-        limitVal = 10
         except Exception as e:
             print(e)
             print(repr(e))
@@ -234,7 +233,7 @@ def findNewPosts(q):
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(traceback.format_exc()))
-
+        limitVal = 10
 
 def findStreamPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
