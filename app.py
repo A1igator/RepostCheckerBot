@@ -57,7 +57,7 @@ def findTopPosts(q):
             top = False
             hot = True
             # first get 50 posts from the top of the subreddit
-            for submission in subreddit.top('all', limit=50):
+            for submission in subreddit.top('all', limit=1000):
                 while True:
                     if (not q.empty()) or firstTime:
                         if firstTime or q.queue[0] is 'doneRunningNew':
@@ -164,11 +164,12 @@ def findNewPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = False
+    limitVal = 1000
     while True:
         try:
             post = 0
             # then get 1000 posts from new of the subreddit
-            for submission in subreddit.new(limit=1000):
+            for submission in subreddit.new(limit=limitVal):
                 while True:
                     if not q.empty():
                         x = q.queue[0]
@@ -224,6 +225,7 @@ def findNewPosts(q):
                                 q.queue.clear()
                             q.put('doneRunningNew')
                             break
+        limitVal = 10
         except Exception as e:
             print(e)
             print(repr(e))
