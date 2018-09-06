@@ -185,7 +185,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     precentageMatched[:] = []
     args = None
     postsToRemove = []
-    fiftyTopPosts = []
+    thousandTopPosts = []
     cntr = 0
     returnResult = []
     c = conn.cursor()
@@ -203,17 +203,18 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
             if top:
                 cntr += 1
                 updateDatabase(conn, url, 'top')
-                fiftyTopPosts.append(url)
+                thousandTopPosts.append(url)
             args = c.execute(
                 'SELECT Location FROM Posts WHERE Url = ?;', (str(url),))
             fullResult = list(args.fetchall())
             for i in fullResult:
-                if i[0] is 'top' and cntr > 50 and i[0] not in fiftyTopPosts:
+                if i[0] is 'top' and cntr > 1000 and i[0] not in thousandTopPosts:
                     updateDatabase(conn, url, 'new')
                 args = c.execute('SELECT COUNT(*) FROM Posts;')
                 rowCount = args.fetchall()[0][0]
                 if cntr is rowCount:
                     cntr = 0
+                    thousandTopPosts = []
                 if i[0] is 'hot':
                     if timePassed > config.subSettings[0][1] and timePassed < config.subSettings[0][2]:
                         updateDatabase(conn, url, 'new')
