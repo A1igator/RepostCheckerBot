@@ -348,7 +348,8 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
         returnResult.append(
             [i, finalTimePassed[cntr], originalPostDate[cntr], location[cntr], precentageMatched[cntr]])
         cntr += 1
-    print('Found? {}'.format(returnResult))
+    if returnResult is not [['delete', -1, -1, -1, -1]]:
+        print('Found? {}'.format(returnResult))
 
     return returnResult
 

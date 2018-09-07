@@ -62,12 +62,9 @@ def findTopPosts(q):
                     if (not q.empty()) or firstTime:
                         if firstTime or q.queue[0] is 'doneRunningNew':
                             firstTime = False
-                            print('test1')
                             top = True
                             hot = False
                             post += 1
-                            print(
-                                '{} --> Starting new submission {}'.format(post, submission.id))
                             result = database.isLogged(
                                 conn,
                                 submission.url,
@@ -90,7 +87,8 @@ def findTopPosts(q):
                                     top,
                                     hot,
                                 )
-                                print('Added {}'.format(submission.permalink))
+                                print('{} --> Added {}'.format(post,
+                                                               submission.permalink))
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningTop')
@@ -119,10 +117,7 @@ def findHotPosts(q):
                     if not q.empty():
                         x = q.queue[0]
                         if x is 'doneRunningTop':
-                            print('test2')
                             post += 1
-                            print(
-                                '{} --> Starting new submission {}'.format(post, submission.id))
                             result = database.isLogged(
                                 conn,
                                 submission.url,
@@ -144,7 +139,8 @@ def findHotPosts(q):
                                     top,
                                     hot,
                                 )
-                                print('Added {}'.format(submission.permalink))
+                                print('{} --> Added {}'.format(post,
+                                                               submission.permalink))
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningHot')
@@ -174,10 +170,7 @@ def findNewPosts(q):
                     if not q.empty():
                         x = q.queue[0]
                         if x is 'doneRunningHot':
-                            print('test3')
                             post += 1
-                            print(
-                                '{} --> Starting new submission {}'.format(post, submission.id))
                             result = database.isLogged(
                                 conn,
                                 submission.url,
@@ -199,7 +192,8 @@ def findNewPosts(q):
                                     top,
                                     hot,
                                 )
-                                print('Added {}'.format(submission.permalink))
+                                print('{} --> Added {}'.format(post,
+                                                               submission.permalink))
                             if result != [] and result != [['delete', -1, -1, -1, -1]]:
                                 print('reported')
                                 # report and make a comment
@@ -234,6 +228,7 @@ def findNewPosts(q):
                 f = open('errs.txt', 'a')
                 f.write(str(traceback.format_exc()))
         limitVal = 10
+
 
 def findStreamPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
