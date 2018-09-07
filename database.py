@@ -222,7 +222,6 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                         updateDatabase(conn, url, 'hot')
 
             ignore()
-            print('already done')
         else:
             if text != '&#x200B;' and text != '':
                 textHash = hashText(text)
@@ -347,8 +346,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
         returnResult.append(
             [i, finalTimePassed[cntr], originalPostDate[cntr], location[cntr], precentageMatched[cntr]])
         cntr += 1
-    print(returnResult)
-    if returnResult is not [['delete', -1, -1, -1, -1]]:
+    if returnResult != [['delete', -1, -1, -1, -1]]:
         print('Found? {}'.format(returnResult))
 
     return returnResult
