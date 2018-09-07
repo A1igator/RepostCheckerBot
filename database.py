@@ -195,7 +195,6 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     timePassed = (now-then).days
     if ((timePassed > config.subSettings[0][2] and not hot) or (timePassed > config.subSettings[0][1] and hot)) and not top:
         ignore()
-        print('the post is older than needed')
     else:
         args = c.execute(
             'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
@@ -348,6 +347,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
         returnResult.append(
             [i, finalTimePassed[cntr], originalPostDate[cntr], location[cntr], precentageMatched[cntr]])
         cntr += 1
+    print(returnResult)
     if returnResult is not [['delete', -1, -1, -1, -1]]:
         print('Found? {}'.format(returnResult))
 
