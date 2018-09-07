@@ -68,7 +68,6 @@ def hashImg(conn, imgUrl, url):
                     'User-Agent': user_agent}), context=context).read())
     except:
         deleteItem(conn, url)
-        print('invalid check so it was ignored')
     else:
         img = Image.open(f)
         imgHash = dhash.dhash_int(img)
@@ -85,7 +84,6 @@ def hashVid(conn, vidUrl, url):
         container = av.open(vidUrl['reddit_video']['fallback_url'])
     except:
         deleteItem(conn, url)
-        print('invalid check so it was ignored')
         vidHash = 'invalid'
     else:
         for frame in container.decode(video=0):
@@ -102,7 +100,6 @@ def hashGif(conn, gifUrl, url):
         frame = Image.open(f)
     except:
         deleteItem(conn, url)
-        print('invalid check so it was ignored')
         gifHash = 'invalid'
     else:
         while frame:
