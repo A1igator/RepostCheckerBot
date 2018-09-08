@@ -101,7 +101,7 @@ def findTopPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()))
+                f.write(str(traceback.format_exc()) + q.queue + q.empty())
 
 
 def findHotPosts(q):
@@ -116,7 +116,6 @@ def findHotPosts(q):
                 while True:
                     if not q.empty():
                         x = q.queue[0]
-                        print(x)
                         if x is 'doneRunningTop':
                             post += 1
                             result = database.isLogged(
@@ -154,7 +153,7 @@ def findHotPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()))
+                f.write(str(traceback.format_exc()) + q.queue + q.empty())
 
 
 def findNewPosts(q):
@@ -170,7 +169,6 @@ def findNewPosts(q):
                 while True:
                     if not q.empty():
                         x = q.queue[0]
-                        print(x)
                         if x is 'doneRunningHot':
                             post += 1
                             result = database.isLogged(
@@ -228,7 +226,7 @@ def findNewPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()))
+                f.write(str(traceback.format_exc()) + q.queue + q.empty())
         limitVal = 10
 
 
