@@ -89,27 +89,6 @@ def findTopPosts(q):
                                 )
                                 print('{} --> Added {}'.format(post,
                                                                submission.permalink))
-                            if result != [] and result != [['delete', -1, -1, -1, -1]]:
-                                print('reported')
-                                # report and make a comment
-                                submission.report('REPOST ALERT')
-                                cntr = 0
-                                table = ''
-                                for i in result:
-                                    table = table + \
-                                        str(cntr) + '|[post](https://reddit.com' + \
-                                        i[0] + ')|' + i[1] + '|' + \
-                                        str(i[4]) + '%' + '\n'
-                                    cntr += 1
-                                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
-                                    '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                                doThis = True
-                                while doThis:
-                                    try:
-                                        submission.reply(fullText)
-                                        doThis = False
-                                    except:
-                                        doThis = True
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningTop')
@@ -122,8 +101,7 @@ def findTopPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + '  ' +
-                        str(q.queue) + str(q.empty()))
+                f.write(str(traceback.format_exc()))
 
 
 def findHotPosts(q):
@@ -137,8 +115,12 @@ def findHotPosts(q):
             for submission in subreddit.hot(limit=50):
                 while True:
                     if not q.empty():
-                        x = q.queue[0]
-                        if x is 'doneRunningTop':
+                        try:
+                            x = q.queue[0]
+                        except IndexError as e:
+                            if 'deque index out of range' not in str(e):
+                                raise IndexError(e)
+                        if x is not None and x is 'doneRunningTop':
                             post += 1
                             result = database.isLogged(
                                 conn,
@@ -163,27 +145,6 @@ def findHotPosts(q):
                                 )
                                 print('{} --> Added {}'.format(post,
                                                                submission.permalink))
-                            if result != [] and result != [['delete', -1, -1, -1, -1]]:
-                                print('reported')
-                                # report and make a comment
-                                submission.report('REPOST ALERT')
-                                cntr = 0
-                                table = ''
-                                for i in result:
-                                    table = table + \
-                                        str(cntr) + '|[post](https://reddit.com' + \
-                                        i[0] + ')|' + i[1] + '|' + \
-                                        str(i[4]) + '%' + '\n'
-                                    cntr += 1
-                                fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
-                                    '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                                doThis = True
-                                while doThis:
-                                    try:
-                                        submission.reply(fullText)
-                                        doThis = False
-                                    except:
-                                        doThis = True
                             with q.mutex:
                                 q.queue.clear()
                             q.put('doneRunningHot')
@@ -196,8 +157,7 @@ def findHotPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + '  ' +
-                        str(q.queue) + str(q.empty()))
+                f.write(str(traceback.format_exc()) + q.queue + q.empty())
 
 
 def findNewPosts(q):
@@ -209,11 +169,15 @@ def findNewPosts(q):
         try:
             post = 0
             # then get 1000 posts from new of the subreddit
-            for submission in subreddit.new(limit=1000):
+            for submission in subreddit.new(limit=limitVal):
                 while True:
                     if not q.empty():
-                        x = q.queue[0]
-                        if x is 'doneRunningHot':
+                        try:
+                            x = q.queue[0]
+                        except IndexError as e:
+                            if 'deque index out of range' not in str(e):
+                                raise IndexError(e)
+                        if x is not None and x is 'doneRunningHot':
                             post += 1
                             result = database.isLogged(
                                 conn,
@@ -270,8 +234,7 @@ def findNewPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + '  ' +
-                        str(q.queue) + str(q.empty()))
+                f.write(str(traceback.format_exc()))
         limitVal = 10
 
 
@@ -286,9 +249,12 @@ def findStreamPosts(q):
             for submission in subreddit.stream.submissions():
                 while True:
                     if not q.empty():
-                        x = q.queue[0]
-                        print(x)
-                        if x is 'doneRunningNew':
+                        try:
+                            x = q.queue[0]
+                        except IndexError as e:
+                            if 'deque index out of range' not in str(e):
+                                raise IndexError(e)
+                        if x is not None and x is 'doneRunningNew':
                             print('test4')
                             top = False
                             hot = False
