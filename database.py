@@ -153,8 +153,9 @@ def addToFound(post, precentage):
     precentageMatched.append(precentage)
 
 def updateDatabase(conn, url, updateVal):
-    print(url)
-    print(updateVal)
+    if updateVal is not 'top':
+        print(url)
+        print(updateVal)
     c = conn.cursor()
     c.execute('UPDATE Posts SET Location = ? WHERE Url = ?;', (str(updateVal),str(url),))
     conn.commit()
