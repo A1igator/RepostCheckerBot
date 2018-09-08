@@ -101,7 +101,8 @@ def findTopPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + q.queue + q.empty())
+                f.write(str(traceback.format_exc()) + '  ' +
+                        str(q.queue) + str(q.empty()))
 
 
 def findHotPosts(q):
@@ -153,7 +154,8 @@ def findHotPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + q.queue + q.empty())
+                f.write(str(traceback.format_exc()) + '  ' +
+                        str(q.queue) + str(q.empty()))
 
 
 def findNewPosts(q):
@@ -226,7 +228,8 @@ def findNewPosts(q):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + q.queue + q.empty())
+                f.write(str(traceback.format_exc()) + '  ' +
+                        str(q.queue) + str(q.empty()))
         limitVal = 10
 
 
