@@ -217,6 +217,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                 if i[0] is 'hot':
                     if timePassed > config.subSettings[0][1] and timePassed < config.subSettings[0][2]:
                         updateDatabase(conn, url, 'new')
+                print(i[0])
                 if i[0] is 'new':
                     print(hot)
                     if hot:
