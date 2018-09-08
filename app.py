@@ -167,7 +167,7 @@ def findNewPosts(q):
         try:
             post = 0
             # then get 1000 posts from new of the subreddit
-            for submission in subreddit.new(limit=limitVal):
+            for submission in subreddit.new(limit=1000):
                 while True:
                     if not q.empty():
                         x = q.queue[0]
