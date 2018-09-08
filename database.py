@@ -167,10 +167,10 @@ def deleteOldFromDatabase():
     args = c.execute('SELECT Date, Location FROM Posts;')
     now = datetime.datetime.utcnow()
     for x in args.fetchall():
-        if x[1] is not 'top':
+        if x[1] != 'top':
             then = datetime.datetime.fromtimestamp(x[0])
             timePassed = (now-then).days
-            if timePassed > config.subSettings[0][2] and x[1] is 'new':
+            if timePassed > config.subSettings[0][2] and x[1] == 'new':
                 c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
                 conn.commit()
                 print('deleted an old post')
@@ -207,19 +207,17 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                 'SELECT Location FROM Posts WHERE Url = ?;', (str(url),))
             fullResult = list(args.fetchall())
             for i in fullResult:
-                if i[0] is 'top' and cntr > 1000 and i[0] not in thousandTopPosts:
+                if i[0] == 'top' and cntr > 1000 and i[0] not in thousandTopPosts:
                     updateDatabase(conn, url, 'new')
                 args = c.execute('SELECT COUNT(*) FROM Posts;')
                 rowCount = args.fetchall()[0][0]
                 if cntr is rowCount:
                     cntr = 0
                     thousandTopPosts = []
-                if i[0] is 'hot':
+                if i[0] == 'hot':
                     if timePassed > config.subSettings[0][1] and timePassed < config.subSettings[0][2]:
                         updateDatabase(conn, url, 'new')
-                print(i[0] == 'new')
-                if i[0] is 'new':
-                    print(hot)
+                if i[0] == 'new':
                     if hot:
                         updateDatabase(conn, url, 'hot')
 
