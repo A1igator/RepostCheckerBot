@@ -161,16 +161,17 @@ def updateDatabase(conn, url, updateVal):
 def deleteOldFromDatabase():
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     c = conn.cursor()
-    args = c.execute('SELECT Date, Location FROM Posts;')
-    now = datetime.datetime.utcnow()
-    for x in args.fetchall():
-        if x[1] != 'top':
-            then = datetime.datetime.fromtimestamp(x[0])
-            timePassed = (now-then).days
-            if timePassed > config.subSettings[0][2] and x[1] == 'new':
-                c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
-                conn.commit()
-                print('deleted an old post')
+    while True:
+        args = c.execute('SELECT Date, Location FROM Posts;')
+        now = datetime.datetime.utcnow()
+        for x in args.fetchall():
+            if x[1] != 'top':
+                then = datetime.datetime.fromtimestamp(x[0])
+                timePassed = (now-then).days
+                if timePassed > config.subSettings[0][2] and x[1] == 'new':
+                    c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
+                    conn.commit()
+                    print('deleted an old post')
     c.close()
 
 
