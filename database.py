@@ -182,7 +182,6 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
     precentageMatched[:] = []
     args = None
     postsToRemove = []
-    thousandTopPosts = []
     cntr = 0
     returnResult = []
     c = conn.cursor()
@@ -196,27 +195,20 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
         args = c.execute(
             'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
         if list(args.fetchone())[0] != 0:
-            if top:
-                cntr += 1
-                updateDatabase(conn, url, 'top')
-                thousandTopPosts.append(url)
             args = c.execute(
                 'SELECT Location FROM Posts WHERE Url = ?;', (str(url),))
             fullResult = list(args.fetchall())
             for i in fullResult:
-                if i[0] == 'top' and cntr > 1000 and i[0] not in thousandTopPosts:
-                    updateDatabase(conn, url, 'new')
                 args = c.execute('SELECT COUNT(*) FROM Posts;')
-                rowCount = args.fetchall()[0][0]
-                if cntr is rowCount:
-                    cntr = 0
-                    thousandTopPosts = []
-                if i[0] == 'hot':
-                    if timePassed > config.subSettings[0][2] and timePassed < config.subSettings[0][3]:
-                        updateDatabase(conn, url, 'new')
-                if i[0] == 'new':
-                    if hot:
+                if i[0] != 'top':
+                    if top and (config.subSettings[0][1] is None or timePassed < config.subSettings[0][1]):
+                        updateDatabase(conn, url, 'top')
+                elif i[0] != 'hot':
+                    if hot and (config.subSettings[0][2] is None or timePassed < config.subSettings[0][2]):
                         updateDatabase(conn, url, 'hot')
+                elif i[0] != 'new':
+                    if new and (config.subSettings[0][3] is None or timePassed < config.subSettings[0][3]):
+                        updateDatabase(conn, url, 'new')
 
             ignore()
         else:
