@@ -168,7 +168,7 @@ def deleteOldFromDatabase():
             if x[1] != 'top':
                 then = datetime.datetime.fromtimestamp(x[0])
                 timePassed = (now-then).days
-                if timePassed > config.subSettings[0][2] and x[1] == 'new':
+                if timePassed > config.subSettings[0][3] and x[1] == 'new':
                     c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
                     conn.commit()
                     print('deleted an old post')
@@ -191,7 +191,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
-    if ((timePassed > config.subSettings[0][2] and not hot) or (timePassed > config.subSettings[0][1] and hot)) and not top:
+    if ((timePassed > config.subSettings[0][3] and not hot) or (timePassed > config.subSettings[0][2] and hot)) and not top:
         ignore()
     else:
         args = c.execute(
@@ -213,7 +213,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                     cntr = 0
                     thousandTopPosts = []
                 if i[0] == 'hot':
-                    if timePassed > config.subSettings[0][1] and timePassed < config.subSettings[0][2]:
+                    if timePassed > config.subSettings[0][2] and timePassed < config.subSettings[0][3]:
                         updateDatabase(conn, url, 'new')
                 if i[0] == 'new':
                     if hot:
@@ -250,9 +250,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                             if isInt(hashedReadable.replace(' ', '')):
                                 hashedDifference = hashVidDifference(
                                     hashedReadable, vidHash)
-                                if hashedDifference < config.subSettings[0][2]:
+                                if hashedDifference < config.subSettings[0][7]:
                                     addToFound(
-                                        hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
+                                        hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][2])*100)
             elif contentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(
                     contentUrl).replace('&feature=youtu.be', ''),))
@@ -281,9 +281,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                                 if isInt(hashedReadable.replace(' ', '')):
                                     hashedDifference = hashVidDifference(
                                         hashedReadable, gifHash)
-                                    if hashedDifference < config.subSettings[0][2]:
+                                    if hashedDifference < config.subSettings[0][7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
+                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][2])*100)
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
                     if isInt(imgHash):
@@ -303,9 +303,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
                                 if isInt(hashedReadable):
                                     hashedDifference = dhash.get_num_bits_different(
                                         imgHash, int(hashedReadable))
-                                    if hashedDifference < config.subSettings[0][2]:
+                                    if hashedDifference < config.subSettings[0][7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
+                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][2])*100)
 
     for i in result:
         if i != '' and i != 'delete':
