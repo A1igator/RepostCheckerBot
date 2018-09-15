@@ -155,7 +155,7 @@ def findHotPosts(q):
                                     hot,
                                     new,
                                 )
-                                    print('{} --> Added {}'.format(post,
+                                print('{} --> Added {}'.format(post,
                                                                submission.permalink))
                             with q.mutex:
                                 q.queue.clear()
@@ -214,7 +214,7 @@ def findNewPosts(q):
                                     hot,
                                     new,
                                 )
-                            print('{} --> Added {}'.format(post,
+                                print('{} --> Added {}'.format(post,
                                                                submission.permalink))
                             if result != [] and result != [['delete', -1, -1, -1, -1]]:
                                 print('reported')
