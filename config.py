@@ -11,9 +11,9 @@ subSettings = [
         int(6),
         int(os.environ['BOT_HOT_DAYS']),
         int(os.environ['BOT_NEW_DAYS']),
-        int(os.environ['BOT_TOP_NUM_POSTS']) | 1000,
-        int(os.environ['BOT_HOT_NUM_POSTS']) | 1000,
-        int(os.environ['BOT_NEW_NUM_POSTS']) | 1000,
+        int(os.environ['BOT_TOP_NUM_POSTS']) if os.environ['BOT_TOP_NUM_POSTS'] else 1000,
+        int(os.environ['BOT_HOT_NUM_POSTS']) if os.environ['BOT_HOT_NUM_POSTS'] else 1000,
+        int(os.environ['BOT_NEW_NUM_POSTS']) if os.environ['BOT_NEW_NUM_POSTS'] else 1000,
         int(os.environ['BOT_THRESH'])
     ],
 ]
