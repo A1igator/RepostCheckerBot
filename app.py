@@ -155,7 +155,7 @@ def findHotPosts(q):
                                     hot,
                                     new,
                                 )
-                                print('{} --> Added {}'.format(post,
+                                    print('{} --> Added {}'.format(post,
                                                                submission.permalink))
                             with q.mutex:
                                 q.queue.clear()
