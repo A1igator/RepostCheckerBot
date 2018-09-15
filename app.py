@@ -179,7 +179,6 @@ def findNewPosts(q):
     hot = False
     new = True
     limitVal = config.subSettings[0][6]
-    print(limitVal)
     while True:
         try:
             post = 0
@@ -266,7 +265,6 @@ findNewThread = Thread(target=findNewPosts, args=(q,))
 if config.subSettings[0][1] is not None or config.subSettings[0][2] is not None or config.subSettings[0][3] is not None:
     deleteOldThread = Thread(target=database.deleteOldFromDatabase)
     deleteOldThread.start()
-    deleteOldThread.join()
 
 deleteThread.start()
 findTopThread.start()
@@ -277,3 +275,5 @@ deleteThread.join()
 findTopThread.join()
 findHotThread.join()
 findNewThread.join()
+if deleteOldThread is not None:
+    deleteOldThread.join()
