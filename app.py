@@ -60,7 +60,12 @@ def findTopPosts(q):
             for submission in subreddit.top('all', limit=1000):
                 while True:
                     if (not q.empty()) or firstTime:
-                        if firstTime or q.queue[0] is 'doneRunningNew':
+                        try:
+                            x = q.queue[0]
+                        except IndexError as e:
+                            if 'deque index out of range' not in str(e):
+                                raise IndexError(e)
+                        if firstTime or (x is not None and x is 'doneRunningNew'):
                             firstTime = False
                             top = True
                             hot = False
@@ -227,6 +232,7 @@ def findNewPosts(q):
                                 q.queue.clear()
                             q.put('doneRunningNew')
                             break
+            limitVal = 10
         except Exception as e:
             print(e)
             print(repr(e))
@@ -235,7 +241,6 @@ def findNewPosts(q):
             else:
                 f = open('errs.txt', 'a')
                 f.write(str(traceback.format_exc()))
-        limitVal = 10
 
 
 def findStreamPosts(q):
