@@ -168,6 +168,8 @@ def deleteOldFromDatabase():
             then = datetime.datetime.fromtimestamp(x[0])
             timePassed = (now-then).days
             print(config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and x[1] == 'top')
+            print(config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and x[1] == 'hot')
+            print(config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and x[1] == 'new')
             if timePassed > config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and x[1] == 'top' or config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and x[1] == 'hot' or config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and x[1] == 'new':
                 c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
                 conn.commit()
