@@ -189,7 +189,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
-    if timePassed > config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and top or config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and hot or config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and new:
+    if config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and top or config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and hot or config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and new:
         ignore()
     else:
         args = c.execute(
