@@ -50,6 +50,7 @@ def findTopPosts(q):
     top = False
     hot = True
     firstTime = True
+    limitVal = config.subSettings[0][4]
     print('Starting searching...')
     while True:
         try:
@@ -57,7 +58,7 @@ def findTopPosts(q):
             top = False
             hot = True
             # first get 50 posts from the top of the subreddit
-            for submission in subreddit.top('all', limit=1000):
+            for submission in subreddit.top('all', limit=limitVal):
                 while True:
                     if (not q.empty()) or firstTime:
                         try:
@@ -113,11 +114,12 @@ def findHotPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
+    limitVal = config.subSettings[0][5]
     while True:
         try:
             post = 0
             # then get 50 posts from trending of the subreddit
-            for submission in subreddit.hot(limit=50):
+            for submission in subreddit.hot(limit=limitVal):
                 while True:
                     if not q.empty():
                         try:
@@ -169,7 +171,7 @@ def findNewPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = False
-    limitVal = 1000
+    limitVal = config.subSettings[0][6]
     while True:
         try:
             post = 0
@@ -243,67 +245,6 @@ def findNewPosts(q):
                 f.write(str(traceback.format_exc()))
 
 
-def findStreamPosts(q):
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
-    top = False
-    hot = False
-    while True:
-        try:
-            post = 0
-            # then check posts as they come in
-            for submission in subreddit.stream.submissions():
-                while True:
-                    if not q.empty():
-                        try:
-                            x = q.queue[0]
-                        except IndexError as e:
-                            if 'deque index out of range' not in str(e):
-                                raise IndexError(e)
-                        if x is not None and x is 'doneRunningNew':
-                            print('test4')
-                            top = False
-                            hot = False
-                            post += 1
-                            print(
-                                '{} --> Starting new submission {}'.format(post, submission.id))
-                            result = database.isLogged(
-                                conn,
-                                submission.url,
-                                submission.media,
-                                submission.selftext,
-                                submission.permalink,
-                                submission.created_utc,
-                                top,
-                                hot,
-                            )
-                            if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                database.addPost(
-                                    conn,
-                                    submission.created_utc,
-                                    submission.url,
-                                    submission.media,
-                                    submission.permalink,
-                                    submission.selftext,
-                                    top,
-                                    hot,
-                                )
-                                print('Added {}'.format(submission.permalink))
-
-                            with q.mutex:
-                                q.queue.clear()
-                            q.put('doneRunningStream')
-                            break
-
-        except Exception as e:
-            print(e)
-            print(repr(e))
-            if '503' in str(e):
-                print('503 from server')
-            else:
-                f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()))
-
-
 database.initDatabase(conn)
 
 q = Queue()
@@ -311,7 +252,6 @@ deleteThread = Thread(target=deleteComment)
 findTopThread = Thread(target=findTopPosts, args=(q,))
 findHotThread = Thread(target=findHotPosts, args=(q,))
 findNewThread = Thread(target=findNewPosts, args=(q,))
-# findStreamThread = Thread(target=findStreamPosts, args=(q,))
 deleteOldThread = Thread(
     target=database.deleteOldFromDatabase)
 
@@ -319,12 +259,10 @@ deleteThread.start()
 findTopThread.start()
 findHotThread.start()
 findNewThread.start()
-# findStreamThread.start()
 deleteOldThread.start()
 
 deleteThread.join()
 findTopThread.join()
 findHotThread.join()
 findNewThread.join()
-# findStreamThread.join()
 deleteOldThread.join()
