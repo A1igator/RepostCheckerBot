@@ -104,8 +104,7 @@ def findTopPosts(q):
                             break
 
         except Exception as e:
-            print(e)
-            print(repr(e))
+            print(traceback.format_exc())
             if '503' in str(e):
                 print('503 from server')
             else:
@@ -164,13 +163,12 @@ def findHotPosts(q):
                             break
 
         except Exception as e:
-            print(e)
-            print(repr(e))
+            print(traceback.format_exc())
             if '503' in str(e):
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + q.queue + q.empty())
+                f.write(str(traceback.format_exc()))
 
 
 def findNewPosts(q):
@@ -245,8 +243,7 @@ def findNewPosts(q):
                             break
             limitVal = 10
         except Exception as e:
-            print(e)
-            print(repr(e))
+            print(traceback.format_exc())
             if '503' in str(e):
                 print('503 from server')
             else:
