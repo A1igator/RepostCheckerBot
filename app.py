@@ -47,8 +47,9 @@ def deleteComment():
 
 def findTopPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
-    top = False
-    hot = True
+    top = True
+    hot = False
+    new = False
     firstTime = True
     limitVal = config.subSettings[0][4]
     print('Starting searching...')
@@ -80,6 +81,7 @@ def findTopPosts(q):
                                 submission.created_utc,
                                 top,
                                 hot,
+                                new,
                             )
 
                             if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
@@ -92,6 +94,7 @@ def findTopPosts(q):
                                     submission.selftext,
                                     top,
                                     hot,
+                                    new,
                                 )
                                 print('{} --> Added {}'.format(post,
                                                                submission.permalink))
@@ -114,6 +117,7 @@ def findHotPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = True
+    new = False
     limitVal = config.subSettings[0][5]
     while True:
         try:
@@ -138,6 +142,7 @@ def findHotPosts(q):
                                 submission.created_utc,
                                 top,
                                 hot,
+                                new,
                             )
                             if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                 database.addPost(
@@ -149,6 +154,7 @@ def findHotPosts(q):
                                     submission.selftext,
                                     top,
                                     hot,
+                                    new,
                                 )
                                 print('{} --> Added {}'.format(post,
                                                                submission.permalink))
@@ -171,6 +177,7 @@ def findNewPosts(q):
     conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
     top = False
     hot = False
+    new = True
     limitVal = config.subSettings[0][6]
     while True:
         try:
@@ -195,6 +202,7 @@ def findNewPosts(q):
                                 submission.created_utc,
                                 top,
                                 hot,
+                                new,
                             )
                             if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                 database.addPost(
@@ -206,6 +214,7 @@ def findNewPosts(q):
                                     submission.selftext,
                                     top,
                                     hot,
+                                    new
                                 )
                                 print('{} --> Added {}'.format(post,
                                                                submission.permalink))
@@ -252,17 +261,18 @@ deleteThread = Thread(target=deleteComment)
 findTopThread = Thread(target=findTopPosts, args=(q,))
 findHotThread = Thread(target=findHotPosts, args=(q,))
 findNewThread = Thread(target=findNewPosts, args=(q,))
-deleteOldThread = Thread(
-    target=database.deleteOldFromDatabase)
+
+if config.subSettings[0][1] is not None or config.subSettings[0][2] is not None or config.subSettings[0][3] is not None:
+    deleteOldThread = Thread(target=database.deleteOldFromDatabase)
+    deleteOldThread.start()
+    deleteOldThread.join()
 
 deleteThread.start()
 findTopThread.start()
 findHotThread.start()
 findNewThread.start()
-deleteOldThread.start()
 
 deleteThread.join()
 findTopThread.join()
 findHotThread.join()
 findNewThread.join()
-deleteOldThread.join()

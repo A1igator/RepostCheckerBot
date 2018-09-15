@@ -165,17 +165,16 @@ def deleteOldFromDatabase():
         args = c.execute('SELECT Date, Location FROM Posts;')
         now = datetime.datetime.utcnow()
         for x in args.fetchall():
-            if x[1] != 'top':
-                then = datetime.datetime.fromtimestamp(x[0])
-                timePassed = (now-then).days
-                if timePassed > config.subSettings[0][3] and x[1] == 'new':
-                    c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
-                    conn.commit()
-                    print('deleted an old post')
+            then = datetime.datetime.fromtimestamp(x[0])
+            timePassed = (now-then).days
+            if timePassed > config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and x[1] == 'top' or config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and x[1] == 'hot' or config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and x[1] == 'new':
+                c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
+                conn.commit()
+                print('deleted an old post')
     c.close()
 
 
-def isLogged(conn, contentUrl, media, text, url, date, top, hot):
+def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
     result[:] = []
     originalPostDate[:] = []
     finalTimePassed[:] = []
@@ -191,7 +190,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
-    if ((timePassed > config.subSettings[0][3] and not hot) or (timePassed > config.subSettings[0][2] and hot)) and not top:
+    if timePassed > config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and top or config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and hot or config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and new:
         ignore()
     else:
         args = c.execute(
@@ -350,7 +349,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot):
     return returnResult
 
 
-def addPost(conn, date, contentUrl, media, url, text, top, hot):
+def addPost(conn, date, contentUrl, media, url, text, top, hot, new):
     c = conn.cursor()
     if text != '&#x200B;' and text != '':
         content = hashText(text)
@@ -379,7 +378,7 @@ def addPost(conn, date, contentUrl, media, url, text, top, hot):
         locationVar = 'top'
     elif hot:
         locationVar = 'hot'
-    else:
+    elif new:
         locationVar = 'new'
     c.execute('INSERT INTO Posts (Date, Content, Url, Location) VALUES (?, ?, ?, ?);',
               (int(date), str(content), str(url), str(locationVar),))
