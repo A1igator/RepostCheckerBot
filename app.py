@@ -214,7 +214,7 @@ def findNewPosts(q):
                                     submission.selftext,
                                     top,
                                     hot,
-                                    new
+                                    new,
                                 )
                                 print('{} --> Added {}'.format(post,
                                                                submission.permalink))

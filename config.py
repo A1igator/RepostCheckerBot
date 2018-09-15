@@ -17,4 +17,3 @@ subSettings = [
         int(os.environ['BOT_THRESH'])
     ],
 ]
-print(subSettings)
