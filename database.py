@@ -178,7 +178,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
     cntr = 0
     returnResult = []
     c = conn.cursor()
-
+    print(text)
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
@@ -217,7 +217,6 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                     args = c.execute(
                         'SELECT Url, Date, Content FROM posts;')
                     for texts in args.fetchall():
-                        print(texts)
                         if texts[0] not in result:
                             texts = texts[2]
                             difference = distance(texts, text)
