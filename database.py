@@ -10,7 +10,7 @@ from io import BytesIO
 import ssl
 from PIL import Image
 import dhash
-from hashlib import md5
+from python-Levenshtein import distance
 import av
 
 reddit = praw.Reddit(client_id=config.client_id,
@@ -73,11 +73,6 @@ def hashImg(conn, imgUrl, url):
         img = Image.open(f)
         imgHash = dhash.dhash_int(img)
     return imgHash
-
-
-def hashText(txt):
-    return md5(txt.encode('utf-8')).hexdigest()
-
 
 def hashVid(conn, vidUrl, url):
     vidHash = ''
@@ -214,15 +209,23 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
             ignore()
         else:
             if text != '&#x200B;' and text != '':
-                textHash = hashText(text)
                 args = c.execute(
-                    'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
+                    'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(text),))
                 if list(args.fetchone())[0] != 0:
                     args = c.execute(
-                        'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(textHash),))
+                        'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(text),))
                     fullResult = list(args.fetchall())
                     for i in fullResult:
                         addToFound(i, 100)
+                    args = c.execute(
+                        'SELECT Url, Date, Location, Content FROM posts;')
+                    for texts in args.fetchall():
+                        if texts[0] not in result:
+                            texts = texts[2]
+                            difference = distance(texts, text)
+                            if difference < config.subSettings[0][7]:
+                                addToFound(
+                                    texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][2])*100)
             elif media != None:
                 vidHash = hashVid(conn, media, url)
                 if isInt(vidHash.replace(' ', '')):
@@ -345,7 +348,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
 def addPost(conn, date, contentUrl, media, url, text, author, score, title, top, hot, new):
     c = conn.cursor()
     if text != '&#x200B;' and text != '':
-        content = hashText(text)
+        content = text
     else:
         if media != None:
             vidHash = hashVid(conn, media, url)
