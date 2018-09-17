@@ -222,7 +222,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                             difference = distance(textVar, text)
                             if difference < config.subSettings[0][7]:
                                 addToFound(
-                                    texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][2])*100)
+                                    texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][7])*100)
             elif media != None:
                 vidHash = hashVid(conn, media, url)
                 if isInt(vidHash.replace(' ', '')):
@@ -244,7 +244,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                                     hashedReadable, vidHash)
                                 if hashedDifference < config.subSettings[0][7]:
                                     addToFound(
-                                        hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][2])*100)
+                                        hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][7])*100)
             elif contentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(
                     contentUrl).replace('&feature=youtu.be', ''),))
@@ -275,7 +275,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                                         hashedReadable, gifHash)
                                     if hashedDifference < config.subSettings[0][7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][2])*100)
+                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][7])*100)
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
                     if isInt(imgHash):
@@ -297,7 +297,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                                         imgHash, int(hashedReadable))
                                     if hashedDifference < config.subSettings[0][7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][2])*100)
+                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][7])*100)
 
     for i in result:
         if i != '' and i != 'delete':
