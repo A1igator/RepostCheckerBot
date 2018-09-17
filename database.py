@@ -178,7 +178,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
     cntr = 0
     returnResult = []
     c = conn.cursor()
-    print(text)
+
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
@@ -220,7 +220,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                         if texts[0] not in result:
                             texts = texts[2]
                             difference = distance(texts, text)
-                            print("difference")
+                            print(difference)
                             if difference < config.subSettings[0][7]:
                                 addToFound(
                                     texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][2])*100)
