@@ -216,6 +216,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                     args = c.execute(
                         'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(text),))
                     fullResult = list(args.fetchall())
+                    print(fullResult)
                     for i in fullResult:
                         print(i)
                         addToFound(i, 100)
@@ -378,7 +379,6 @@ def addPost(conn, date, contentUrl, media, url, text, author, score, title, top,
         locationVar = 'hot'
     elif new:
         locationVar = 'new'
-    print(content)
     c.execute('INSERT INTO Posts (Date, Content, Url, Location, Author, Score, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
               (int(date), str(content), str(url), str(locationVar), str(author), int(score), str(title), ))
     conn.commit()
