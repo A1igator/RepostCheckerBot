@@ -303,6 +303,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                                         addToFound(
                                             hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][2])*100)
 
+    print(result)
     for i in result:
         if i != '' and i != 'delete':
             if reddit.submission(url='https://reddit.com' + i).selftext == '[deleted]':
