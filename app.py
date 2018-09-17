@@ -22,7 +22,7 @@ reddit = praw.Reddit(client_id=config.client_id,
 
 subreddit = reddit.subreddit(config.subSettings[0][0])
 
-conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
 
 
 def deleteComment():
@@ -46,7 +46,7 @@ def deleteComment():
 
 
 def findTopPosts(q):
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
     top = True
     hot = False
     new = False
@@ -115,7 +115,7 @@ def findTopPosts(q):
 
 
 def findHotPosts(q):
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
     top = False
     hot = True
     new = False
@@ -176,7 +176,7 @@ def findHotPosts(q):
 
 
 def findNewPosts(q):
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
     top = False
     hot = False
     new = True

@@ -159,7 +159,7 @@ def updateDatabase(conn, url, updateVal):
     c.close()
 
 def deleteOldFromDatabase():
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
     c = conn.cursor()
     while True:
         args = c.execute('SELECT Date, Location FROM Posts;')
