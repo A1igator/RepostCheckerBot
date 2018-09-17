@@ -216,9 +216,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                     args = c.execute(
                         'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(text),))
                     fullResult = list(args.fetchall())
-                    print(fullResult,'1')
                     for i in fullResult:
-                        print(i,'2')
                         addToFound(i, 100)
                     args = c.execute(
                         'SELECT Url, Date, Location, Content FROM posts;')
@@ -227,6 +225,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                             texts = texts[2]
                             difference = distance(texts, text)
                             if difference < config.subSettings[0][7]:
+                                print(texts)
                                 addToFound(
                                     texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][2])*100)
             elif media != None:
