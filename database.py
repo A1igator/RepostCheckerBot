@@ -379,6 +379,7 @@ def addPost(conn, date, contentUrl, media, url, text, author, score, title, top,
         locationVar = 'hot'
     elif new:
         locationVar = 'new'
+    print(content)
     c.execute('INSERT INTO Posts (Date, Content, Url, Location, Author, Score, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
               (int(date), str(content), str(url), str(locationVar), str(author), int(score), str(title), ))
     conn.commit()
