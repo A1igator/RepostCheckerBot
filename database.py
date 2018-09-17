@@ -143,7 +143,7 @@ def ignore():
 
 
 def addToFound(post, precentage):
-    print(post+'3')
+    print(post,'3')
     result.append(post[0])
     originalPostDate.append(post[1])
     location.append(post[2])
@@ -216,9 +216,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                     args = c.execute(
                         'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(text),))
                     fullResult = list(args.fetchall())
-                    print(fullResult+'1')
+                    print(fullResult,'1')
                     for i in fullResult:
-                        print(i+'2')
+                        print(i,'2')
                         addToFound(i, 100)
                     args = c.execute(
                         'SELECT Url, Date, Location, Content FROM posts;')
