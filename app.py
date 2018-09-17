@@ -72,7 +72,6 @@ def findTopPosts(q):
                             top = True
                             hot = False
                             post += 1
-                            print(submission.score)
                             result = database.isLogged(
                                 conn,
                                 submission.url,
@@ -94,6 +93,7 @@ def findTopPosts(q):
                                     submission.permalink,
                                     submission.selftext,
                                     submission.author,
+                                    submission.score,
                                     top,
                                     hot,
                                     new,
@@ -154,6 +154,7 @@ def findHotPosts(q):
                                     submission.permalink,
                                     submission.selftext,
                                     submission.author,
+                                    submission.score,
                                     top,
                                     hot,
                                     new,
@@ -214,6 +215,7 @@ def findNewPosts(q):
                                     submission.permalink,
                                     submission.selftext,
                                     submission.author,
+                                    submission.score,
                                     top,
                                     hot,
                                     new,

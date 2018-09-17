@@ -31,7 +31,7 @@ precentageMatched = []
 def initDatabase(conn):
     c = conn.cursor()
     c.execute(
-        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT);')
+        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Score INT);')
     conn.commit()
     c.close()
     print('Create table.')
@@ -341,7 +341,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
     return returnResult
 
 
-def addPost(conn, date, contentUrl, media, url, text, author, top, hot, new):
+def addPost(conn, date, contentUrl, media, url, text, author, score, top, hot, new):
     c = conn.cursor()
     if text != '&#x200B;' and text != '':
         content = hashText(text)
@@ -372,8 +372,8 @@ def addPost(conn, date, contentUrl, media, url, text, author, top, hot, new):
         locationVar = 'hot'
     elif new:
         locationVar = 'new'
-    c.execute('INSERT INTO Posts (Date, Content, Url, Location, Author) VALUES (?, ?, ?, ?, ?);',
-              (int(date), str(content), str(url), str(locationVar), str(author),))
+    c.execute('INSERT INTO Posts (Date, Content, Url, Location, Author, Score) VALUES (?, ?, ?, ?, ?, ?);',
+              (int(date), str(content), str(url), str(locationVar), str(author),int(score),))
     conn.commit()
     c.close()
     print('Added new post - {}'.format(str(url)))
