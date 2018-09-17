@@ -85,7 +85,7 @@ def findTopPosts(q):
                                 new,
                             )
 
-                            if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                            if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                 database.addPost(
                                     conn,
                                     submission.created_utc,
@@ -147,7 +147,7 @@ def findHotPosts(q):
                                 hot,
                                 new,
                             )
-                            if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                            if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                 database.addPost(
                                     conn,
                                     submission.created_utc,
@@ -209,7 +209,7 @@ def findNewPosts(q):
                                 hot,
                                 new,
                             )
-                            if result != [['delete', -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                            if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                 database.addPost(
                                     conn,
                                     submission.created_utc,
@@ -226,7 +226,7 @@ def findNewPosts(q):
                                 )
                                 print('{} --> Added {}'.format(post,
                                                                submission.permalink))
-                            if result != [] and result != [['delete', -1, -1, -1, -1]]:
+                            if result != [] and result != [['delete', -1, -1, -1]]:
                                 print('reported')
                                 # report and make a comment
                                 submission.report('REPOST ALERT')
