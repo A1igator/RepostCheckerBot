@@ -222,7 +222,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                             texts = texts[2]
                             difference = distance(texts, text)
                             if difference < config.subSettings[0][7]:
-                                print(texts)
+                                print(difference)
                                 addToFound(
                                     texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][2])*100)
             elif media != None:
