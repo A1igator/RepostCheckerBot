@@ -72,7 +72,7 @@ def findTopPosts(q):
                             top = True
                             hot = False
                             post += 1
-                            print(dir(submission))
+                            print(submission.score)
                             result = database.isLogged(
                                 conn,
                                 submission.url,
