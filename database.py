@@ -218,9 +218,8 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                         'SELECT Url, Date, Content FROM posts;')
                     for texts in args.fetchall():
                         if texts[0] not in result:
-                            texts = texts[2]
-                            difference = distance(texts, text)
-                            print(difference)
+                            textVar = texts[2]
+                            difference = distance(textVar, text)
                             if difference < config.subSettings[0][7]:
                                 addToFound(
                                     texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][2])*100)
