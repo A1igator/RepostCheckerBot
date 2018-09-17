@@ -4,6 +4,7 @@ import sqlite3
 import datetime
 from datetime import timedelta
 from calendar import monthrange
+import re
 from urllib.request import Request, urlopen
 from io import BytesIO
 import ssl
@@ -159,7 +160,7 @@ def updateDatabase(conn, url, updateVal):
     c.close()
 
 def deleteOldFromDatabase():
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
+    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0][0], 1)+'.db')
     c = conn.cursor()
     while True:
         args = c.execute('SELECT Date, Location FROM Posts;')

@@ -7,6 +7,7 @@ import random
 import sys
 import traceback
 import time
+import re
 from threading import Thread, Timer
 from queue import Queue
 
@@ -22,7 +23,7 @@ reddit = praw.Reddit(client_id=config.client_id,
 
 subreddit = reddit.subreddit(config.subSettings[0][0])
 
-conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
+conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0][0], 1)+'.db')
 
 
 def deleteComment():
@@ -46,7 +47,7 @@ def deleteComment():
 
 
 def findTopPosts(q):
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
+    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0][0], 1)+'.db')
     top = True
     hot = False
     new = False
@@ -115,7 +116,7 @@ def findTopPosts(q):
 
 
 def findHotPosts(q):
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
+    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0][0], 1)+'.db')
     top = False
     hot = True
     new = False
@@ -176,7 +177,7 @@ def findHotPosts(q):
 
 
 def findNewPosts(q):
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0].capitalize()+'.db')
+    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0][0], 1)+'.db')
     top = False
     hot = False
     new = True
