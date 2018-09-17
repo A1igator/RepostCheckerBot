@@ -236,7 +236,7 @@ def findNewPosts(q):
                                     table = table + \
                                         str(cntr) + '|[post](https://reddit.com' + \
                                         i[0] + ')|' + i[1] + '|' + \
-                                        str(i[4]) + '%' + '\n'
+                                        str(i[3]) + '%' + '\n'
                                     cntr += 1
                                 fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
                                     '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
