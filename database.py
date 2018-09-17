@@ -216,6 +216,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                     args = c.execute(
                         'SELECT Url, Date, Location FROM Posts WHERE Content = ?;', (str(text),))
                     fullResult = list(args.fetchall())
+                    print(fullResult)
                     for i in fullResult:
                         addToFound(i, 100)
                     args = c.execute(
