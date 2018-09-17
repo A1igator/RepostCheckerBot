@@ -10,7 +10,7 @@ from io import BytesIO
 import ssl
 from PIL import Image
 import dhash
-from python-Levenshtein import distance
+from Levenshtein import distance
 import av
 
 reddit = praw.Reddit(client_id=config.client_id,
