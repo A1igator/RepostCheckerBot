@@ -173,7 +173,7 @@ class findPosts(Thread):
                                     )
                                     print('{} --> Added {}'.format(post,
                                                                 submission.permalink))
-                                with self.self.q.mutex:
+                                with self.q.mutex:
                                     self.q.queue.clear()
                                 self.q.put('doneRunningHot')
                                 break
