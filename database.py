@@ -176,6 +176,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
     postsToRemove = []
     cntr = 0
     returnResult = []
+    print(conn)
     c = conn.cursor()
 
     now = datetime.datetime.utcnow()
