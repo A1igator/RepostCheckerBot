@@ -107,7 +107,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                     )
-                                    print('{} --> Added {}'.format(post,
+                                print('{} --> Added {}'.format(post,
                                                                 submission.permalink))
                                 with self.q.mutex:
                                     self.q.queue.clear()
@@ -171,7 +171,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                     )
-                                    print('{} --> Added {}'.format(post,
+                                print('{} --> Added {}'.format(post,
                                                                 submission.permalink))
                                 with self.q.mutex:
                                     self.q.queue.clear()
@@ -235,7 +235,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                     )
-                                    print('{} --> Added {}'.format(post,
+                                print('{} --> Added {}'.format(post,
                                                                 submission.permalink))
                                 if result != [] and result != [['delete', -1, -1, -1]]:
                                     print('reported')
