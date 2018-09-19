@@ -284,7 +284,7 @@ for i in config.subSettings:
     thread[threadCount].start()
     threadCount += 1
 
-for i in range(0, thread.count):
+for i in range(0, len(thread)):
     if 'deleteOldThread' in vars():
         deleteOldThread[i].join()
     thread[i].join()
