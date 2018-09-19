@@ -271,7 +271,7 @@ class findPosts(Thread):
                     f.write(str(traceback.format_exc()))
 
 for i in config.subSettings:
-    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), i, 1)+'.db')
+    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), i[0], 1)+'.db')
     database.initDatabase(conn)
     thread = findPosts(i)
     if i[1] is not None or i[2] is not None or i[3] is not None:
