@@ -271,6 +271,7 @@ class findPosts(Thread):
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
 
+print(config.subSettings)
 for i in config.subSettings:
     print(i)
     conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), i[0], 1)+'.db')
