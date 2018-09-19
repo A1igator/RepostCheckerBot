@@ -53,6 +53,7 @@ class findPosts(Thread):
     def findTopPosts(self):
         conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
         subreddit = reddit.subreddit(self.subSettings[0])
+        print(subreddit)
         top = True
         hot = False
         new = False
