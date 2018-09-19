@@ -190,7 +190,6 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
             args = c.execute(
                 'SELECT Location FROM Posts WHERE Url = ?;', (str(url),))
             fullResult = list(args.fetchall())
-            print(fullResult)
             for i in fullResult:
                 if i[0] != 'top':
                     if top and (subSettings[1] is None or timePassed < subSettings[1]):
@@ -335,6 +334,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
         returnResult.append(
             [i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
         cntr += 1
+    print(returnResult)
     if returnResult != [['delete', -1, -1, -1]]:
         print('Found? {}'.format(returnResult))
 
