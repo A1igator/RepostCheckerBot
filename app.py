@@ -188,11 +188,11 @@ class findPosts(Thread):
 
 
     def findNewPosts(self):
-        conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0], 1)+'.db')
+        conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
         top = False
         hot = False
         new = True
-        limitVal = config.subSettings[6]
+        limitVal = self.subSettings[6]
         while True:
             try:
                 post = 0
