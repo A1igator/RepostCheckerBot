@@ -271,20 +271,23 @@ class findPosts(Thread):
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
 
-print(config.subSettings)
+threadCount = 0
+thread = []
+deleteOldThread = []
 for i in config.subSettings:
-    print(i)
     conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), i[0], 1)+'.db')
     database.initDatabase(conn)
-    thread = findPosts(i)
+    thread[threadCount] = findPosts(i)
     if i[1] is not None or i[2] is not None or i[3] is not None:
-        deleteOldThread = Thread(target=database.deleteOldFromDatabase, args=(i,))
-        deleteOldThread.start()
-    thread.start()
-    thread.join()
-    if 'deleteOldThread' in vars():
-        deleteOldThread.join()
+        deleteOldThread[threadCount] = Thread(target=database.deleteOldFromDatabase, args=(i,))
+        deleteOldThread[threadCount].start()
+    thread[threadCount].start()
+    threadCount += 1
 
+for i in range(0, thread.count):
+    if 'deleteOldThread' in vars():
+        deleteOldThread[i].join()
+    thread[i].join()
 # self.q = Queue()
 deleteThread = Thread(target=deleteComment)
 # findTopThread = Thread(target=findPosts.findTopPosts, args=(5,))
