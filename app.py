@@ -279,7 +279,7 @@ for i in config.subSettings:
         deleteOldThread.start()
     thread.start()
     thread.join()
-    if deleteOldThread is not None:
+    if deleteOldThread in vars():
         deleteOldThread.join()
 
 # self.q = Queue()
