@@ -135,6 +135,7 @@ def deleteItem(conn, url):
 
 
 def ignore():
+    print('ignored')
     result[:] = ['delete']
     originalPostDate[:] = [-1]
     finalTimePassed[:] = [-1]
