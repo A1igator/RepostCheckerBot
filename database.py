@@ -129,10 +129,10 @@ def deleteItem(conn, url, result, originalPostDate, precentageMatched, finalTime
 
 def ignore(result, originalPostDate, precentageMatched, finalTimePassed):
     print('ignored')
-    result = ['delete']
-    originalPostDate = [-1]
-    finalTimePassed = [-1]
-    precentageMatched = [-1]
+    result[:] = ['delete']
+    originalPostDate[:] = [-1]
+    finalTimePassed[:] = [-1]
+    precentageMatched[:] = [-1]
 
 
 def addToFound(post, precentage, result, originalPostDate, precentageMatched):
