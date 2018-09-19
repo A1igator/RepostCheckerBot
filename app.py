@@ -52,7 +52,7 @@ class findPosts(Thread):
         self.subSettings = subSettings
         self.q = Queue()
     def run(self):
-        print(self.subSettings)
+        print(subreddit)
         # Thread(target=self.findTopPosts).start()
         # Thread(target=self.findHotPosts).start()
         # Thread(target=self.findNewPosts).start()
