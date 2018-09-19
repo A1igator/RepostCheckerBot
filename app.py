@@ -276,7 +276,7 @@ for i in config.subSettings:
     database.initDatabase(conn)
     thread = findPosts(i)
     if i[1] is not None or i[2] is not None or i[3] is not None:
-        deleteOldThread = Thread(target=database.deleteOldFromDatabase, args=(i))
+        deleteOldThread = Thread(target=database.deleteOldFromDatabase, args=(i,))
         deleteOldThread.start()
     thread.start()
     thread.join()
