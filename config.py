@@ -16,14 +16,14 @@ subSettings = [
         int(os.environ['BOT_NEW_NUM_POSTS']) if 'BOT_NEW_NUM_POSTS' in os.environ else 1000,
         int(os.environ['BOT_THRESH'])
     ],
-    # [
-    #     os.environ['BOT_SUBREDDIT2'],
-    #     int(os.environ['BOT_TOP_DAYS2']) if 'BOT_TOP_DAYS2' in os.environ else None,
-    #     int(os.environ['BOT_HOT_DAYS2']) if 'BOT_HOT_DAYS2' in os.environ else None,
-    #     int(os.environ['BOT_NEW_DAYS2']) if 'BOT_NEW_DAYS2' in os.environ else None,
-    #     int(os.environ['BOT_TOP_NUM_POSTS2']) if 'BOT_TOP_NUM_POSTS2' in os.environ else 1000,
-    #     int(os.environ['BOT_HOT_NUM_POSTS2']) if 'BOT_HOT_NUM_POSTS2' in os.environ else 1000,
-    #     int(os.environ['BOT_NEW_NUM_POSTS2']) if 'BOT_NEW_NUM_POSTS2' in os.environ else 1000,
-    #     int(os.environ['BOT_THRESH2'])
-    # ],
+    [
+        os.environ['BOT_SUBREDDIT2'],
+        int(os.environ['BOT_TOP_DAYS2']) if 'BOT_TOP_DAYS2' in os.environ else None,
+        int(os.environ['BOT_HOT_DAYS2']) if 'BOT_HOT_DAYS2' in os.environ else None,
+        int(os.environ['BOT_NEW_DAYS2']) if 'BOT_NEW_DAYS2' in os.environ else None,
+        int(os.environ['BOT_TOP_NUM_POSTS2']) if 'BOT_TOP_NUM_POSTS2' in os.environ else 1000,
+        int(os.environ['BOT_HOT_NUM_POSTS2']) if 'BOT_HOT_NUM_POSTS2' in os.environ else 1000,
+        int(os.environ['BOT_NEW_NUM_POSTS2']) if 'BOT_NEW_NUM_POSTS2' in os.environ else 1000,
+        int(os.environ['BOT_THRESH2'])
+    ],
 ]
