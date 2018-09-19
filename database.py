@@ -176,7 +176,6 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
     postsToRemove = []
     cntr = 0
     returnResult = []
-    print(conn)
     c = conn.cursor()
 
     now = datetime.datetime.utcnow()
@@ -191,8 +190,8 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
             args = c.execute(
                 'SELECT Location FROM Posts WHERE Url = ?;', (str(url),))
             fullResult = list(args.fetchall())
+            print(fullResult)
             for i in fullResult:
-                args = c.execute('SELECT COUNT(*) FROM Posts;')
                 if i[0] != 'top':
                     if top and (subSettings[1] is None or timePassed < subSettings[1]):
                         updateDatabase(conn, url, 'top')
