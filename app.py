@@ -41,7 +41,7 @@ def deleteComment():
 # the main function
 
 class findPosts(Thread):
-    def __init__(self, subSettings):
+    def __init__(self, subSettings, conn):
         ''' Constructor. '''
         Thread.__init__(self)
         self.subSettings = subSettings
@@ -51,7 +51,6 @@ class findPosts(Thread):
         Thread(target=self.findHotPosts).start()
         Thread(target=self.findNewPosts).start()
     def findTopPosts(self):
-        conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
         subreddit = reddit.subreddit(self.subSettings[0])
         print(subreddit)
         top = True
@@ -124,7 +123,6 @@ class findPosts(Thread):
 
 
     def findHotPosts(self):
-        conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = True
@@ -188,7 +186,6 @@ class findPosts(Thread):
 
 
     def findNewPosts(self):
-        conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
@@ -274,7 +271,7 @@ class findPosts(Thread):
 for i in config.subSettings:
     conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), i[0], 1)+'.db')
     database.initDatabase(conn)
-    thread = findPosts(i)
+    thread = findPosts(i, conn)
     if i[1] is not None or i[2] is not None or i[3] is not None:
         deleteOldThread = Thread(target=database.deleteOldFromDatabase, args=(conn, i))
         deleteOldThread.start()
