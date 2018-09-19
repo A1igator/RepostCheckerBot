@@ -152,8 +152,7 @@ def updateDatabase(conn, url, updateVal):
     conn.commit()
     c.close()
 
-def deleteOldFromDatabase():
-    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0][0], 1)+'.db')
+def deleteOldFromDatabase(conn, subSettings):
     c = conn.cursor()
     while True:
         args = c.execute('SELECT Date, Location FROM Posts;')
@@ -161,14 +160,14 @@ def deleteOldFromDatabase():
         for x in args.fetchall():
             then = datetime.datetime.fromtimestamp(x[0])
             timePassed = (now-then).days
-            if config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and x[1] == 'top' or config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and x[1] == 'hot' or config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and x[1] == 'new':
+            if subSettings[1] is not None and timePassed > subSettings[1] and x[1] == 'top' or subSettings[2] is not None and timePassed > subSettings[2] and x[1] == 'hot' or subSettings[3] is not None and timePassed > subSettings[3] and x[1] == 'new':
                 c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
                 conn.commit()
                 print('deleted an old post')
     c.close()
 
 
-def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
+def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSettings):
     result[:] = []
     originalPostDate[:] = []
     finalTimePassed[:] = []
@@ -182,7 +181,7 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
     now = datetime.datetime.utcnow()
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
-    if config.subSettings[0][1] is not None and timePassed > config.subSettings[0][1] and top or config.subSettings[0][2] is not None and timePassed > config.subSettings[0][2] and hot or config.subSettings[0][3] is not None and timePassed > config.subSettings[0][3] and new:
+    if subSettings[1] is not None and timePassed > subSettings[1] and top or subSettings[2] is not None and timePassed > subSettings[2] and hot or subSettings[3] is not None and timePassed > subSettings[3] and new:
         ignore()
     else:
         args = c.execute(
@@ -194,13 +193,13 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
             for i in fullResult:
                 args = c.execute('SELECT COUNT(*) FROM Posts;')
                 if i[0] != 'top':
-                    if top and (config.subSettings[0][1] is None or timePassed < config.subSettings[0][1]):
+                    if top and (subSettings[1] is None or timePassed < subSettings[1]):
                         updateDatabase(conn, url, 'top')
                 elif i[0] != 'hot':
-                    if hot and (config.subSettings[0][2] is None or timePassed < config.subSettings[0][2]):
+                    if hot and (subSettings[2] is None or timePassed < subSettings[2]):
                         updateDatabase(conn, url, 'hot')
                 elif i[0] != 'new':
-                    if new and (config.subSettings[0][3] is None or timePassed < config.subSettings[0][3]):
+                    if new and (subSettings[3] is None or timePassed < subSettings[3]):
                         updateDatabase(conn, url, 'new')
 
             ignore()
@@ -220,9 +219,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                         if texts[0] not in result:
                             textVar = texts[2]
                             difference = distance(textVar, text)
-                            if difference < config.subSettings[0][7]:
+                            if difference < subSettings[7]:
                                 addToFound(
-                                    texts, ((config.subSettings[0][7] - difference)/config.subSettings[0][7])*100)
+                                    texts, ((subSettings[7] - difference)/subSettings[7])*100)
             elif media != None:
                 vidHash = hashVid(conn, media, url)
                 if isInt(vidHash.replace(' ', '')):
@@ -242,9 +241,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                             if isInt(hashedReadable.replace(' ', '')):
                                 hashedDifference = hashVidDifference(
                                     hashedReadable, vidHash)
-                                if hashedDifference < config.subSettings[0][7]:
+                                if hashedDifference < subSettings[7]:
                                     addToFound(
-                                        hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][7])*100)
+                                        hashed, ((subSettings[7] - hashedDifference)/subSettings[7])*100)
             elif contentUrl != '':
                 args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(
                     contentUrl).replace('&feature=youtu.be', ''),))
@@ -273,9 +272,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                                 if isInt(hashedReadable.replace(' ', '')):
                                     hashedDifference = hashVidDifference(
                                         hashedReadable, gifHash)
-                                    if hashedDifference < config.subSettings[0][7]:
+                                    if hashedDifference < subSettings[7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][7])*100)
+                                            hashed, ((subSettings[7] - hashedDifference)/subSettings[7])*100)
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
                     if isInt(imgHash):
@@ -295,9 +294,9 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new):
                                 if isInt(hashedReadable):
                                     hashedDifference = dhash.get_num_bits_different(
                                         imgHash, int(hashedReadable))
-                                    if hashedDifference < config.subSettings[0][7]:
+                                    if hashedDifference < subSettings[7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][7] - hashedDifference)/config.subSettings[0][7])*100)
+                                            hashed, ((subSettings[7] - hashedDifference)/subSettings[7])*100)
 
     for i in result:
         if i != '' and i != 'delete':

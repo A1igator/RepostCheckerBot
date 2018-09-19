@@ -21,11 +21,6 @@ reddit = praw.Reddit(client_id=config.client_id,
                      password=config.password,
                      user_agent=config.user_agent)
 
-subreddit = reddit.subreddit(config.subSettings[0][0])
-
-conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), config.subSettings[0][0], 1)+'.db')
-
-
 def deleteComment():
     while True:
         try:
@@ -57,6 +52,7 @@ class findPosts(Thread):
         Thread(target=self.findNewPosts).start()
     def findTopPosts(self):
         conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
+        subreddit = reddit.subreddit(self.subSettings[0])
         top = True
         hot = False
         new = False
@@ -92,6 +88,7 @@ class findPosts(Thread):
                                     top,
                                     hot,
                                     new,
+                                    self.subSettings,
                                 )
 
                                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
@@ -127,6 +124,7 @@ class findPosts(Thread):
 
     def findHotPosts(self):
         conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
+        subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = True
         new = False
@@ -155,6 +153,7 @@ class findPosts(Thread):
                                     top,
                                     hot,
                                     new,
+                                    self.subSettings,
                                 )
                                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
@@ -189,6 +188,7 @@ class findPosts(Thread):
 
     def findNewPosts(self):
         conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
+        subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
         new = True
@@ -217,6 +217,7 @@ class findPosts(Thread):
                                     top,
                                     hot,
                                     new,
+                                    self.subSettings,
                                 )
                                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
@@ -269,22 +270,23 @@ class findPosts(Thread):
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
 
-database.initDatabase(conn)
-
 for i in config.subSettings:
+    conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), i, 1)+'.db')
+    database.initDatabase(conn)
     thread = findPosts(i)
+    if i[1] is not None or i[2] is not None or i[3] is not None:
+        deleteOldThread = Thread(target=database.deleteOldFromDatabase, args=(conn, i))
+        deleteOldThread.start()
     thread.start()
-    thread.join
+    thread.join()
+    if deleteOldThread is not None:
+        deleteOldThread.join()
 
 # self.q = Queue()
 deleteThread = Thread(target=deleteComment)
 # findTopThread = Thread(target=findPosts.findTopPosts, args=(5,))
 # findHotThread = Thread(target=findHotPosts, args=(self.q,))
 # findNewThread = Thread(target=findNewPosts, args=(self.q,))
-
-if config.subSettings[0][1] is not None or config.subSettings[0][2] is not None or config.subSettings[0][3] is not None:
-    deleteOldThread = Thread(target=database.deleteOldFromDatabase)
-    deleteOldThread.start()
 
 deleteThread.start()
 # findTopThread.start()
@@ -295,5 +297,3 @@ deleteThread.join()
 # findTopThread.join()
 # findHotThread.join()
 # findNewThread.join()
-if deleteOldThread is not None:
-    deleteOldThread.join()
