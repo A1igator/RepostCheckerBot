@@ -52,9 +52,10 @@ class findPosts(Thread):
         self.subSettings = subSettings
         self.q = Queue()
     def run(self):
-        Thread(target=self.findTopPosts).start()
-        Thread(target=self.findHotPosts).start()
-        Thread(target=self.findNewPosts).start()
+        print(self.subSettings)
+        # Thread(target=self.findTopPosts).start()
+        # Thread(target=self.findHotPosts).start()
+        # Thread(target=self.findNewPosts).start()
     def findTopPosts(self):
         conn = sqlite3.connect('Posts'+re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), self.subSettings[0], 1)+'.db')
         top = True
