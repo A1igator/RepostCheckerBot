@@ -55,24 +55,30 @@ def monthDelta(d1, d2):
     return delta
 
 
-def hashImg(conn, imgUrl, url, result=[], originalPostDate=[], precentageMatched=[], finalTimePassed=[]):
+def hashImg(conn, imgUrl, url):
     imgHash = 'invalid'
     try:
         f = BytesIO(urlopen(Request(str(imgUrl), headers={
                     'User-Agent': user_agent}), context=context).read())
     except:
-        deleteItem(conn, url, result, originalPostDate, precentageMatched, finalTimePassed)
+        c = conn.cursor()
+        c.execute('DELETE FROM Posts WHERE Url = ?;', (str(url),))
+        conn.commit()
+        c.close()
     else:
         img = Image.open(f)
         imgHash = dhash.dhash_int(img)
     return imgHash
 
-def hashVid(conn, vidUrl, url, result=[], originalPostDate=[], precentageMatched=[], finalTimePassed=[]):
+def hashVid(conn, vidUrl, url):
     vidHash = ''
     try:
         container = av.open(vidUrl['reddit_video']['fallback_url'])
     except:
-        deleteItem(conn, url, result, originalPostDate, precentageMatched, finalTimePassed)
+        c = conn.cursor()
+        c.execute('DELETE FROM Posts WHERE Url = ?;', (str(url),))
+        conn.commit()
+        c.close()
         vidHash = 'invalid'
     else:
         for frame in container.decode(video=0):
@@ -80,7 +86,7 @@ def hashVid(conn, vidUrl, url, result=[], originalPostDate=[], precentageMatched
     return vidHash
 
 
-def hashGif(conn, gifUrl, url, result=[], originalPostDate=[], precentageMatched=[], finalTimePassed=[]):
+def hashGif(conn, gifUrl, url):
     gifHash = ''
     nframes = 0
     try:
@@ -88,7 +94,10 @@ def hashGif(conn, gifUrl, url, result=[], originalPostDate=[], precentageMatched
                     'User-Agent': user_agent}), context=context).read())
         frame = Image.open(f)
     except:
-        deleteItem(conn, url, result, originalPostDate, precentageMatched, finalTimePassed)
+        c = conn.cursor()
+        c.execute('DELETE FROM Posts WHERE Url = ?;', (str(url),))
+        conn.commit()
+        c.close()
         gifHash = 'invalid'
     else:
         while frame:
@@ -117,23 +126,6 @@ def hashVidDifference(originalHash, newHash):
         frameDifferences = []
     print(sum(minDifferences)/len(minDifferences))
     return sum(minDifferences)/len(minDifferences)
-
-
-def deleteItem(conn, url, result, originalPostDate, precentageMatched, finalTimePassed):
-    c = conn.cursor()
-    c.execute('DELETE FROM Posts WHERE Url = ?;', (str(url),))
-    conn.commit()
-    c.close()
-    ignore(result, originalPostDate, precentageMatched, finalTimePassed)
-
-
-def ignore(result, originalPostDate, precentageMatched, finalTimePassed):
-    print('ignored')
-    result[:] = ['delete']
-    originalPostDate[:] = [-1]
-    finalTimePassed[:] = [-1]
-    precentageMatched[:] = [-1]
-
 
 def addToFound(post, precentage, result, originalPostDate, precentageMatched):
     result.append(post[0])
@@ -176,7 +168,10 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
     then = datetime.datetime.fromtimestamp(date)
     timePassed = (now-then).days
     if subSettings[1] is not None and timePassed > subSettings[1] and top or subSettings[2] is not None and timePassed > subSettings[2] and hot or subSettings[3] is not None and timePassed > subSettings[3] and new:
-        ignore(result, originalPostDate, precentageMatched, finalTimePassed)
+        result = ['delete']
+        originalPostDate = [-1]
+        finalTimePassed = [-1]
+        precentageMatched = [-1]
     else:
         args = c.execute(
             'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
@@ -196,7 +191,10 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
                     if new and (subSettings[3] is None or timePassed < subSettings[3]):
                         updateDatabase(conn, url, 'new')
 
-            ignore(result, originalPostDate, precentageMatched, finalTimePassed)
+            result = ['delete']
+            originalPostDate = [-1]
+            finalTimePassed = [-1]
+            precentageMatched = [-1]
         else:
             if text != '&#x200B;' and text != '':
                 args = c.execute(
@@ -217,7 +215,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
                                 addToFound(
                                     texts, ((subSettings[7] - difference)/subSettings[7])*100, result, originalPostDate, precentageMatched)
             elif media != None:
-                vidHash = hashVid(conn, media, url, result, originalPostDate, precentageMatched, finalTimePassed)
+                vidHash = hashVid(conn, media, url)
+                if vidHash == 'invalid':
+                    result = ['delete']
+                    originalPostDate = [-1]
+                    finalTimePassed = [-1]
+                    precentageMatched = [-1]
                 if isInt(vidHash.replace(' ', '')):
                     args = c.execute(
                         'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
@@ -248,7 +251,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
                     for i in fullResult:
                         addToFound(i, 100, result, originalPostDate, precentageMatched)
                 if 'gif' in contentUrl and not (contentUrl.endswith('gifv') or 'gifs' in contentUrl):
-                    gifHash = hashGif(conn, contentUrl, url, result, originalPostDate, precentageMatched, finalTimePassed)
+                    gifHash = hashGif(conn, contentUrl, url)
+                    if gifHash == 'invalid':
+                        result = ['delete']
+                        originalPostDate = [-1]
+                        finalTimePassed = [-1]
+                        precentageMatched = [-1]
                     if isInt(gifHash.replace(' ', '')):
                         args = c.execute(
                             'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
@@ -270,7 +278,12 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
                                         addToFound(
                                             hashed, ((subSettings[7] - hashedDifference)/subSettings[7])*100, result, originalPostDate, precentageMatched)
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
-                    imgHash = hashImg(conn, contentUrl, url, result, originalPostDate, precentageMatched, finalTimePassed)
+                    imgHash = hashImg(conn, contentUrl, url)
+                    if imgHash == 'invalid':
+                        result = ['delete']
+                        originalPostDate = [-1]
+                        finalTimePassed = [-1]
+                        precentageMatched = [-1]
                     if isInt(imgHash):
                         args = c.execute(
                             'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
