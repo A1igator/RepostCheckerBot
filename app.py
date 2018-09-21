@@ -284,10 +284,6 @@ for i in config.subSettings:
     thread[threadCount].start()
     threadCount += 1
 
-for i in range(0, len(thread)):
-    if 'deleteOldThread' in vars():
-        deleteOldThread[i].join()
-    thread[i].join()
 # self.q = Queue()
 deleteThread = Thread(target=deleteComment)
 # findTopThread = Thread(target=findPosts.findTopPosts, args=(5,))
@@ -300,6 +296,10 @@ deleteThread.start()
 # findNewThread.start()
 
 deleteThread.join()
+for i in range(0, len(thread)):
+    if 'deleteOldThread' in vars():
+        deleteOldThread[i].join()
+    thread[i].join()
 # findTopThread.join()
 # findHotThread.join()
 # findNewThread.join()
