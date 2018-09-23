@@ -2,7 +2,6 @@
 import praw
 
 # packages that come with python
-import sqlite3
 import random
 import sys
 import traceback
@@ -53,16 +52,6 @@ class findPosts(Thread):
         Thread(target=self.findNewPosts).start()
 
     def findTopPosts(self):
-        conn = sqlite3.connect(
-            'Posts {}.db'.format(
-                re.sub(
-                        '([a-zA-Z])',
-                        lambda x: x.groups()[0].upper(),
-                        self.subSettings[0],
-                        1,
-                    )
-                )
-            )
         subreddit = reddit.subreddit(self.subSettings[0])
         print(self.subSettings)
         top = True
@@ -91,7 +80,6 @@ class findPosts(Thread):
                                 hot = False
                                 post += 1
                                 result = database.isLogged(
-                                    conn,
                                     submission.url,
                                     submission.media,
                                     submission.selftext,
@@ -106,7 +94,6 @@ class findPosts(Thread):
 
                                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
-                                        conn,
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -118,6 +105,7 @@ class findPosts(Thread):
                                         top,
                                         hot,
                                         new,
+                                        self.subSettings[0],
                                     )
                                     print('{} --> Added {}'.format(
                                         post,
@@ -138,16 +126,6 @@ class findPosts(Thread):
 
 
     def findHotPosts(self):
-        conn = sqlite3.connect(
-            'Posts {}.db'.format(
-                re.sub(
-                        '([a-zA-Z])',
-                        lambda x: x.groups()[0].upper(),
-                        self.subSettings[0],
-                        1,
-                    )
-                )
-            )
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = True
@@ -168,7 +146,6 @@ class findPosts(Thread):
                             if x is not None and x is 'doneRunningTop':
                                 post += 1
                                 result = database.isLogged(
-                                    conn,
                                     submission.url,
                                     submission.media,
                                     submission.selftext,
@@ -182,7 +159,6 @@ class findPosts(Thread):
                                 )
                                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
-                                        conn,
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -194,6 +170,7 @@ class findPosts(Thread):
                                         top,
                                         hot,
                                         new,
+                                        self.subSettings[0],
                                     )
                                     print('{} --> Added {}'.format(
                                         post,
@@ -214,16 +191,6 @@ class findPosts(Thread):
 
 
     def findNewPosts(self):
-        conn = sqlite3.connect(
-            'Posts {}.db'.format(
-                re.sub(
-                        '([a-zA-Z])',
-                        lambda x: x.groups()[0].upper(),
-                        self.subSettings[0],
-                        1,
-                    )
-                )
-            )
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
@@ -244,7 +211,6 @@ class findPosts(Thread):
                             if x is not None and x is 'doneRunningHot':
                                 post += 1
                                 result = database.isLogged(
-                                    conn,
                                     submission.url,
                                     submission.media,
                                     submission.selftext,
@@ -258,7 +224,6 @@ class findPosts(Thread):
                                 )
                                 if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
-                                        conn,
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -270,6 +235,7 @@ class findPosts(Thread):
                                         top,
                                         hot,
                                         new,
+                                        self.subSettings[0],
                                     )
                                     print('{} --> Added {}'.format(
                                         post,
@@ -318,20 +284,10 @@ threadCount = 0
 thread = []
 deleteOldThread = []
 for i in config.subSettings:
-    conn = sqlite3.connect(
-        'Posts {}.db'.format(
-            re.sub(
-                    '([a-zA-Z])',
-                    lambda x: x.groups()[0].upper(),
-                    i[0],
-                    1,
-                )
-            )
-        )
-    database.initDatabase(conn)
+    database.initDatabase()
     thread.append(findPosts(i))
     if i[1] is not None or i[2] is not None or i[3] is not None:
-        deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,conn)))
+        deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
         deleteOldThread[threadCount].start()
     thread[threadCount].start()
     threadCount += 1

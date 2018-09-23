@@ -4,6 +4,8 @@ from calendar import monthrange
 from urllib.request import Request, urlopen
 from io import BytesIO
 import ssl
+import sqlite3
+from re import sub
 
 # packages that need to be pip installed
 import praw
@@ -168,7 +170,17 @@ def updateDatabase(conn, url, updateVal):
     conn.commit()
     c.close()
 
-def deleteOldFromDatabase(subSettings, conn):
+def deleteOldFromDatabase(subSettings):
+    conn = sqlite3.connect(
+            'Posts {}.db'.format(
+                sub(
+                        '([a-zA-Z])',
+                        lambda x: x.groups()[0].upper(),
+                        subSettings[0],
+                        1,
+                    )
+                )
+            )
     c = conn.cursor()
     while True:
         args = c.execute(
@@ -190,7 +202,7 @@ def deleteOldFromDatabase(subSettings, conn):
     c.close()
 
 
-def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSettings, reddit):
+def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, reddit):
     result = []
     originalPostDate = []
     finalTimePassed = []
@@ -199,6 +211,17 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
     postsToRemove = []
     cntr = 0
     returnResult = []
+
+    conn = sqlite3.connect(
+            'Posts {}.db'.format(
+                sub(
+                        '([a-zA-Z])',
+                        lambda x: x.groups()[0].upper(),
+                        subSettings[0],
+                        1,
+                    )
+                )
+            )
     c = conn.cursor()
 
     now = datetime.utcnow()
@@ -526,7 +549,17 @@ def isLogged(conn, contentUrl, media, text, url, date, top, hot, new, subSetting
     return returnResult
 
 
-def addPost(conn, date, contentUrl, media, url, text, author, score, title, top, hot, new):
+def addPost(conn, date, contentUrl, media, url, text, author, score, title, top, hot, new, subreddit):
+    conn = sqlite3.connect(
+            'Posts {}.db'.format(
+                sub(
+                        '([a-zA-Z])',
+                        lambda x: x.groups()[0].upper(),
+                        subreddit,
+                        1,
+                    )
+                )
+            )
     c = conn.cursor()
     if text != '&#x200B;' and text != '':
         content = text
