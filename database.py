@@ -17,7 +17,17 @@ import av
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
-def initDatabase(conn):
+def initDatabase(subreddit):
+    conn = sqlite3.connect(
+            'Posts {}.db'.format(
+                sub(
+                        '([a-zA-Z])',
+                        lambda x: x.groups()[0].upper(),
+                        subreddit,
+                        1,
+                    )
+                )
+            )
     c = conn.cursor()
     c.execute(
         'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Score INT, Title TEXT);',
