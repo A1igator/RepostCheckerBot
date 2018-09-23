@@ -318,7 +318,6 @@ threadCount = 0
 thread = []
 deleteOldThread = []
 for i in config.subSettings:
-    database.initDatabase(conn)
     conn = sqlite3.connect(
         'Posts {}.db'.format(
             re.sub(
@@ -329,6 +328,7 @@ for i in config.subSettings:
                 )
             )
         )
+    database.initDatabase(conn)
     thread.append(findPosts(i))
     if i[1] is not None or i[2] is not None or i[3] is not None:
         deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,conn)))
