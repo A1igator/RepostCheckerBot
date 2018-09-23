@@ -19,7 +19,7 @@ user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/
 
 def initDatabase(subreddit):
     conn = sqlite3.connect(
-            'Posts {}.db'.format(
+            'Posts{}.db'.format(
                 sub(
                         '([a-zA-Z])',
                         lambda x: x.groups()[0].upper(),
@@ -182,7 +182,7 @@ def updateDatabase(conn, url, updateVal):
 
 def deleteOldFromDatabase(subSettings):
     conn = sqlite3.connect(
-            'Posts {}.db'.format(
+            'Posts{}.db'.format(
                 sub(
                         '([a-zA-Z])',
                         lambda x: x.groups()[0].upper(),
@@ -223,7 +223,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
     returnResult = []
 
     conn = sqlite3.connect(
-            'Posts {}.db'.format(
+            'Posts{}.db'.format(
                 sub(
                         '([a-zA-Z])',
                         lambda x: x.groups()[0].upper(),
@@ -561,7 +561,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
 
 def addPost(date, contentUrl, media, url, text, author, score, title, top, hot, new, subreddit):
     conn = sqlite3.connect(
-            'Posts {}.db'.format(
+            'Posts{}.db'.format(
                 sub(
                         '([a-zA-Z])',
                         lambda x: x.groups()[0].upper(),
