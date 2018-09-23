@@ -323,7 +323,7 @@ for i in config.subSettings:
             re.sub(
                     '([a-zA-Z])',
                     lambda x: x.groups()[0].upper(),
-                    i,
+                    i[0],
                     1,
                 )
             )
