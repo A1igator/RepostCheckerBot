@@ -473,7 +473,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                             fullResult = list(args.fetchall())
                             for i in fullResult:
                                 addToFound(
-                                    hashed,
+                                    i,
                                     100,
                                     result,
                                     originalPostDate,
