@@ -559,7 +559,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
     return returnResult
 
 
-def addPost(conn, date, contentUrl, media, url, text, author, score, title, top, hot, new, subreddit):
+def addPost(date, contentUrl, media, url, text, author, score, title, top, hot, new, subreddit):
     conn = sqlite3.connect(
             'Posts {}.db'.format(
                 sub(
