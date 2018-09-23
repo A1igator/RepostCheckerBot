@@ -265,14 +265,11 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
 
             # make sure the post is in the right category
             for i in fullResult:
-                if i[0] != 'top':
-                    if top and (subSettings[1] is None or timePassed < subSettings[1]):
+                if i[0] != 'top' and top and (subSettings[1] is None or (timePassed < subSettings[1] and subSettings[1] > subSettings[2] and subSettings[1] > subSettings[3])):
                         updateDatabase(conn, url, 'top')
-                elif i[0] != 'hot':
-                    if hot and (subSettings[2] is None or timePassed < subSettings[2]):
+                if i[0] != 'hot' and hot and (subSettings[2] is None or (timePassed < subSettings[2] and subSettings[2] > subSettings[1] and subSettings[2] > subSettings[3])):
                         updateDatabase(conn, url, 'hot')
-                elif i[0] != 'new':
-                    if new and (subSettings[3] is None or timePassed < subSettings[3]):
+                if i[0] != 'new' and new and (subSettings[3] is None or (timePassed < subSettings[3] and subSettings[3] > subSettings[2] and subSettings[3] > subSettings[1])):
                         updateDatabase(conn, url, 'new')
 
             # ignore post
