@@ -107,10 +107,10 @@ class findPosts(Thread):
                                         new,
                                         self.subSettings[0],
                                     )
-                                    print('{} --> Added {}'.format(
-                                        post,
-                                        submission.permalink,
-                                        ))
+                                print('{} --> Added {}'.format(
+                                    post,
+                                    submission.permalink,
+                                    ))
                                 with self.q.mutex:
                                     self.q.queue.clear()
                                 self.q.put('doneRunningTop')
@@ -172,10 +172,10 @@ class findPosts(Thread):
                                         new,
                                         self.subSettings[0],
                                     )
-                                    print('{} --> Added {}'.format(
-                                        post,
-                                        submission.permalink,
-                                        ))
+                                print('{} --> Added {}'.format(
+                                    post,
+                                    submission.permalink,
+                                    ))
                                 with self.q.mutex:
                                     self.q.queue.clear()
                                 self.q.put('doneRunningHot')
@@ -237,10 +237,10 @@ class findPosts(Thread):
                                         new,
                                         self.subSettings[0],
                                     )
-                                    print('{} --> Added {}'.format(
-                                        post,
-                                        submission.permalink,
-                                        ))
+                                print('{} --> Added {}'.format(
+                                    post,
+                                    submission.permalink,
+                                    ))
                                 if result != [] and result != [['delete', -1, -1, -1, -1, -1, -1]]:
                                     print('reported')
                                     # report and make a comment
