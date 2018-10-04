@@ -250,9 +250,9 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
         originalPostDate = [-1]
         finalTimePassed = [-1]
         precentageMatched = [-1]
-        author = []
-        score = []
-        title = []
+        author = [-1]
+        score = [-1]
+        title = [-1]
     
     else:
 
@@ -286,9 +286,9 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
             originalPostDate = [-1]
             finalTimePassed = [-1]
             precentageMatched = [-1]
-            author = []
-            score = []
-            title = []
+            author = [-1]
+            score = [-1]
+            title = [-1]
         
         # check if post is a repost
         else:

@@ -92,7 +92,7 @@ class findPosts(Thread):
                                     reddit,
                                 )
 
-                                if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                                if result != [['delete', -1, -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
                                         submission.created_utc,
                                         submission.url,
@@ -157,7 +157,7 @@ class findPosts(Thread):
                                     self.subSettings,
                                     reddit,
                                 )
-                                if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                                if result != [['delete', -1, -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
                                         submission.created_utc,
                                         submission.url,
@@ -222,7 +222,7 @@ class findPosts(Thread):
                                     self.subSettings,
                                     reddit,
                                 )
-                                if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                                if result != [['delete', -1, -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
                                     database.addPost(
                                         submission.created_utc,
                                         submission.url,
@@ -241,7 +241,7 @@ class findPosts(Thread):
                                         post,
                                         submission.permalink,
                                         ))
-                                if result != [] and result != [['delete', -1, -1, -1]]:
+                                if result != [] and result != [['delete', -1, -1, -1, -1, -1, -1]]:
                                     print('reported')
                                     # report and make a comment
                                     submission.report('REPOST ALERT')
