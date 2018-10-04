@@ -2,11 +2,13 @@
 import praw
 
 # packages that come with python
-import sqlite3
 import random
 import sys
-import threading
 import traceback
+import time
+import re
+from threading import Thread, Timer
+from queue import Queue
 
 # other files
 import config
@@ -17,11 +19,6 @@ reddit = praw.Reddit(client_id=config.client_id,
                      username=config.username,
                      password=config.password,
                      user_agent=config.user_agent)
-
-subreddit = reddit.subreddit(config.subSettings[0][0])
-
-conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
-
 
 def deleteComment():
     while True:
@@ -39,130 +36,271 @@ def deleteComment():
                 print('503 from server')
             else:
                 f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()) + '\n')
+                f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
+class findPosts(Thread):
+    def __init__(self, subSettings):
+        ''' Constructor. '''
+        Thread.__init__(self)
+        self.subSettings = subSettings
+        self.q = Queue()
 
-def findPosts():
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
-    while True:
-        try:
-            print('Starting searching...')
-            post = 0
-            # first get 1000 posts from the top of the subreddit
-            for submission in subreddit.top('all', limit=1000):
-                post += 1
-                print(
-                    '{} --> Starting new submission {}'.format(post, submission.id))
-                result = database.isLogged(
-                    conn,
-                    submission.url,
-                    submission.media,
-                    submission.selftext,
-                    submission.permalink,
-                    submission.created_utc
-                )
-                if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                    database.addPost(
-                        conn,
-                        submission.created_utc,
-                        submission.url,
-                        submission.media,
-                        submission.permalink,
-                        submission.selftext
-                    )
-                    print('Added {}'.format(submission.permalink))
-            post = 0
-            # then get 1000 posts from new of the subreddit
-            for submission in subreddit.new(limit=1000):
-                post += 1
-                print(
-                    '{} --> Starting new submission {}'.format(post, submission.id))
-                result = database.isLogged(
-                    conn,
-                    submission.url,
-                    submission.media,
-                    submission.selftext,
-                    submission.permalink,
-                    submission.created_utc
-                )
-                if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                    database.addPost(
-                        conn,
-                        submission.created_utc,
-                        submission.url,
-                        submission.media,
-                        submission.permalink,
-                        submission.selftext
-                    )
-                    print('Added {}'.format(submission.permalink))
-            post = 0
-            # then check posts as they come in
-            for submission in subreddit.stream.submissions():
-                post += 1
-                print('{} --> Starting new submission {}'.format(post, submission.id))
-                result = database.isLogged(
-                    conn,
-                    submission.url,
-                    submission.media,
-                    submission.selftext,
-                    submission.permalink,
-                    submission.created_utc
-                )
-                if result != [['delete', -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                    database.addPost(
-                        conn,
-                        submission.created_utc,
-                        submission.url,
-                        submission.media,
-                        submission.permalink,
-                        submission.selftext
-                    )
-                    print('Added {}'.format(submission.permalink))
-                if result != [] and result != [['delete', -1, -1, -1]] and post > 1:
-                    print('reported')
-                    # report and make a comment
-                    submission.report('REPOST ALERT')
-                    cntr = 0
-                    table = ''
-                    for i in result:
-                        table = table + \
-                            str(cntr) + '|[post](https://reddit.com' + \
-                            i[0] + ')|' + i[1] + '|' + \
-                            str(i[3]) + '%' + '\n'
-                        cntr += 1
-                    fullText = 'I have detected that this may be a repost: \n\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n' + table + \
-                        '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker) | Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                    doThis = True
-                    while doThis:
-                        try:
-                            submission.reply(fullText)
-                            doThis = False
-                        except:
-                            doThis = True
+    def run(self):
+        Thread(target=self.findTopPosts).start()
+        Thread(target=self.findHotPosts).start()
+        Thread(target=self.findNewPosts).start()
 
-        except Exception as e:
-            print(e)
-            print(repr(e))
-            if '503' in str(e):
-                print('503 from server')
-            else:
-                f = open('errs.txt', 'a')
-                f.write(str(traceback.format_exc()))
+    def findTopPosts(self):
+        subreddit = reddit.subreddit(self.subSettings[0])
+        print(self.subSettings)
+        top = True
+        hot = False
+        new = False
+        firstTime = True
+        limitVal = self.subSettings[4]
+        print('Starting searching...')
+        while True:
+            try:
+                post = 0
+                top = False
+                hot = True
+                # first get 50 posts from the top of the subreddit
+                for submission in subreddit.top('all', limit=limitVal):
+                    while True:
+                        if (not self.q.empty()) or firstTime:
+                            try:
+                                x = self.q.queue[0]
+                            except IndexError as e:
+                                if 'deque index out of range' not in str(e):
+                                    raise IndexError(e)
+                            if firstTime or (x is not None and x is 'doneRunningNew'):
+                                firstTime = False
+                                top = True
+                                hot = False
+                                post += 1
+                                result = database.isLogged(
+                                    submission.url,
+                                    submission.media,
+                                    submission.selftext,
+                                    submission.permalink,
+                                    submission.created_utc,
+                                    top,
+                                    hot,
+                                    new,
+                                    self.subSettings,
+                                    reddit,
+                                )
+
+                                if result != [['delete', -1, -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                                    database.addPost(
+                                        submission.created_utc,
+                                        submission.url,
+                                        submission.media,
+                                        submission.permalink,
+                                        submission.selftext,
+                                        submission.author,
+                                        submission.score,
+                                        submission.title,
+                                        top,
+                                        hot,
+                                        new,
+                                        self.subSettings[0],
+                                    )
+                                    print('{} --> Added {}'.format(
+                                        post,
+                                        submission.permalink,
+                                    ))
+                                with self.q.mutex:
+                                    self.q.queue.clear()
+                                self.q.put('doneRunningTop')
+                                break
+
+            except Exception as e:
+                print(traceback.format_exc())
+                if '503' in str(e):
+                    print('503 from server')
+                else:
+                    f = open('errs.txt', 'a')
+                    f.write(str(traceback.format_exc()))
 
 
-database.initDatabase(conn)
-deleteThread = threading.Thread(target=deleteComment)
-findThread = threading.Thread(target=findPosts)
-deleteOldThread = threading.Thread(
-    target=database.deleteOldFromDatabase)
+    def findHotPosts(self):
+        subreddit = reddit.subreddit(self.subSettings[0])
+        top = False
+        hot = True
+        new = False
+        limitVal = self.subSettings[5]
+        while True:
+            try:
+                post = 0
+                # then get 50 posts from trending of the subreddit
+                for submission in subreddit.hot(limit=limitVal):
+                    while True:
+                        if not self.q.empty():
+                            try:
+                                x = self.q.queue[0]
+                            except IndexError as e:
+                                if 'deque index out of range' not in str(e):
+                                    raise IndexError(e)
+                            if x is not None and x is 'doneRunningTop':
+                                post += 1
+                                result = database.isLogged(
+                                    submission.url,
+                                    submission.media,
+                                    submission.selftext,
+                                    submission.permalink,
+                                    submission.created_utc,
+                                    top,
+                                    hot,
+                                    new,
+                                    self.subSettings,
+                                    reddit,
+                                )
+                                if result != [['delete', -1, -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                                    database.addPost(
+                                        submission.created_utc,
+                                        submission.url,
+                                        submission.media,
+                                        submission.permalink,
+                                        submission.selftext,
+                                        submission.author,
+                                        submission.score,
+                                        submission.title,
+                                        top,
+                                        hot,
+                                        new,
+                                        self.subSettings[0],
+                                    )
+                                    print('{} --> Added {}'.format(
+                                        post,
+                                        submission.permalink,
+                                    ))
+                                with self.q.mutex:
+                                    self.q.queue.clear()
+                                self.q.put('doneRunningHot')
+                                break
+
+            except Exception as e:
+                print(traceback.format_exc())
+                if '503' in str(e):
+                    print('503 from server')
+                else:
+                    f = open('errs.txt', 'a')
+                    f.write(str(traceback.format_exc()))
+
+
+    def findNewPosts(self):
+        subreddit = reddit.subreddit(self.subSettings[0])
+        top = False
+        hot = False
+        new = True
+        limitVal = self.subSettings[6]
+        while True:
+            try:
+                post = 0
+                # then get 1000 posts from new of the subreddit
+                for submission in subreddit.new(limit=limitVal):
+                    while True:
+                        if not self.q.empty():
+                            try:
+                                x = self.q.queue[0]
+                            except IndexError as e:
+                                if 'deque index out of range' not in str(e):
+                                    raise IndexError(e)
+                            if x is not None and x is 'doneRunningHot':
+                                post += 1
+                                result = database.isLogged(
+                                    submission.url,
+                                    submission.media,
+                                    submission.selftext,
+                                    submission.permalink,
+                                    submission.created_utc,
+                                    top,
+                                    hot,
+                                    new,
+                                    self.subSettings,
+                                    reddit,
+                                )
+                                if result != [['delete', -1, -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
+                                    database.addPost(
+                                        submission.created_utc,
+                                        submission.url,
+                                        submission.media,
+                                        submission.permalink,
+                                        submission.selftext,
+                                        submission.author,
+                                        submission.score,
+                                        submission.title,
+                                        top,
+                                        hot,
+                                        new,
+                                        self.subSettings[0],
+                                    )
+                                    print('{} --> Added {}'.format(
+                                        post,
+                                        submission.permalink,
+                                    ))
+                                if result != [] and result != [['delete', -1, -1, -1, -1, -1, -1]]:
+                                    print('reported')
+                                    # report and make a comment
+                                    submission.report('REPOST ALERT')
+                                    cntr = 0
+                                    table = ''
+                                    for i in result:
+                                        table = '{}{}|[{}](https://reddit.com{})|{}|{}%|{}\n'.format(
+                                            table,
+                                            str(cntr),
+                                            i[6],
+                                            i[0],
+                                            i[1],
+                                            str(i[3]),
+                                            i[4],
+                                        )
+                                        cntr += 1
+                                    fullText = 'I have detected that this may be a repost: \n'+ \
+                                        '\nNum|Post|Date|Match|Author\n:--:|:--:|:--:|:--:|:--:\n{}'.format(table) + \
+                                        '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker)' + \
+                                        '| Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
+                                    doThis = True
+                                    while doThis:
+                                        try:
+                                            submission.reply(fullText)
+                                            doThis = False
+                                        except:
+                                            doThis = True
+                                with self.q.mutex:
+                                    self.q.queue.clear()
+                                self.q.put('doneRunningNew')
+                                break
+                limitVal = 10
+            except Exception as e:
+                print(traceback.format_exc())
+                if '503' in str(e):
+                    print('503 from server')
+                else:
+                    f = open('errs.txt', 'a')
+                    f.write(str(traceback.format_exc()))
+
+threadCount = 0
+threads = []
+deleteOldThread = []
+for i in config.subSettings:
+    if i is not None:
+        database.initDatabase(i[0])
+        threads.append(findPosts(i))
+        if i[1] is not None or i[2] is not None or i[3] is not None:
+            deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
+            deleteOldThread[threadCount].start()
+        threads[threadCount].start()
+        threadCount += 1
+
+deleteThread = Thread(target=deleteComment)
 
 deleteThread.start()
-findThread.start()
-deleteOldThread.start()
 
 deleteThread.join()
-findThread.join()
-deleteOldThread.join()
-
-print(database.getAll(conn))
+for i in range(0, len(threads)):
+    if 'deleteOldThread' in vars():
+        deleteOldThread[i].join()
+    threads[i].join()

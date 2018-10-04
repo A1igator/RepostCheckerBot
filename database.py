@@ -1,36 +1,37 @@
-import praw
-import config
-import sqlite3
-import datetime
-from datetime import timedelta
+# packages that come with python
+from datetime import timedelta, datetime
 from calendar import monthrange
 from urllib.request import Request, urlopen
 from io import BytesIO
 import ssl
+import sqlite3
+from re import sub
+
+# packages that need to be pip installed
+import praw
 from PIL import Image
 import dhash
-from hashlib import md5
+from Levenshtein import distance
 import av
-
-reddit = praw.Reddit(client_id=config.client_id,
-                     client_secret=config.client_secret,
-                     username=config.username,
-                     password=config.password,
-                     user_agent=config.user_agent)
 
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
-result = []
-originalPostDate = []
-finalTimePassed = []
-precentageMatched = []
-
-
-def initDatabase(conn):
+def initDatabase(subreddit):
+    conn = sqlite3.connect(
+            'Posts{}.db'.format(
+                sub(
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subreddit,
+                    1,
+                    )
+                )
+            )
     c = conn.cursor()
     c.execute(
-        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, State INTEGER DEFAULT 1);')
+        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Score INT, Title TEXT);',
+    )
     conn.commit()
     c.close()
     print('Create table.')
@@ -69,35 +70,44 @@ def hashImg(conn, imgUrl, url):
                     str(imgUrl),
                     headers={
                         'User-Agent': user_agent
-                    }
+                    },
                 ),
-                context=context
-            ).read()
+                context=context,
+            ).read(),
         )
     except:
-        deleteItem(conn, url)
-        print('invalid check so it was ignored')
+        c = conn.cursor()
+        c.execute(
+            'DELETE FROM Posts WHERE Url = ?;',
+            (
+                str(url),
+            ),
+        )
+        conn.commit()
+        c.close()
     else:
         img = Image.open(f)
         imgHash = dhash.dhash_int(img)
     return imgHash
-
-
-def hashText(txt):
-    return md5(txt.encode('utf-8')).hexdigest()
-
 
 def hashVid(conn, vidUrl, url):
     vidHash = ''
     try:
         container = av.open(vidUrl['reddit_video']['fallback_url'])
     except:
-        deleteItem(conn, url)
-        print('invalid check so it was ignored')
+        c = conn.cursor()
+        c.execute(
+            'DELETE FROM Posts WHERE Url = ?;',
+            (
+                str(url),
+            ),
+        )
+        conn.commit()
+        c.close()
         vidHash = 'invalid'
     else:
         for frame in container.decode(video=0):
-            vidHash += str(dhash.dhash_int(frame.to_image())) + ' '
+            vidHash = '{}{} '.format(vidHash, str(dhash.dhash_int(frame.to_image())))
     return vidHash
 
 
@@ -106,25 +116,30 @@ def hashGif(conn, gifUrl, url):
     nframes = 0
     try:
         f = BytesIO(
-            urlopen(
-                Request(
-                    str(gifUrl),
-                    headers={
-                        'User-Agent': user_agent
-                    }
-                ),
-                context=context
-            ).read()
-        )
+                urlopen(
+                    Request(
+                        str(gifUrl),
+                        headers={'User-Agent': user_agent},
+                    ),
+                    context=context,
+                ).read(),
+            )
         frame = Image.open(f)
     except:
-        deleteItem(conn, url)
-        print('invalid check so it was ignored')
+        c = conn.cursor()
+        c.execute(
+            'DELETE FROM Posts WHERE Url = ?;',
+            (
+                str(url),
+            ),
+        )
+        conn.commit()
+        c.close()
         gifHash = 'invalid'
     else:
         while frame:
             dhash.dhash_int(frame)
-            gifHash += str(dhash.dhash_int(frame)) + ' '
+            gifHash = '{}{} '.format(gifHash, str(dhash.dhash_int(frame)))
             nframes += 1
             try:
                 frame.seek(nframes)
@@ -141,204 +156,477 @@ def hashVidDifference(originalHash, newHash):
     minDifferences = []
     for i in originalHashList:
         for j in newHashList:
-            frameDifferences.append(
-                dhash.get_num_bits_different(int(i), int(j)))
+            frameDifferences.append(dhash.get_num_bits_different(int(i), int(j)))
             cntr += 1
         minDifferences.append(min(frameDifferences))
         frameDifferences = []
     print(sum(minDifferences)/len(minDifferences))
     return sum(minDifferences)/len(minDifferences)
 
-
-def deleteItem(conn, url):
-    c = conn.cursor()
-    c.execute('DELETE FROM Posts WHERE Url = ?;', (str(url),))
-    conn.commit()
-    c.close()
-    ignore()
-
-
-def ignore():
-    result[:] = ['delete']
-    originalPostDate[:] = [-1]
-    finalTimePassed[:] = [-1]
-    precentageMatched[:] = [-1]
-
-
-def addToFound(post, precentage):
+def addToFound(post, precentage, result, originalPostDate, precentageMatched, author, score, title):
     result.append(post[0])
     originalPostDate.append(post[1])
+    author.append(post[2])
+    score.append(post[3])
+    title.append(post[4])
     precentageMatched.append(precentage)
 
-
-def deleteOldFromDatabase():
-    conn = sqlite3.connect('Posts'+config.subSettings[0][0]+'.db')
+def updateDatabase(conn, url, updateVal):
     c = conn.cursor()
-    args = c.execute('SELECT Date FROM posts;')
-    now = datetime.datetime.utcnow()
-    for x in args.fetchall():
-        then = datetime.datetime.fromtimestamp(x[0])
-        timePassed = (now-then).days
-        if timePassed > config.subSettings[0][1]:
-            c.execute('DELETE FROM Posts WHERE Date = ?;', (int(x[0]),))
-            print('deleted an old post')
+    c.execute(
+        'UPDATE Posts SET Location = ? WHERE Url = ?;',
+        (
+            str(updateVal),
+            str(url),
+        ),
+    )
+    conn.commit()
+    c.close()
+
+def deleteOldFromDatabase(subSettings):
+    conn = sqlite3.connect(
+            'Posts{}.db'.format(
+                sub(
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subSettings[0],
+                    1,
+                    )
+                )
+            )
+    c = conn.cursor()
+    while True:
+        args = c.execute(
+            'SELECT Date, Location FROM Posts;'
+        )
+        now = datetime.utcnow()
+        for x in args.fetchall():
+            then = datetime.fromtimestamp(x[0])
+            timePassed = (now-then).days
+            if subSettings[1] is not None and timePassed > subSettings[1] and x[1] == 'top' or subSettings[2] is not None and timePassed > subSettings[2] and x[1] == 'hot' or subSettings[3] is not None and timePassed > subSettings[3] and x[1] == 'new':
+                c.execute(
+                    'DELETE FROM Posts WHERE Date = ?;',
+                    (
+                        int(x[0]),
+                    ),
+                )
+                conn.commit()
+                print('deleted an old post')
+    c.close()
 
 
-def isLogged(conn, contentUrl, media, text, url, date):
-    result[:] = []
-    originalPostDate[:] = []
-    finalTimePassed[:] = []
-    precentageMatched[:] = []
+def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, reddit):
+    result = []
+    originalPostDate = []
+    finalTimePassed = []
+    precentageMatched = []
+    author = []
+    score = []
+    title = []
     args = None
     postsToRemove = []
     cntr = 0
     returnResult = []
+
+    conn = sqlite3.connect(
+            'Posts{}.db'.format(
+                sub(
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subSettings[0],
+                    1,
+                )
+            )
+        )
     c = conn.cursor()
 
-    now = datetime.datetime.utcnow()
-    then = datetime.datetime.fromtimestamp(date)
+    now = datetime.utcnow()
+    then = datetime.fromtimestamp(date)
     timePassed = (now-then).days
-    if timePassed > config.subSettings[0][1]:
-        ignore()
-        print('the post is older than needed')
+
+    # ignore post if too old
+    if subSettings[1] is not None and timePassed > subSettings[1] and top or subSettings[2] is not None and timePassed > subSettings[2] and hot or subSettings[3] is not None and timePassed > subSettings[3] and new:
+        result = ['delete']
+        originalPostDate = [-1]
+        finalTimePassed = [-1]
+        precentageMatched = [-1]
+        author = [-1]
+        score = [-1]
+        title = [-1]
+    
     else:
+
+        # check if post is already in database
         args = c.execute(
-            'SELECT COUNT(1) FROM Posts WHERE Url = ?;', (str(url),))
+            'SELECT COUNT(1) FROM Posts WHERE Url = ?;',
+            (
+                str(url),
+            ),
+        )
         if list(args.fetchone())[0] != 0:
-            ignore()
-            print('already done')
+            args = c.execute(
+                'SELECT Location FROM Posts WHERE Url = ?;',
+                (
+                    str(url),
+                ),
+            )
+            fullResult = list(args.fetchall())
+
+            # make sure the post is in the right category
+            for i in fullResult:
+                if i[0] != 'top' and top and (subSettings[1] is None or (timePassed < subSettings[1] and (subSettings[2] is None or subSettings[1] > subSettings[2]) and (subSettings[3] is None or subSettings[1] > subSettings[3]))):
+                        updateDatabase(conn, url, 'top')
+                if i[0] != 'hot' and hot and (subSettings[2] is None or (timePassed < subSettings[2] and (subSettings[1] is None or subSettings[2] > subSettings[1]) and (subSettings[3] is None or subSettings[2] > subSettings[3]))):
+                        updateDatabase(conn, url, 'hot')
+                if i[0] != 'new' and new and (subSettings[3] is None or (timePassed < subSettings[3] and (subSettings[2] is None or subSettings[3] > subSettings[2]) and (subSettings[1] is None or subSettings[3] > subSettings[1]))):
+                        updateDatabase(conn, url, 'new')
+
+            # ignore post
+            result = ['delete']
+            originalPostDate = [-1]
+            finalTimePassed = [-1]
+            precentageMatched = [-1]
+            author = [-1]
+            score = [-1]
+            title = [-1]
+        
+        # check if post is a repost
         else:
+
+            # check for text
             if text != '&#x200B;' and text != '':
-                textHash = hashText(text)
                 args = c.execute(
-                    'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(textHash),))
+                    'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
+                    (
+                        str(text),
+                    ),
+                )
                 if list(args.fetchone())[0] != 0:
                     args = c.execute(
-                        'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(textHash),))
+                        'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                        (
+                            str(text),
+                        ),
+                    )
                     fullResult = list(args.fetchall())
                     for i in fullResult:
-                        addToFound(i, 100)
+                        addToFound(
+                            i,
+                            100,
+                            result,
+                            originalPostDate,
+                            precentageMatched,
+                            author,
+                            score,
+                            title,
+                        )
+                    args = c.execute(
+                        'SELECT Url, Date, Author, Score, Title, Content FROM posts;',
+                    )
+                    for texts in args.fetchall():
+                        if texts[0] not in result:
+                            textVar = texts[2]
+                            difference = distance(textVar, text)
+                            if difference < subSettings[7]:
+                                addToFound(
+                                    texts,
+                                    ((subSettings[7] - difference)/subSettings[7])*100,
+                                    result,
+                                    originalPostDate,
+                                    precentageMatched,
+                                    author,
+                                    score,
+                                    title,
+                                )
+            
+            # check for v.reddit
             elif media != None:
                 vidHash = hashVid(conn, media, url)
+                if vidHash == 'invalid':
+                    result = ['delete']
+                    originalPostDate = [-1]
+                    finalTimePassed = [-1]
+                    precentageMatched = [-1]
+                    author = [-1]
+                    score = [-1]
+                    title = [-1]
                 if isInt(vidHash.replace(' ', '')):
                     args = c.execute(
-                        'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(vidHash),))
+                        'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
+                        (
+                            str(vidHash),
+                        ),
+                    )
                     if list(args.fetchone())[0] != 0:
                         args = c.execute(
-                            'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(vidHash),))
+                            'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                            (
+                                str(vidHash),
+                            ),
+                        )
                         fullResult = list(args.fetchall())
                         for i in fullResult:
-                            addToFound(i, 100)
-                    args = c.execute('SELECT Url, Date, Content FROM posts;')
+                            addToFound(
+                                i,
+                                100,
+                                result,
+                                originalPostDate,
+                                precentageMatched,
+                                author,
+                                score,
+                                title
+                            )
+                    args = c.execute(
+                        'SELECT Url, Date, Author, Score, Title Content FROM posts;',
+                    )
                     for hashed in args.fetchall():
                         if hashed[0] not in result:
                             hashedReadable = hashed[2]
                             if isInt(hashedReadable.replace(' ', '')):
                                 hashedDifference = hashVidDifference(
                                     hashedReadable, vidHash)
-                                if hashedDifference < config.subSettings[0][2]:
+                                if hashedDifference < subSettings[7]:
                                     addToFound(
-                                        hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
+                                        hashed,
+                                        ((subSettings[7] - hashedDifference)/subSettings[7])*100,
+                                        result,
+                                        originalPostDate,
+                                        precentageMatched,
+                                        author,
+                                        score,
+                                        title,
+                                    )
+
+            # check for image or gif
             elif contentUrl != '':
-                args = c.execute('SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(
-                    contentUrl).replace('&feature=youtu.be', ''),))
+                args = c.execute(
+                    'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
+                    (
+                        str(contentUrl).replace(
+                            '&feature=youtu.be',
+                            '',
+                        ),
+                    ),
+                )
                 if list(args.fetchone())[0] != 0:
-                    args = c.execute('SELECT Url, Date FROM Posts WHERE Content = ?;', (str(
-                        contentUrl).replace('&feature=youtu.be', ''),))
+                    args = c.execute(
+                        'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                        (
+                            str(contentUrl).replace(
+                                '&feature=youtu.be',
+                                '',
+                            ),
+                        ),
+                    )
                     fullResult = list(args.fetchall())
                     for i in fullResult:
-                        addToFound(i, 100)
+                        addToFound(
+                            i,
+                            100,
+                            result,
+                            originalPostDate,
+                            precentageMatched,
+                            author,
+                            score,
+                            title
+                        )
+
+                # check for gif
                 if 'gif' in contentUrl and not (contentUrl.endswith('gifv') or 'gifs' in contentUrl):
                     gifHash = hashGif(conn, contentUrl, url)
+                    if gifHash == 'invalid':
+                        result = ['delete']
+                        originalPostDate = [-1]
+                        finalTimePassed = [-1]
+                        precentageMatched = [-1]
+                        author = [-1]
+                        score = [-1]
+                        title = [-1]
                     if isInt(gifHash.replace(' ', '')):
                         args = c.execute(
-                            'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(gifHash),))
+                            'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
+                            (
+                                str(gifHash),
+                            ),
+                        )
                         if list(args.fetchone())[0] != 0:
                             args = c.execute(
-                                'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(gifHash),))
+                                'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                                (
+                                    str(gifHash),
+                                ),
+                            )
                             fullResult = list(args.fetchall())
                             for i in fullResult:
-                                addToFound(i, 100)
+                                addToFound(
+                                    i,
+                                    100,
+                                    result,
+                                    originalPostDate,
+                                    precentageMatched,
+                                    author,
+                                    score,
+                                    title,
+                                )
                         args = c.execute(
-                            'SELECT Url, Date, Content FROM posts;')
+                            'SELECT Url, Date, Author, Score, Title, Content FROM posts;'
+                        )
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
                                 if isInt(hashedReadable.replace(' ', '')):
                                     hashedDifference = hashVidDifference(
                                         hashedReadable, gifHash)
-                                    if hashedDifference < config.subSettings[0][2]:
+                                    if hashedDifference < subSettings[7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
+                                            hashed,
+                                            ((subSettings[7] - hashedDifference)/subSettings[7])*100,
+                                            result,
+                                            originalPostDate,
+                                            precentageMatched,
+                                            author,
+                                            score,
+                                            title,
+                                        )
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
+                    if imgHash == 'invalid':
+                        result = ['delete']
+                        originalPostDate = [-1]
+                        finalTimePassed = [-1]
+                        precentageMatched = [-1]
+                        author = [-1]
+                        score = [-1]
+                        title = [-1]
                     if isInt(imgHash):
                         args = c.execute(
-                            'SELECT COUNT(1) FROM Posts WHERE Content = ?;', (str(imgHash),))
+                            'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
+                            (
+                                str(imgHash),
+                            ),
+                        )
                         if list(args.fetchone())[0] != 0:
                             args = c.execute(
-                                'SELECT Url, Date FROM Posts WHERE Content = ?;', (str(imgHash),))
+                                'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                                (
+                                    str(imgHash),
+                                ),
+                            )
                             fullResult = list(args.fetchall())
                             for i in fullResult:
-                                addToFound(i, 100)
+                                addToFound(
+                                    i,
+                                    100,
+                                    result,
+                                    originalPostDate,
+                                    precentageMatched,
+                                    author,
+                                    score,
+                                    title,
+                                )
                         args = c.execute(
-                            'SELECT Url, Date, Content FROM posts;')
+                            'SELECT Url, Date, Author, Score, Title, Content FROM posts;'
+                        )
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
                                 hashedReadable = hashed[2]
                                 if isInt(hashedReadable):
                                     hashedDifference = dhash.get_num_bits_different(
                                         imgHash, int(hashedReadable))
-                                    if hashedDifference < config.subSettings[0][2]:
+                                    if hashedDifference < subSettings[7]:
                                         addToFound(
-                                            hashed, ((config.subSettings[0][2] - hashedDifference)/config.subSettings[0][2])*100)
+                                            hashed,
+                                            ((subSettings[7] - hashedDifference)/subSettings[7])*100,
+                                            result,
+                                            originalPostDate,
+                                            precentageMatched,
+                                            author,
+                                            score,
+                                            title,
+                                        )
 
+    # delete post if it has been deleted
     for i in result:
         if i != '' and i != 'delete':
-            if reddit.submission(url='https://reddit.com' + i).selftext == '[deleted]':
-                c.execute('DELETE FROM Posts WHERE Url = ?;', (str(i),))
-                postsToRemove.append(
-                    [i, originalPostDate[cntr], precentageMatched[cntr]])
-                print('deleted ' + i)
+            if reddit.submission(url='https://reddit.com{}'.format(i)).selftext == '[deleted]':
+                c.execute(
+                    'DELETE FROM Posts WHERE Url = ?;',
+                    (
+                        str(i),
+                    ),
+                )
+                postsToRemove.append([
+                    i,
+                    originalPostDate[cntr],
+                    precentageMatched[cntr],
+                    author[cntr],
+                    score[cntr],
+                    title[cntr],
+                ])
+                print('deleted {}'.format(i))
         cntr += 1
+
+    c.close()
 
     for i in postsToRemove:
         result.remove(i[0])
         originalPostDate.remove(i[1])
         precentageMatched.remove(i[2])
+        author.remove(i[3])
+        score.remove(i[4])
+        title.remove(i[5])
 
-    c.close()
     for i in originalPostDate:
-        then = datetime.datetime.fromtimestamp(i)
+        then = datetime.fromtimestamp(i)
         timePassed = monthDelta(then, now)
-        fullText = (str(timePassed) + ' months ago')
+        fullText = ('{} months ago'.format(str(timePassed)))
         if timePassed < 1:
             timePassed = (now-then).days
-            fullText = (str(timePassed) + ' days ago')
+            fullText = ('{} days ago'.format(str(timePassed)))
         if timePassed < 1:
             timePassed = (now-then).total_seconds()//3600
-            fullText = (str(timePassed) + ' hours ago')
+            fullText = ('{} hours ago'.format(str(timePassed)))
         if timePassed < 1:
             timePassed = (now-then).total_seconds()//60
-            fullText = (str(timePassed) + ' minutes ago')
+            fullText = ('{} minutes ago'.format(str(timePassed)))
         if timePassed < 1:
             timePassed = (now-then).total_seconds()
-            fullText = (str(timePassed) + ' seconds ago')
+            fullText = ('{} seconds ago'.format(str(timePassed)))
         finalTimePassed.append(fullText)
+    
     cntr = 0
     for i in result:
-        returnResult.append(
-            [i, finalTimePassed[cntr], originalPostDate[cntr], precentageMatched[cntr]])
+        returnResult.append([
+            i,
+            finalTimePassed[cntr],
+            originalPostDate[cntr],
+            precentageMatched[cntr],
+            author[cntr],
+            score[cntr],
+            title[cntr],
+        ])
         cntr += 1
-    print('Found? {}'.format(returnResult))
+    
+    if returnResult != [['delete', -1, -1, -1, -1, -1, -1]]:
+        print('Found? {}'.format(returnResult))
 
     return returnResult
 
 
-def addPost(conn, date, contentUrl, media, url, text):
+def addPost(date, contentUrl, media, url, text, author, score, title, top, hot, new, subreddit):
+    conn = sqlite3.connect(
+            'Posts{}.db'.format(
+                sub(
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subreddit,
+                    1,
+                )
+            )
+        )
     c = conn.cursor()
     if text != '&#x200B;' and text != '':
-        content = hashText(text)
+        content = text
     else:
         if media != None:
             vidHash = hashVid(conn, media, url)
@@ -360,16 +648,24 @@ def addPost(conn, date, contentUrl, media, url, text):
                 content = contentUrl
         else:
             content = contentUrl
-    c.execute('INSERT INTO Posts (Date, Content, Url) VALUES (?, ?, ?);',
-              (int(date), str(content), str(url),))
+    if top:
+        locationVar = 'top'
+    elif hot:
+        locationVar = 'hot'
+    elif new:
+        locationVar = 'new'
+    c.execute(
+        'INSERT INTO Posts (Date, Content, Url, Location, Author, Score, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
+            (
+                int(date),
+                str(content),
+                str(url),
+                str(locationVar),
+                str(author),
+                int(score),
+                str(title),
+            ),
+        )
     conn.commit()
     c.close()
-    print('Added new post - {}'.format(str(date)))
-
-
-def getAll(conn):
-    c = conn.cursor()
-    args = c.execute('SELECT Content FROM posts;')
-    result = [x[0] for x in args.fetchall()]
-    c.close()
-    return result
+    print('Added new post - {}'.format(str(url)))
