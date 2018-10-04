@@ -248,16 +248,19 @@ class findPosts(Thread):
                                     cntr = 0
                                     table = ''
                                     for i in result:
-                                        table = '{}{}|[post](https://reddit.com{})|{}|{}%\n'.format(
+                                        table = '{}{}|[{}](https://reddit.com{})|{}|{}%|{}|{}\n'.format(
                                             table,
                                             str(cntr),
+                                            i[6],
                                             i[0],
                                             i[1],
-                                            str(i[3])
+                                            str(i[3]),
+                                            i[5],
+                                            i[4],
                                         )
                                         cntr += 1
                                     fullText = 'I have detected that this may be a repost: \n'+ \
-                                        '\nNum|Post|Date|Match\n:--:|:--:|:--:|:--:\n{}'.format(table) + \
+                                        '\nNum|Post|Date|Match|Score|Author\n:--:|:--:|:--:|:--:|:--:|:--:\n{}'.format(table) + \
                                         '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker)' + \
                                         '| Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
                                     doThis = True
