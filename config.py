@@ -25,5 +25,5 @@ subSettings = [
         int(os.environ['BOT_HOT_NUM_POSTS2']) if 'BOT_HOT_NUM_POSTS2' in os.environ else 1000,
         int(os.environ['BOT_NEW_NUM_POSTS2']) if 'BOT_NEW_NUM_POSTS2' in os.environ else 1000,
         int(os.environ['BOT_THRESH2']) if 'BOT_THRESH2' in os.environ else 5,
-    ],
+    ] if 'BOT_SUBREDDIT2' in os.environ else None,
 ]

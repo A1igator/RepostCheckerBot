@@ -286,13 +286,14 @@ threadCount = 0
 threads = []
 deleteOldThread = []
 for i in config.subSettings:
-    database.initDatabase(i[0])
-    threads.append(findPosts(i))
-    if i[1] is not None or i[2] is not None or i[3] is not None:
-        deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
-        deleteOldThread[threadCount].start()
-    threads[threadCount].start()
-    threadCount += 1
+    if i is not None:
+        database.initDatabase(i[0])
+        threads.append(findPosts(i))
+        if i[1] is not None or i[2] is not None or i[3] is not None:
+            deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
+            deleteOldThread[threadCount].start()
+        threads[threadCount].start()
+        threadCount += 1
 
 deleteThread = Thread(target=deleteComment)
 
