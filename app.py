@@ -283,15 +283,15 @@ class findPosts(Thread):
                     f.write(str(traceback.format_exc()))
 
 threadCount = 0
-thread = []
+threads = []
 deleteOldThread = []
 for i in config.subSettings:
     database.initDatabase(i[0])
-    thread.append(findPosts(i))
+    threads.append(findPosts(i))
     if i[1] is not None or i[2] is not None or i[3] is not None:
         deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
         deleteOldThread[threadCount].start()
-    thread[threadCount].start()
+    threads[threadCount].start()
     threadCount += 1
 
 deleteThread = Thread(target=deleteComment)
@@ -299,7 +299,7 @@ deleteThread = Thread(target=deleteComment)
 deleteThread.start()
 
 deleteThread.join()
-for i in range(0, len(thread)):
+for i in range(0, len(threads)):
     if 'deleteOldThread' in vars():
         deleteOldThread[i].join()
-    thread[i].join()
+    threads[i].join()
