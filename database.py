@@ -21,10 +21,10 @@ def initDatabase(subreddit):
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
-                        '([a-zA-Z])',
-                        lambda x: x.groups()[0].upper(),
-                        subreddit,
-                        1,
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subreddit,
+                    1,
                     )
                 )
             )
@@ -69,12 +69,12 @@ def hashImg(conn, imgUrl, url):
                 Request(
                     str(imgUrl),
                     headers={
-                            'User-Agent': user_agent
-                        },
-                    ),
-                    context=context,
-                ).read(),
-            )
+                        'User-Agent': user_agent
+                    },
+                ),
+                context=context,
+            ).read(),
+        )
     except:
         c = conn.cursor()
         c.execute(
@@ -119,8 +119,8 @@ def hashGif(conn, gifUrl, url):
                 urlopen(
                     Request(
                         str(gifUrl),
-                            headers={'User-Agent': user_agent},
-                        ),
+                        headers={'User-Agent': user_agent},
+                    ),
                     context=context,
                 ).read(),
             )
@@ -187,10 +187,10 @@ def deleteOldFromDatabase(subSettings):
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
-                        '([a-zA-Z])',
-                        lambda x: x.groups()[0].upper(),
-                        subSettings[0],
-                        1,
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subSettings[0],
+                    1,
                     )
                 )
             )
@@ -231,13 +231,13 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
-                        '([a-zA-Z])',
-                        lambda x: x.groups()[0].upper(),
-                        subSettings[0],
-                        1,
-                    )
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subSettings[0],
+                    1,
                 )
             )
+        )
     c = conn.cursor()
 
     now = datetime.utcnow()
@@ -617,13 +617,13 @@ def addPost(date, contentUrl, media, url, text, author, score, title, top, hot, 
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
-                        '([a-zA-Z])',
-                        lambda x: x.groups()[0].upper(),
-                        subreddit,
-                        1,
-                    )
+                    '([a-zA-Z])',
+                    lambda x: x.groups()[0].upper(),
+                    subreddit,
+                    1,
                 )
             )
+        )
     c = conn.cursor()
     if text != '&#x200B;' and text != '':
         content = text
