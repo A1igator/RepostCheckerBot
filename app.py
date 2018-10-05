@@ -107,9 +107,9 @@ class findPosts(Thread):
                                         new,
                                         self.subSettings[0],
                                     )
-                                print('{} --> Added {}'.format(
-                                    post,
-                                    submission.permalink,
+                                    print('{} --> Added {}'.format(
+                                        post,
+                                        submission.permalink,
                                     ))
                                 with self.q.mutex:
                                     self.q.queue.clear()
@@ -172,9 +172,9 @@ class findPosts(Thread):
                                         new,
                                         self.subSettings[0],
                                     )
-                                print('{} --> Added {}'.format(
-                                    post,
-                                    submission.permalink,
+                                    print('{} --> Added {}'.format(
+                                        post,
+                                        submission.permalink,
                                     ))
                                 with self.q.mutex:
                                     self.q.queue.clear()
@@ -237,9 +237,9 @@ class findPosts(Thread):
                                         new,
                                         self.subSettings[0],
                                     )
-                                print('{} --> Added {}'.format(
-                                    post,
-                                    submission.permalink,
+                                    print('{} --> Added {}'.format(
+                                        post,
+                                        submission.permalink,
                                     ))
                                 if result != [] and result != [['delete', -1, -1, -1, -1, -1, -1]]:
                                     print('reported')
