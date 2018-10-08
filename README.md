@@ -4,11 +4,11 @@
 This bot is able to notice reposts of any kind(link, text, picture) where the original post has not been deleted, report the post, and make a comment with details about the original post. It can be configured to work with any subreddit's rules.
 
 # Setup
-1. download python 3.5+
-2. "pip install" dependencies
-3. download/clone the repository
-4. set up environmental variables for the config file with your bot [credintionals](https://github.com/reddit-archive/reddit/wiki/OAuth2) and subreddit
-5. run app.py
+1. download python 3.5+.
+2. download/clone the repository.
+3. "pip3 install -r requirements.txt" to install dependencies.
+4. set up environmental variables for the config file with your bot [credintionals](https://github.com/reddit-archive/reddit/wiki/OAuth2) and subreddit.
+5. run app.py with "python3 app.py".
 
 # Dependencies
 [praw](https://praw.readthedocs.io/en/latest/) : connecting to reddit
