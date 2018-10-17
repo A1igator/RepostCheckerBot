@@ -94,6 +94,8 @@ def hashVid(conn, vidUrl, url):
     vidHash = ''
     try:
         container = av.open(vidUrl['reddit_video']['fallback_url'])
+        for frame in container.decode(video=0):
+            vidHash = '{}{} '.format(vidHash, str(dhash.dhash_int(frame.to_image())))
     except:
         c = conn.cursor()
         c.execute(
@@ -105,9 +107,6 @@ def hashVid(conn, vidUrl, url):
         conn.commit()
         c.close()
         vidHash = 'invalid'
-    else:
-        for frame in container.decode(video=0):
-            vidHash = '{}{} '.format(vidHash, str(dhash.dhash_int(frame.to_image())))
     return vidHash
 
 
