@@ -587,7 +587,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
         ])
         cntr += 1
     
-    if returnResult != [['delete', -1, -1, -1, -1, -1, -1]]:
+    if returnResult != [['delete', -1, -1, -1, -1, -1]]:
         print('Found? {}'.format(returnResult))
 
     return returnResult
