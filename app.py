@@ -248,7 +248,7 @@ class findPosts(Thread):
                                         table = '{}{}|[{}](https://reddit.com{})|{}|{}%|{}\n'.format(
                                             table,
                                             str(cntr),
-                                            i[6],
+                                            i[5],
                                             i[0],
                                             i[1],
                                             str(i[3]),
