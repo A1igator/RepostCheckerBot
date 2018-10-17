@@ -30,7 +30,7 @@ def initDatabase(subreddit):
             )
     c = conn.cursor()
     c.execute(
-        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Score INT, Title TEXT);',
+        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Title TEXT);',
     )
     conn.commit()
     c.close()
@@ -163,12 +163,11 @@ def hashVidDifference(originalHash, newHash):
     print(sum(minDifferences)/len(minDifferences))
     return sum(minDifferences)/len(minDifferences)
 
-def addToFound(post, precentage, result, originalPostDate, precentageMatched, author, score, title):
+def addToFound(post, precentage, result, originalPostDate, precentageMatched, author, title):
     result.append(post[0])
     originalPostDate.append(post[1])
     author.append(post[2])
-    score.append(post[3])
-    title.append(post[4])
+    title.append(post[3])
     precentageMatched.append(precentage)
 
 def updateDatabase(conn, url, updateVal):
@@ -221,7 +220,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
     finalTimePassed = []
     precentageMatched = []
     author = []
-    score = []
     title = []
     args = None
     postsToRemove = []
@@ -251,7 +249,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
         finalTimePassed = [-1]
         precentageMatched = [-1]
         author = [-1]
-        score = [-1]
         title = [-1]
     
     else:
@@ -287,7 +284,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
             finalTimePassed = [-1]
             precentageMatched = [-1]
             author = [-1]
-            score = [-1]
             title = [-1]
         
         # check if post is a repost
@@ -303,7 +299,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                 )
                 if list(args.fetchone())[0] != 0:
                     args = c.execute(
-                        'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                        'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
                         (
                             str(text),
                         ),
@@ -317,11 +313,10 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                             originalPostDate,
                             precentageMatched,
                             author,
-                            score,
                             title,
                         )
                     args = c.execute(
-                        'SELECT Url, Date, Author, Score, Title, Content FROM posts;',
+                        'SELECT Url, Date, Author, Title, Content FROM posts;',
                     )
                     for texts in args.fetchall():
                         if texts[0] not in result:
@@ -335,7 +330,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                     originalPostDate,
                                     precentageMatched,
                                     author,
-                                    score,
                                     title,
                                 )
             
@@ -348,7 +342,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                     finalTimePassed = [-1]
                     precentageMatched = [-1]
                     author = [-1]
-                    score = [-1]
                     title = [-1]
                 if isInt(vidHash.replace(' ', '')):
                     args = c.execute(
@@ -359,7 +352,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                     )
                     if list(args.fetchone())[0] != 0:
                         args = c.execute(
-                            'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                            'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
                             (
                                 str(vidHash),
                             ),
@@ -373,11 +366,10 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                 originalPostDate,
                                 precentageMatched,
                                 author,
-                                score,
                                 title
                             )
                     args = c.execute(
-                        'SELECT Url, Date, Author, Score, Title Content FROM posts;',
+                        'SELECT Url, Date, Author, Title Content FROM posts;',
                     )
                     for hashed in args.fetchall():
                         if hashed[0] not in result:
@@ -393,7 +385,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                         originalPostDate,
                                         precentageMatched,
                                         author,
-                                        score,
                                         title,
                                     )
 
@@ -410,7 +401,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                 )
                 if list(args.fetchone())[0] != 0:
                     args = c.execute(
-                        'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                        'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
                         (
                             str(contentUrl).replace(
                                 '&feature=youtu.be',
@@ -427,8 +418,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                             originalPostDate,
                             precentageMatched,
                             author,
-                            score,
-                            title
+                            title,
                         )
 
                 # check for gif
@@ -440,7 +430,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                         finalTimePassed = [-1]
                         precentageMatched = [-1]
                         author = [-1]
-                        score = [-1]
                         title = [-1]
                     if isInt(gifHash.replace(' ', '')):
                         args = c.execute(
@@ -451,7 +440,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                         )
                         if list(args.fetchone())[0] != 0:
                             args = c.execute(
-                                'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                                'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
                                 (
                                     str(gifHash),
                                 ),
@@ -465,11 +454,10 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                     originalPostDate,
                                     precentageMatched,
                                     author,
-                                    score,
                                     title,
                                 )
                         args = c.execute(
-                            'SELECT Url, Date, Author, Score, Title, Content FROM posts;'
+                            'SELECT Url, Date, Author, Title, Content FROM posts;'
                         )
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
@@ -485,7 +473,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                             originalPostDate,
                                             precentageMatched,
                                             author,
-                                            score,
                                             title,
                                         )
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
@@ -496,7 +483,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                         finalTimePassed = [-1]
                         precentageMatched = [-1]
                         author = [-1]
-                        score = [-1]
                         title = [-1]
                     if isInt(imgHash):
                         args = c.execute(
@@ -507,7 +493,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                         )
                         if list(args.fetchone())[0] != 0:
                             args = c.execute(
-                                'SELECT Url, Date, Author, Score, Title FROM Posts WHERE Content = ?;',
+                                'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
                                 (
                                     str(imgHash),
                                 ),
@@ -521,11 +507,10 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                     originalPostDate,
                                     precentageMatched,
                                     author,
-                                    score,
                                     title,
                                 )
                         args = c.execute(
-                            'SELECT Url, Date, Author, Score, Title, Content FROM posts;'
+                            'SELECT Url, Date, Author, Title, Content FROM posts;'
                         )
                         for hashed in args.fetchall():
                             if hashed[0] not in result:
@@ -541,7 +526,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                             originalPostDate,
                                             precentageMatched,
                                             author,
-                                            score,
                                             title,
                                         )
 
@@ -560,7 +544,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                     originalPostDate[cntr],
                     precentageMatched[cntr],
                     author[cntr],
-                    score[cntr],
                     title[cntr],
                 ])
                 print('deleted {}'.format(i))
@@ -573,8 +556,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
         originalPostDate.remove(i[1])
         precentageMatched.remove(i[2])
         author.remove(i[3])
-        score.remove(i[4])
-        title.remove(i[5])
+        title.remove(i[4])
 
     for i in originalPostDate:
         then = datetime.fromtimestamp(i)
@@ -602,7 +584,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
             originalPostDate[cntr],
             precentageMatched[cntr],
             author[cntr],
-            score[cntr],
             title[cntr],
         ])
         cntr += 1
@@ -613,7 +594,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
     return returnResult
 
 
-def addPost(date, contentUrl, media, url, text, author, score, title, top, hot, new, subreddit):
+def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, subreddit):
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
@@ -655,14 +636,13 @@ def addPost(date, contentUrl, media, url, text, author, score, title, top, hot, 
     elif new:
         locationVar = 'new'
     c.execute(
-        'INSERT INTO Posts (Date, Content, Url, Location, Author, Score, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
+        'INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?);',
             (
                 int(date),
                 str(content),
                 str(url),
                 str(locationVar),
                 str(author),
-                int(score),
                 str(title),
             ),
         )
