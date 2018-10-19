@@ -338,8 +338,6 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                 )
             
             # check for v.reddit
-            if media != None:
-                print('provider_name' in media)
             elif media != None and ('provider_name' not in media or media['provider_name'] != 'gfycat'):
                 vidHash = hashVid(conn, media, url)
                 if vidHash == 'invalid':
@@ -615,7 +613,7 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
     if text != '&#x200B;' and text != '':
         content = text
     else:
-        if media != None:
+        if media != None and ('provider_name' not in media or media['provider_name'] != 'gfycat'):
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash
