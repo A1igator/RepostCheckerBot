@@ -338,6 +338,8 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                 )
             
             # check for v.reddit
+            if 'provider_name' in media:
+                print(media['provider_name'])
             elif media != None and ('provider_name' not in media or media['provider_name'] != 'gfycat'):
                 vidHash = hashVid(conn, media, url)
                 if vidHash == 'invalid':
