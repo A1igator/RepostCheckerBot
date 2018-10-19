@@ -100,7 +100,7 @@ def hashVid(conn, vidUrl, url):
             vidHash = '{}{} '.format(vidHash, str(dhash.dhash_int(frame.to_image())))
     except:
         f = open('dedLink.txt', 'a')
-        f.write('{}\n{}\n'.format(str(traceback.format_exc()), url))
+        f.write('{}\n{}\n'.format(str(traceback.format_exc()), vidUrl))
         c = conn.cursor()
         c.execute(
             'DELETE FROM Posts WHERE Url = ?;',
