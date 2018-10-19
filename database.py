@@ -338,7 +338,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                 )
             
             # check for v.reddit
-            elif media != None and ('provider_name' not in media['provider_name'] or media['provider_name'] != 'gfycat'):
+            elif media != None and ('provider_name' not in media or media['provider_name'] != 'gfycat'):
                 vidHash = hashVid(conn, media, url)
                 if vidHash == 'invalid':
                     result = ['delete']
