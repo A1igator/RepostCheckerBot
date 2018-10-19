@@ -6,6 +6,7 @@ from io import BytesIO
 import ssl
 import sqlite3
 from re import sub
+import traceback
 
 # packages that need to be pip installed
 import praw
@@ -75,7 +76,11 @@ def hashImg(conn, imgUrl, url):
                 context=context,
             ).read(),
         )
+        img = Image.open(f)
+        imgHash = dhash.dhash_int(img)
     except:
+        f = open('dedLink.txt', 'a')
+        f.write('{}\n{}\n'.format(str(traceback.format_exc()), url))
         c = conn.cursor()
         c.execute(
             'DELETE FROM Posts WHERE Url = ?;',
@@ -85,9 +90,6 @@ def hashImg(conn, imgUrl, url):
         )
         conn.commit()
         c.close()
-    else:
-        img = Image.open(f)
-        imgHash = dhash.dhash_int(img)
     return imgHash
 
 def hashVid(conn, vidUrl, url):
@@ -97,6 +99,8 @@ def hashVid(conn, vidUrl, url):
         for frame in container.decode(video=0):
             vidHash = '{}{} '.format(vidHash, str(dhash.dhash_int(frame.to_image())))
     except:
+        f = open('dedLink.txt', 'a')
+        f.write('{}\n{}\n'.format(str(traceback.format_exc()), url))
         c = conn.cursor()
         c.execute(
             'DELETE FROM Posts WHERE Url = ?;',
@@ -124,7 +128,17 @@ def hashGif(conn, gifUrl, url):
                 ).read(),
             )
         frame = Image.open(f)
+        while frame:
+            dhash.dhash_int(frame)
+            gifHash = '{}{} '.format(gifHash, str(dhash.dhash_int(frame)))
+            nframes += 1
+            try:
+                frame.seek(nframes)
+            except EOFError:
+                break
     except:
+        f = open('dedLink.txt', 'a')
+        f.write('{}\n{}\n'.format(str(traceback.format_exc()), url))
         c = conn.cursor()
         c.execute(
             'DELETE FROM Posts WHERE Url = ?;',
@@ -135,15 +149,6 @@ def hashGif(conn, gifUrl, url):
         conn.commit()
         c.close()
         gifHash = 'invalid'
-    else:
-        while frame:
-            dhash.dhash_int(frame)
-            gifHash = '{}{} '.format(gifHash, str(dhash.dhash_int(frame)))
-            nframes += 1
-            try:
-                frame.seek(nframes)
-            except EOFError:
-                break
     return gifHash
 
 
