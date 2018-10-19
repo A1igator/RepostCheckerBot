@@ -613,6 +613,8 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
     if text != '&#x200B;' and text != '':
         content = text
     else:
+        if media != None and media['provider_name'] == 'gfycat':
+            print(media['provider_name'])
         if media != None and ('provider_name' not in media or media['provider_name'] != 'gfycat'):
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
