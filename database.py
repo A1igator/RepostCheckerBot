@@ -738,9 +738,10 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
         locationVar = 'hot'
     elif new:
         locationVar = 'new'
+    print(isTextInImage)
     if isTextInImage:
         c.execute(
-            'INSERT INTO Posts (Date, Content, ImageText, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?);',
+            'INSERT INTO Posts (Date, Content, ImageText, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
                 (
                     int(date),
                     str(content),
