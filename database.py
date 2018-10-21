@@ -705,6 +705,7 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
             )
         )
     c = conn.cursor()
+    imgText = ''
     if text != '&#x200B;' and text != '':
         content = text
     else:
