@@ -2,6 +2,7 @@
 from datetime import timedelta, datetime
 from calendar import monthrange
 from urllib.request import Request, urlopen
+from urllib import HTTPError
 from io import BytesIO
 import ssl
 import sqlite3
@@ -78,6 +79,16 @@ def hashImg(conn, imgUrl, url):
         )
         img = Image.open(f)
         imgHash = dhash.dhash_int(img)
+    except HTTPError:
+        c = conn.cursor()
+        c.execute(
+            'DELETE FROM Posts WHERE Url = ?;',
+            (
+                str(url),
+            ),
+        )
+        conn.commit()
+        c.close()
     except:
         f = open('dedLink.txt', 'a')
         f.write('{}\n{}\n'.format(str(traceback.format_exc()), url))
@@ -136,6 +147,16 @@ def hashGif(conn, gifUrl, url):
                 frame.seek(nframes)
             except EOFError:
                 break
+    except HTTPError:
+        c = conn.cursor()
+        c.execute(
+            'DELETE FROM Posts WHERE Url = ?;',
+            (
+                str(url),
+            ),
+        )
+        conn.commit()
+        c.close()
     except:
         f = open('dedLink.txt', 'a')
         f.write('{}\n{}\n'.format(str(traceback.format_exc()), url))
