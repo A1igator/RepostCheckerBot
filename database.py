@@ -616,6 +616,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                             if texts[0] not in result:
                                 textVar = texts[2]
                                 difference = SequenceMatcher(None, textVar, imgText).ratio()
+                                print(difference)
                                 if 10 - (difference * 10) < subSettings[7]:
                                     addToFound(
                                         texts,
