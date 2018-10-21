@@ -105,6 +105,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
+                                        self.subSettings[8]
                                     )
                                     print('{} --> Added {}'.format(
                                         post,
@@ -169,6 +170,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
+                                        self.subSettings[8],
                                     )
                                     print('{} --> Added {}'.format(
                                         post,
@@ -233,6 +235,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
+                                        self.subSettings[8],
                                     )
                                     print('{} --> Added {}'.format(
                                         post,
@@ -284,7 +287,7 @@ threads = []
 deleteOldThread = []
 for i in config.subSettings:
     if i is not None:
-        database.initDatabase(i[0])
+        database.initDatabase(i[0], i[8])
         threads.append(findPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
             deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
