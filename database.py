@@ -372,7 +372,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                     )
                     for texts in args.fetchall():
                         if texts[0] not in result:
-                            textVar = texts[2]
+                            textVar = texts[4]
                             difference = SequenceMatcher(None, textVar, text).ratio()
                             print(textVar)
                             print(text)
@@ -588,52 +588,52 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                         )
                     if subSettings[8]:
                         imgText = extractText(contentUrl, url)
-                        if imgText != 'invalid' or imgText != '':
+                        if imgText != 'invalid' and imgText != '':
                             args = c.execute(
-                            'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
-                            (
-                                str(imgText),
-                            ),
-                        )
-                        if list(args.fetchone())[0] != 0:
-                            args = c.execute(
-                                'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
+                                'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
                                 (
                                     str(imgText),
                                 ),
                             )
-                            fullResult = list(args.fetchall())
-                            for i in fullResult:
-                                addToFound(
-                                    i,
-                                    100,
-                                    result,
-                                    originalPostDate,
-                                    precentageMatched,
-                                    author,
-                                    title,
+                            if list(args.fetchone())[0] != 0:
+                                args = c.execute(
+                                    'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
+                                    (
+                                        str(imgText),
+                                    ),
                                 )
-                        args = c.execute(
-                            'SELECT Url, Date, Author, Title, ImageText FROM posts;'
-                        )
-                        for texts in args.fetchall():
-                            if texts[0] not in result:
-                                textVar = texts[4]
-                                difference = SequenceMatcher(None, textVar, imgText).ratio()
-                                print(textVar)
-                                print(imgText)
-                                print(10-(difference*10))
-                                print(subSettings[7])
-                                if 10 - (difference * 10) < subSettings[7]:
+                                fullResult = list(args.fetchall())
+                                for i in fullResult:
                                     addToFound(
-                                        texts,
-                                        difference * 100,
+                                        i,
+                                        100,
                                         result,
                                         originalPostDate,
                                         precentageMatched,
                                         author,
                                         title,
                                     )
+                            args = c.execute(
+                                'SELECT Url, Date, Author, Title, ImageText FROM posts;'
+                            )
+                            for texts in args.fetchall():
+                                if texts[0] not in result and texts[4] != '':
+                                    textVar = texts[4]
+                                    difference = SequenceMatcher(None, textVar, imgText).ratio()
+                                    print(textVar)
+                                    print(imgText)
+                                    print(10-(difference*10))
+                                    print(subSettings[7])
+                                    if 10 - (difference * 10) < subSettings[7]:
+                                        addToFound(
+                                            texts,
+                                            difference * 100,
+                                            result,
+                                            originalPostDate,
+                                            precentageMatched,
+                                            author,
+                                            title,
+                                        )
 
 
     # delete post if it has been deleted
