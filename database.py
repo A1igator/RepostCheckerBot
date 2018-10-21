@@ -2,7 +2,7 @@
 from datetime import timedelta, datetime
 from calendar import monthrange
 from urllib.request import Request, urlopen
-from urllib import HTTPError
+from urllib.error import HTTPError
 from io import BytesIO
 import ssl
 import sqlite3
