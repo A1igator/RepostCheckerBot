@@ -110,7 +110,7 @@ def hashImg(conn, imgUrl, url):
     return imgHash
 
 def extractText(imgUrl, url):
-    imgHash = 'invalid'
+    imgText = 'invalid'
     try:
         f = BytesIO(
             urlopen(
