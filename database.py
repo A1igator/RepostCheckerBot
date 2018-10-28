@@ -390,7 +390,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                 )
             
             # check for v.reddit
-            elif media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube')):
+            elif media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
                 vidHash = hashVid(conn, media, url)
                 if vidHash == 'invalid':
                     result = ['delete']
@@ -717,7 +717,7 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
     if text != '&#x200B;' and text != '':
         content = text
     else:
-        if media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube')):
+        if media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash

@@ -34,6 +34,8 @@ def deleteComment():
             print(repr(e))
             if '503' in str(e):
                 print('503 from server')
+            if '504' in str(e):
+                print('504 from server')          
             else:
                 f = open('errs.txt', 'a')
                 f.write('{}\n'.format(str(traceback.format_exc())))
