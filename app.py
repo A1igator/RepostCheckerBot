@@ -15,12 +15,12 @@ from queue import Queue
 import config
 import database
 
-api = PushshiftAPI(r)
 reddit = praw.Reddit(client_id=config.client_id,
                      client_secret=config.client_secret,
                      username=config.username,
                      password=config.password,
                      user_agent=config.user_agent)
+api = PushshiftAPI(reddit)
 
 def deleteComment():
     while True:
