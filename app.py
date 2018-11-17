@@ -52,7 +52,6 @@ class findPosts(Thread):
 
     def run(self):
         Thread(target=self.findTopPosts).start()
-        Thread(target=self.findHotPosts).start()
         Thread(target=self.findNewPosts).start()
 
     def findTopPosts(self):
