@@ -52,7 +52,7 @@ class findPosts(Thread):
 
     def run(self):
         Thread(target=self.findTopPosts).start()
-        Thread(target=self.findHotPosts).start()
+        Thread(target=self.findNewPosts).start()
         Thread(target=self.findNewPosts).start()
 
     def findTopPosts(self):
@@ -118,7 +118,7 @@ class findPosts(Thread):
                                     ))
                                 with self.q.mutex:
                                     self.q.queue.clear()
-                                self.q.put('doneRunningTop')
+                                self.q.put('doneRunningHot')
                                 break
 
             except Exception as e:
@@ -140,7 +140,7 @@ class findPosts(Thread):
             try:
                 post = 0
                 # then get 50 posts from trending of the subreddit
-                for submission in api.search_submissions(subreddit=subreddit):
+                for submission in subreddit.hot(limit=limitVal):
                     while True:
                         if not self.q.empty():
                             try:
