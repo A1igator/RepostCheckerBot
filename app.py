@@ -1,5 +1,6 @@
 # packages that need to be pip installed
 import praw
+from psaw import PushshiftAPI
 
 # packages that come with python
 import random
@@ -14,6 +15,7 @@ from queue import Queue
 import config
 import database
 
+api = PushshiftAPI(r)
 reddit = praw.Reddit(client_id=config.client_id,
                      client_secret=config.client_secret,
                      username=config.username,
@@ -68,7 +70,7 @@ class findPosts(Thread):
                 top = False
                 hot = True
                 # first get 50 posts from the top of the subreddit
-                for submission in subreddit.top('all', limit=limitVal):
+                for submission in api.search_submissions(subreddit=subreddit):
                     while True:
                         if (not self.q.empty()) or firstTime:
                             try:
@@ -202,7 +204,7 @@ class findPosts(Thread):
             try:
                 post = 0
                 # then get 1000 posts from new of the subreddit
-                for submission in subreddit.new(limit=limitVal):
+                for submission in in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
                         if not self.q.empty():
                             try:
