@@ -204,7 +204,7 @@ class findPosts(Thread):
             try:
                 post = 0
                 # then get 1000 posts from new of the subreddit
-                for submission in in api.search_submissions(subreddit=subreddit, limit=limitVal):
+                for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
                         if not self.q.empty():
                             try:
