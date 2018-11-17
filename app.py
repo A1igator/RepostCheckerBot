@@ -82,6 +82,7 @@ class findPosts(Thread):
                                 top = True
                                 hot = False
                                 post += 1
+                                print(post)
                                 result = database.isLogged(
                                     submission.url,
                                     submission.media,
