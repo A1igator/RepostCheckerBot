@@ -342,7 +342,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
         else:
 
             # check for text
-            if text != '&#x200B;' and text != '' and text != '[removed]':
+            if text != '&#x200B;' and text != '' and text != '[removed]' and text != '[deleted]':
                 args = c.execute(
                     'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
                     (
@@ -714,7 +714,7 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
         )
     c = conn.cursor()
     imgText = ''
-    if text != '&#x200B;' and text != '' and text != '[removed]':
+    if text != '&#x200B;' and text != '' and text != '[removed]' and text != '[deleted]':
         content = text
     else:
         if media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
