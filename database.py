@@ -42,7 +42,6 @@ def initDatabase(subreddit):
 def canonical(s):
     return ''.join([c for c in s if not c.isspace()])
 
-
 def isInt(s):
     try:
         int(s)
@@ -275,7 +274,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
         precentageMatched = [-1]
         author = [-1]
         title = [-1]
-    
+
     else:
 
         # check if post is already in database
@@ -310,7 +309,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
             precentageMatched = [-1]
             author = [-1]
             title = [-1]
-        
+
         # check if post is a repost
         else:
 
@@ -357,7 +356,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                     author,
                                     title,
                                 )
-            
+
             # check for v.reddit
             elif media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube')):
                 vidHash = hashVid(conn, media, url)
@@ -600,7 +599,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
             timePassed = (now-then).total_seconds()
             fullText = ('{} seconds ago'.format(str(timePassed)))
         finalTimePassed.append(fullText)
-    
+
     cntr = 0
     for i in result:
         returnResult.append([
@@ -612,12 +611,11 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
             title[cntr],
         ])
         cntr += 1
-    
+
     if returnResult != [['delete', -1, -1, -1, -1, -1]]:
         print('Found? {}'.format(returnResult))
 
     return returnResult
-
 
 def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, subreddit):
     conn = sqlite3.connect(
@@ -660,17 +658,6 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
         locationVar = 'hot'
     elif new:
         locationVar = 'new'
-    c.execute(
-        'INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?);',
-            (
-                int(date),
-                str(content),
-                str(url),
-                str(locationVar),
-                str(author),
-                str(title),
-            ),
-        )
-    conn.commit()
-    c.close()
+
     print('Added new post - {}'.format(str(url)))
+    return (int(date), str(content), str(url), str(locationVar), str(author), str(title))

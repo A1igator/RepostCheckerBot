@@ -9,11 +9,12 @@ import time
 import re
 from threading import Thread, Timer
 from queue import Queue
+import sqlite3
 
 # other files
 import config
 import database
-
+rows = []
 reddit = praw.Reddit(client_id=config.client_id,
                      client_secret=config.client_secret,
                      username=config.username,
@@ -93,7 +94,7 @@ class findPosts(Thread):
                                 )
 
                                 if result != [['delete', -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                    database.addPost(
+                                    rows.append(database.addPost(
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -105,7 +106,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
-                                    )
+                                    ))
                                     print('{} --> Added {}'.format(
                                         post,
                                         submission.permalink,
@@ -113,7 +114,9 @@ class findPosts(Thread):
                                 with self.q.mutex:
                                     self.q.queue.clear()
                                 self.q.put('doneRunningTop')
-                                break
+
+                            break
+
 
             except Exception as e:
                 print(traceback.format_exc())
@@ -157,7 +160,7 @@ class findPosts(Thread):
                                     reddit,
                                 )
                                 if result != [['delete', -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                    database.addPost(
+                                    rows.append(database.addPost(
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -169,7 +172,7 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
-                                    )
+                                    ))
                                     print('{} --> Added {}'.format(
                                         post,
                                         submission.permalink,
@@ -177,7 +180,10 @@ class findPosts(Thread):
                                 with self.q.mutex:
                                     self.q.queue.clear()
                                 self.q.put('doneRunningHot')
+                                # Call the execute many after all posts have been added
+                                #exec_many()
                                 break
+
 
             except Exception as e:
                 print(traceback.format_exc())
@@ -221,7 +227,7 @@ class findPosts(Thread):
                                     reddit,
                                 )
                                 if result != [['delete', -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                    database.addPost(
+                                    rows.append(database.addPost(
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -233,11 +239,12 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
-                                    )
+                                    ))
                                     print('{} --> Added {}'.format(
                                         post,
                                         submission.permalink,
                                     ))
+
                                 if result != [] and result != [['delete', -1, -1, -1, -1, -1]]:
                                     print('reported')
                                     # report and make a comment
@@ -270,6 +277,7 @@ class findPosts(Thread):
                                     self.q.queue.clear()
                                 self.q.put('doneRunningNew')
                                 break
+
                 limitVal = 10
             except Exception as e:
                 print(traceback.format_exc())
@@ -278,7 +286,15 @@ class findPosts(Thread):
                 else:
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
-
+            # Call the execute many after all posts have been added
+            # need a way to calculate when all posts have been gathered and only then
+            # execute this line once
+            print('rows: ' + str(rows))
+            conn = sqlite3.connect('PostsRepostBotTest.db')
+            c = conn.cursor()
+            c.executemany("INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?)", rows)
+            conn.commit()
+            c.close()
 threadCount = 0
 threads = []
 deleteOldThread = []
