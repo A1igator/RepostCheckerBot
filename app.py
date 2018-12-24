@@ -45,16 +45,16 @@ def deleteComment():
                 f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
-class findPosts(Thread):
+class findPosts(Process):
     def __init__(self, subSettings):
         ''' Constructor. '''
-        Thread.__init__(self)
+        Process.__init__(self)
         self.subSettings = subSettings
         self.q = Queue()
 
     def run(self):
-        Thread(target=self.findTopPosts).start()
-        Thread(target=self.findNewPosts).start()
+        Process(target=self.findTopPosts).start()
+        Process(target=self.findNewPosts).start()
 
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
