@@ -37,7 +37,9 @@ def deleteComment():
             if '503' in str(e):
                 print('503 from server')
             if '504' in str(e):
-                print('504 from server')          
+                print('504 from server')  
+            if '401' in str(e):
+                print('401 from server')                  
             else:
                 f = open('errs.txt', 'a')
                 f.write('{}\n'.format(str(traceback.format_exc())))
@@ -124,6 +126,8 @@ class findPosts(Thread):
                 print(traceback.format_exc())
                 if '503' in str(e):
                     print('503 from server')
+                if '401' in str(e):
+                    print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
@@ -189,6 +193,8 @@ class findPosts(Thread):
                 print(traceback.format_exc())
                 if '503' in str(e):
                     print('503 from server')
+                if '401' in str(e):
+                    print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
@@ -282,6 +288,8 @@ class findPosts(Thread):
                 print(traceback.format_exc())
                 if '503' in str(e):
                     print('503 from server')
+                if '401' in str(e):
+                    print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
