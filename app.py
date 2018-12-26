@@ -116,7 +116,6 @@ class findPosts(Process):
                                         post,
                                         submission.permalink,
                                     ))
-                                print('ranHot')                                
                                 self.v.value = 1
                                 break
 
@@ -131,7 +130,6 @@ class findPosts(Process):
                     f.write(str(traceback.format_exc()))
 
     def findNewPosts(self):
-        print('runningNew')
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
@@ -210,7 +208,6 @@ class findPosts(Process):
                                             doThis = False
                                         except:
                                             doThis = True
-                                print('ranNew')
                                 self.v.value = 2
                                 break
                 limitVal = 10
