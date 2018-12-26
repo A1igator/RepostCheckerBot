@@ -46,10 +46,10 @@ def deleteComment():
                 f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
-class findPosts(Thread):
+class findPosts(Process):
     def __init__(self, subSettings):
         ''' Constructor. '''
-        Thread.__init__(self)
+        Process.__init__(self)
         self.subSettings = subSettings
         self.q = Queue()
 
@@ -155,7 +155,6 @@ class findPosts(Thread):
                             print('test')
                             try:
                                 x = self.q.queue[0]
-                                print(x)
                             except IndexError as e:
                                 print(e)
                                 if 'deque index out of range' not in str(e):
@@ -244,12 +243,12 @@ for i in config.subSettings:
         database.initDatabase(i[0], i[8])
         threads.append(findPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
-            deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
+            deleteOldThread.append(Process(target=database.deleteOldFromDatabase, args=(i,)))
             deleteOldThread[threadCount].start()
         threads[threadCount].start()
         threadCount += 1
 
-deleteThread = Thread(target=deleteComment)
+deleteThread = Process(target=deleteComment)
 
 deleteThread.start()
 
