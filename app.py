@@ -54,8 +54,9 @@ class findPosts(Process):
         self.q = Queue()
 
     def run(self):
-        Process(target=self.findTopPosts).start()
-        Process(target=self.findNewPosts).start()
+        self.findTopPosts(self)
+        self.findNewPosts(self)
+        
 
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
@@ -150,7 +151,6 @@ class findPosts(Process):
                 # then get 1000 posts from new of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
-                        print(self.q.empty())
                         if not self.q.empty():
                             print('test')
                             try:
