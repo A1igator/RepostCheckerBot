@@ -55,7 +55,7 @@ class findPosts(Process):
 
     def run(self):
         Process(target=self.findTopPosts).start()
-        self.findNewPosts()
+        Process(target=self.findNewPosts).start()
 
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
