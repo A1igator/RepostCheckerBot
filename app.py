@@ -53,6 +53,11 @@ class findPosts(Process):
         self.subSettings = subSettings
         self.q = Queue()
 
+    def run(self):
+        self.findTopPosts()
+        self.findNewPosts()
+        
+
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
         print(self.subSettings)
