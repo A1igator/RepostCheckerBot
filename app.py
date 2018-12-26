@@ -120,6 +120,7 @@ class findPosts(Thread):
                                     ))
                                 with self.q.mutex:
                                     self.q.queue.clear()
+                                print('ranHot')                                
                                 self.q.put('doneRunningHot '+self.subSettings[0])
                                 break
 
@@ -214,6 +215,7 @@ class findPosts(Thread):
                                             doThis = True
                                 with self.q.mutex:
                                     self.q.queue.clear()
+                                print('ranNew')
                                 self.q.put('doneRunningNew '+self.subSettings[0])
                                 break
                 limitVal = 10
