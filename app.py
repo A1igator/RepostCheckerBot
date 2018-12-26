@@ -78,6 +78,7 @@ class findPosts(Process):
                             try:
                                 x = self.q.queue[0]
                             except IndexError as e:
+                                print(e)
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
                             if firstTime or (x is not None and x is 'doneRunningNew '+self.subSettings[0]):
@@ -151,6 +152,7 @@ class findPosts(Process):
                             try:
                                 x = self.q.queue[0]
                             except IndexError as e:
+                                print(e)
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
                             if x is not None and x is 'doneRunningHot '+self.subSettings[0]:
