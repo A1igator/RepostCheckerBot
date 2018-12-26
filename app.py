@@ -150,6 +150,7 @@ class findPosts(Process):
                 # then get 1000 posts from new of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
+                        print(self.q.empty())
                         if not self.q.empty():
                             print('test')
                             try:
