@@ -154,7 +154,7 @@ class findPosts(Process):
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
                             if x is not None and x is 'doneRunningHot '+self.subSettings[0]:
-                                print(x)
+                                print('testing2')
                                 post += 1
                                 result = database.isLogged(
                                     submission.url,
