@@ -72,7 +72,6 @@ class findPosts(Process):
                 # first get 50 posts from the top of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit):
                     while True:
-                        time.sleep(5)
                         if (self.v.value!=0) or firstTime:
                             try:
                                 x = self.v.value
@@ -81,10 +80,8 @@ class findPosts(Process):
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
                             if not firstTime and x is not None:
-                                print(x)
-                                print(x is 'doneRunningNew {}'.format(self.subSettings[0]))
+                                print(x ==2)
                             if firstTime or (x is not None and x == 2):
-                                print('testing')
                                 firstTime = False
                                 top = True
                                 hot = False
@@ -150,7 +147,6 @@ class findPosts(Process):
                 for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
                         if self.v.value != 0:
-                            print('test')
                             try:
                                 x = self.v.value
                                 print(x)
@@ -159,7 +155,6 @@ class findPosts(Process):
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
                             if x is not None and x == 1:
-                                print('testing2')
                                 post += 1
                                 result = database.isLogged(
                                     submission.url,
