@@ -84,6 +84,7 @@ class findPosts(Process):
                                     raise IndexError(e)
                             if not firstTime and x is not None:
                                 print(x)
+                                print(x is 'doneRunningNew {}'.format(self.subSettings[0]))
                             if firstTime or (x is not None and x is 'doneRunningNew {}'.format(self.subSettings[0])):
                                 print('testing')
                                 firstTime = False
