@@ -67,7 +67,6 @@ class findPosts(Process):
         limitVal = self.subSettings[4]
         print('Starting searching...')
         while True:
-            print('test2')
             try:
                 post = 0
                 top = False
@@ -75,6 +74,7 @@ class findPosts(Process):
                 # first get 50 posts from the top of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit):
                     while True:
+                        print('test2')
                         if (not self.q.empty()) or firstTime:
                             try:
                                 x = self.q.queue[0]
@@ -142,12 +142,12 @@ class findPosts(Process):
         new = True
         limitVal = self.subSettings[6]
         while True:
-            print('test')
             try:
                 post = 0
                 # then get 1000 posts from new of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
+                        print('test')
                         if not self.q.empty():
                             try:
                                 x = self.q.queue[0]
