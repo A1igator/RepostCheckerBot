@@ -135,13 +135,13 @@ class findPosts(Process):
                     f.write(str(traceback.format_exc()))
 
     def findNewPosts(self):
-        print('test')
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
         new = True
         limitVal = self.subSettings[6]
         while True:
+            print('test')
             try:
                 post = 0
                 # then get 1000 posts from new of the subreddit
