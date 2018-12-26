@@ -79,7 +79,7 @@ class findPosts(Process):
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
-                            if firstTime or (x is not None and x is 'doneRunningNew'):
+                            if firstTime or (x is not None and x is 'doneRunningNew '+self.subSettings[0]):
                                 firstTime = False
                                 top = True
                                 hot = False
@@ -119,7 +119,7 @@ class findPosts(Process):
                                     ))
                                 with self.q.mutex:
                                     self.q.queue.clear()
-                                self.q.put('doneRunningHot')
+                                self.q.put('doneRunningHot '+self.subSettings[0])
                                 break
 
             except Exception as e:
@@ -218,7 +218,7 @@ class findPosts(Process):
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
-                            if x is not None and x is 'doneRunningHot':
+                            if x is not None and x is 'doneRunningHot '+self.subSettings[0]:
                                 post += 1
                                 result = database.isLogged(
                                     submission.url,
@@ -281,7 +281,7 @@ class findPosts(Process):
                                             doThis = True
                                 with self.q.mutex:
                                     self.q.queue.clear()
-                                self.q.put('doneRunningNew')
+                                self.q.put('doneRunningNew '+self.subSettings[0])
                                 break
                 limitVal = 10
             except Exception as e:
