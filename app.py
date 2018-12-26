@@ -46,16 +46,16 @@ def deleteComment():
                 f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
-class findPosts(Process):
+class findPosts(Thread):
     def __init__(self, subSettings):
         ''' Constructor. '''
-        Process.__init__(self)
+        Thread.__init__(self)
         self.subSettings = subSettings
         self.q = Queue()
 
     def run(self):
-        Process(target=self.findTopPosts).start()
-        Process(target=self.findNewPosts).start()
+        Thread(target=self.findTopPosts).start()
+        Thread(target=self.findNewPosts).start()
 
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
@@ -235,12 +235,12 @@ for i in config.subSettings:
         database.initDatabase(i[0], i[8])
         threads.append(findPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
-            deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
+            deleteOldThread.append(Process(target=database.deleteOldFromDatabase, args=(i,)))
             deleteOldThread[threadCount].start()
         threads[threadCount].start()
         threadCount += 1
 
-deleteThread = Thread(target=deleteComment)
+deleteThread = Process(target=deleteComment)
 
 deleteThread.start()
 
