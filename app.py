@@ -76,9 +76,7 @@ class findPosts(Thread):
                     while True:
                         if (not self.q.empty()) or firstTime:
                             try:
-                                print(self.q.queue[0])
                                 x = self.q.queue[0]
-                                print(x)
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
@@ -121,8 +119,6 @@ class findPosts(Thread):
                                         post,
                                         submission.permalink,
                                     ))
-                                with self.q.mutex:
-                                    self.q.queue.clear()
                                 print('ranHot')                                
                                 self.q.put('doneRunningHot '+self.subSettings[0])
                                 break
@@ -220,8 +216,6 @@ class findPosts(Thread):
                                             doThis = False
                                         except:
                                             doThis = True
-                                with self.q.mutex:
-                                    self.q.queue.clear()
                                 print('ranNew')
                                 self.q.put('doneRunningNew '+self.subSettings[0])
                                 break
