@@ -54,8 +54,8 @@ class findPosts(Process):
         self.q = Queue()
 
     def run(self):
-        self.findTopPosts(self)
-        self.findNewPosts(self)
+        self.findTopPosts()
+        self.findNewPosts()
         
 
     def findTopPosts(self):
