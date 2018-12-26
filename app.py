@@ -8,9 +8,7 @@ import sys
 import traceback
 import time
 import re
-from multiprocessing import Process
-from threading import Thread
-from queue import Queue
+from multiprocessing import Process, Value
 
 # other files
 import config
@@ -51,7 +49,7 @@ class findPosts(Process):
         ''' Constructor. '''
         Process.__init__(self)
         self.subSettings = subSettings
-        self.q = Queue()
+        self.v = Value('i',0)
 
     def run(self):
         Process(target=self.findTopPosts).start()
@@ -75,9 +73,9 @@ class findPosts(Process):
                 for submission in api.search_submissions(subreddit=subreddit):
                     while True:
                         time.sleep(5)
-                        if (not self.q.empty()) or firstTime:
+                        if (self.v.value!=0) or firstTime:
                             try:
-                                x = self.q.queue[0]
+                                x = self.v.value
                                 print(x)
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
@@ -85,7 +83,7 @@ class findPosts(Process):
                             if not firstTime and x is not None:
                                 print(x)
                                 print(x is 'doneRunningNew {}'.format(self.subSettings[0]))
-                            if firstTime or (x is not None and x is 'doneRunningNew {}'.format(self.subSettings[0])):
+                            if firstTime or (x is not None and x == 2):
                                 print('testing')
                                 firstTime = False
                                 top = True
@@ -125,7 +123,7 @@ class findPosts(Process):
                                         submission.permalink,
                                     ))
                                 print('ranHot')                                
-                                self.q.put('doneRunningHot '+self.subSettings[0])
+                                self.v.value = 1
                                 break
 
             except Exception as e:
@@ -151,16 +149,16 @@ class findPosts(Process):
                 # then get 1000 posts from new of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
-                        if not self.q.empty():
+                        if self.v.value != 0:
                             print('test')
                             try:
-                                x = self.q.queue[0]
+                                x = self.v.value
                                 print(x)
                             except IndexError as e:
                                 print(e)
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
-                            if x is not None and x is 'doneRunningHot '+self.subSettings[0]:
+                            if x is not None and x == 1:
                                 print('testing2')
                                 post += 1
                                 result = database.isLogged(
@@ -223,7 +221,7 @@ class findPosts(Process):
                                         except:
                                             doThis = True
                                 print('ranNew')
-                                self.q.put('doneRunningNew '+self.subSettings[0])
+                                self.v.value = 2
                                 break
                 limitVal = 10
             except Exception as e:
