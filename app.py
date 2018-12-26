@@ -82,6 +82,7 @@ class findPosts(Process):
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
+                            print(x)
                             if firstTime or (x is not None and x is 'doneRunningNew '+self.subSettings[0]):
                                 print('testing')
                                 firstTime = False
