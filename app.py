@@ -46,7 +46,7 @@ def deleteComment():
                 f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
-class findPosts(Process):
+class findPosts(Thread):
     def __init__(self, subSettings):
         ''' Constructor. '''
         Process.__init__(self)
