@@ -54,9 +54,8 @@ class findPosts(Process):
         self.q = Queue()
 
     def run(self):
-        self.findTopPosts()
+        Process(target=self.findTopPosts).start()
         self.findNewPosts()
-        
 
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
@@ -140,7 +139,6 @@ class findPosts(Process):
                     f.write(str(traceback.format_exc()))
 
     def findNewPosts(self):
-        print('runningNew')
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
@@ -156,6 +154,7 @@ class findPosts(Process):
                             print('test')
                             try:
                                 x = self.q.queue[0]
+                                print(x)
                             except IndexError as e:
                                 print(e)
                                 if 'deque index out of range' not in str(e):
