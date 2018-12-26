@@ -77,9 +77,7 @@ class findPosts(Thread):
                         if (not self.q.empty()) or firstTime:
                             try:
                                 x = self.q.queue[0]
-                                print(x)
                             except IndexError as e:
-                                print(e)
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
                             if firstTime or (x is not None and x is 'doneRunningNew '+self.subSettings[0]):
