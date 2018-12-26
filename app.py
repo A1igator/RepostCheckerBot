@@ -55,7 +55,7 @@ class findPosts(Process):
 
     def run(self):
         Process(target=self.findTopPosts).start()
-        Process(target=self.findNewPosts).start()
+        self.findNewPosts()
 
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
@@ -139,6 +139,7 @@ class findPosts(Process):
                     f.write(str(traceback.format_exc()))
 
     def findNewPosts(self):
+        print('runningNew')
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
