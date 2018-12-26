@@ -46,10 +46,10 @@ def deleteComment():
                 f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
-class findPosts(Thread):
+class findPosts(Process):
     def __init__(self, subSettings):
         ''' Constructor. '''
-        Thread.__init__(self)
+        Process.__init__(self)
         self.subSettings = subSettings
         self.q = Queue()
 
