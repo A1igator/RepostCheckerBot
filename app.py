@@ -67,6 +67,7 @@ class findPosts(Process):
         limitVal = self.subSettings[4]
         print('Starting searching...')
         while True:
+            print('test2')
             try:
                 post = 0
                 top = False
