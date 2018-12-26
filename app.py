@@ -75,12 +75,9 @@ class findPosts(Process):
                         if (self.v.value!=0) or firstTime:
                             try:
                                 x = self.v.value
-                                print(x)
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
-                            if not firstTime and x is not None:
-                                print(x ==2)
                             if firstTime or (x is not None and x == 2):
                                 firstTime = False
                                 top = True
@@ -149,9 +146,7 @@ class findPosts(Process):
                         if self.v.value != 0:
                             try:
                                 x = self.v.value
-                                print(x)
                             except IndexError as e:
-                                print(e)
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
                             if x is not None and x == 1:
