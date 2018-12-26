@@ -49,7 +49,7 @@ def deleteComment():
 class findPosts(Thread):
     def __init__(self, subSettings):
         ''' Constructor. '''
-        Process.__init__(self)
+        Thread.__init__(self)
         self.subSettings = subSettings
         self.q = Queue()
 
