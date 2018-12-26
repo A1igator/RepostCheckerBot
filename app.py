@@ -77,6 +77,7 @@ class findPosts(Process):
                         if (not self.q.empty()) or firstTime:
                             try:
                                 x = self.q.queue[0]
+                                print(x)
                             except IndexError as e:
                                 print(e)
                                 if 'deque index out of range' not in str(e):
@@ -151,6 +152,7 @@ class findPosts(Process):
                         if not self.q.empty():
                             try:
                                 x = self.q.queue[0]
+                                print(x)
                             except IndexError as e:
                                 print(e)
                                 if 'deque index out of range' not in str(e):
