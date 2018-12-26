@@ -74,10 +74,10 @@ class findPosts(Process):
                 # first get 50 posts from the top of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit):
                     while True:
-                        print('test2')
                         if (not self.q.empty()) or firstTime:
                             try:
                                 x = self.q.queue[0]
+                                print(x)
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
@@ -147,10 +147,10 @@ class findPosts(Process):
                 # then get 1000 posts from new of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
-                        print('test')
                         if not self.q.empty():
                             try:
                                 x = self.q.queue[0]
+                                print(x)
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
