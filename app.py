@@ -74,6 +74,7 @@ class findPosts(Process):
                 # first get 50 posts from the top of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit):
                     while True:
+                        time.sleep(5)
                         if (not self.q.empty()) or firstTime:
                             try:
                                 x = self.q.queue[0]
