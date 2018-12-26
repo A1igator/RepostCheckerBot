@@ -147,6 +147,7 @@ class findPosts(Thread):
                 # then get 1000 posts from new of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
+                        print('test')
                         if not self.q.empty():
                             try:
                                 x = self.q.queue[0]
