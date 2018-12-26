@@ -140,6 +140,7 @@ class findPosts(Process):
                     f.write(str(traceback.format_exc()))
 
     def findNewPosts(self):
+        print('runningNew')
         subreddit = reddit.subreddit(self.subSettings[0])
         top = False
         hot = False
