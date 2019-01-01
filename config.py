@@ -50,4 +50,15 @@ subSettings = [
         int(os.environ['BOT_THRESH4']) if 'BOT_THRESH4' in os.environ else 5,
         bool(os.environ['BOT_TEXT_IN_IMAGE4']) if 'BOT_TEXT_IN_IMAGE4' in os.environ else False,
     ] if 'BOT_SUBREDDIT4' in os.environ else None,
+    [
+        os.environ['BOT_SUBREDDIT5'],
+        int(os.environ['BOT_TOP_DAYS5']) if 'BOT_TOP_DAYS5' in os.environ else None,
+        int(os.environ['BOT_HOT_DAYS5']) if 'BOT_HOT_DAYS5' in os.environ else None,
+        int(os.environ['BOT_NEW_DAYS5']) if 'BOT_NEW_DAYS5' in os.environ else None,
+        int(os.environ['BOT_TOP_NUM_POSTS5']) if 'BOT_TOP_NUM_POSTS5' in os.environ else 1000,
+        int(os.environ['BOT_HOT_NUM_POSTS5']) if 'BOT_HOT_NUM_POSTS5' in os.environ else 1000,
+        int(os.environ['BOT_NEW_NUM_POSTS5']) if 'BOT_NEW_NUM_POSTS5' in os.environ else 1000,
+        int(os.environ['BOT_THRESH5']) if 'BOT_THRESH5' in os.environ else 5,
+        bool(os.environ['BOT_TEXT_IN_IMAGE5']) if 'BOT_TEXT_IN_IMAGE5' in os.environ else False,
+    ] if 'BOT_SUBREDDIT5' in os.environ else None,
 ]
