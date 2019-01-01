@@ -28,4 +28,15 @@ subSettings = [
         int(os.environ['BOT_THRESH2']) if 'BOT_THRESH2' in os.environ else 5,
         bool(os.environ['BOT_TEXT_IN_IMAGE2']) if 'BOT_TEXT_IN_IMAGE2' in os.environ else False,
     ] if 'BOT_SUBREDDIT2' in os.environ else None,
+    [
+        os.environ['BOT_SUBREDDIT3'],
+        int(os.environ['BOT_TOP_DAYS3']) if 'BOT_TOP_DAYS3' in os.environ else None,
+        int(os.environ['BOT_HOT_DAYS3']) if 'BOT_HOT_DAYS3' in os.environ else None,
+        int(os.environ['BOT_NEW_DAYS3']) if 'BOT_NEW_DAYS3' in os.environ else None,
+        int(os.environ['BOT_TOP_NUM_POSTS3']) if 'BOT_TOP_NUM_POSTS3' in os.environ else 1000,
+        int(os.environ['BOT_HOT_NUM_POSTS3']) if 'BOT_HOT_NUM_POSTS3' in os.environ else 1000,
+        int(os.environ['BOT_NEW_NUM_POSTS3']) if 'BOT_NEW_NUM_POSTS3' in os.environ else 1000,
+        int(os.environ['BOT_THRESH3']) if 'BOT_THRESH3' in os.environ else 5,
+        bool(os.environ['BOT_TEXT_IN_IMAGE3']) if 'BOT_TEXT_IN_IMAGE3' in os.environ else False,
+    ] if 'BOT_SUBREDDIT3' in os.environ else None,
 ]
