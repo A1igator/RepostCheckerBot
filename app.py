@@ -41,7 +41,8 @@ def deleteComment():
                 print('401 from server')                  
             else:
                 f = open('errs.txt', 'a')
-                f.write('{}\n'.format(str(traceback.format_exc())))
+                if '{}\n'.format(str(traceback.format_exc())) not in f.read():
+                    f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
 class findPosts(Process):
@@ -111,7 +112,7 @@ class findPosts(Process):
                                         new,
                                         self.subSettings[0],
                                         self.subSettings[8]
-                                    )
+                                    ))
                                     print('{} --> Added {}'.format(
                                         post,
                                         submission.permalink,
@@ -127,7 +128,8 @@ class findPosts(Process):
                     print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
-                    f.write(str(traceback.format_exc()))
+                    if str(traceback.format_exc()) not in f.read():
+                        f.write(str(traceback.format_exc()))
 
     def findNewPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
@@ -175,7 +177,7 @@ class findPosts(Process):
                                         new,
                                         self.subSettings[0],
                                         self.subSettings[8],
-                                    )
+                                    ))
                                     print('{} --> Added {}'.format(
                                         post,
                                         submission.permalink,
@@ -221,16 +223,17 @@ class findPosts(Process):
                     print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
-                    f.write(str(traceback.format_exc()))
+                    if str(traceback.format_exc()) not in f.read():
+                        f.write(str(traceback.format_exc()))
             # Call the execute many after all posts have been added
             # need a way to calculate when all posts have been gathered and only then
             # execute this line once
-            print('rows: ' + str(rows))
-            conn = sqlite3.connect('PostsRepostBotTest.db')
-            c = conn.cursor()
-            c.executemany("INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?)", rows)
-            conn.commit()
-            c.close()
+            # print('rows: ' + str(rows))
+            # conn = sqlite3.connect('PostsRepostBotTest.db')
+            # c = conn.cursor()
+            # c.executemany("INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?)", rows)
+            # conn.commit()
+            # c.close()
 threadCount = 0
 threads = []
 deleteOldThread = []
