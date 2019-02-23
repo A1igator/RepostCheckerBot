@@ -13,13 +13,14 @@ import traceback
 import praw
 from PIL import Image
 import dhash
-from Levenshtein import distance
+from difflib import SequenceMatcher
+from pytesseract import image_to_string
 import av
 
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
-def initDatabase(subreddit):
+def initDatabase(subreddit, isTextInImage):
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
@@ -31,9 +32,14 @@ def initDatabase(subreddit):
                 )
             )
     c = conn.cursor()
-    c.execute(
-        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Title TEXT);',
-    )
+    if isTextInImage:
+        c.execute(
+            'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, ImageText TEXT, Url TEXT, Location TEXT, Author TEXT, Title TEXT);',
+        )
+    else:
+        c.execute(
+            'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Title TEXT);',
+        )
     conn.commit()
     c.close()
     print('Create table.')
@@ -90,7 +96,7 @@ def hashImg(conn, imgUrl, url):
         c.close()
     except:
         f = open('dedLink.txt', 'a')
-        f.write('{}\n{}\n'.format(str(traceback.format_exc()), url))
+        f.write('{}\n{}\n'.format(str(traceback.format_exc()), imgUrl))
         c = conn.cursor()
         c.execute(
             'DELETE FROM Posts WHERE Url = ?;',
@@ -101,6 +107,27 @@ def hashImg(conn, imgUrl, url):
         conn.commit()
         c.close()
     return imgHash
+
+def extractText(imgUrl, url):
+    imgText = 'invalid'
+    try:
+        f = BytesIO(
+            urlopen(
+                Request(
+                    str(imgUrl),
+                    headers={
+                        'User-Agent': user_agent
+                    },
+                ),
+                context=context,
+            ).read(),
+        )
+        img = Image.open(f)
+        imgText = image_to_string(img).replace('\n', '').replace('\r', '').replace(' ', '')
+    except:
+        f = open('tesseractErrs.txt', 'a')
+        f.write('{}\n{}\n'.format(str(traceback.format_exc()), imgUrl))
+    return imgText
 
 def hashVid(conn, vidUrl, url):
     vidHash = ''
@@ -314,7 +341,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
         else:
 
             # check for text
-            if text != '&#x200B;' and text != '':
+            if text != '&#x200B;' and text != '' and text != '[removed]' and text != '[deleted]':
                 args = c.execute(
                     'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
                     (
@@ -344,12 +371,16 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                     )
                     for texts in args.fetchall():
                         if texts[0] not in result:
-                            textVar = texts[2]
-                            difference = distance(textVar, text)
-                            if difference < subSettings[7]:
+                            textVar = texts[4]
+                            difference = SequenceMatcher(None, textVar, text).ratio()
+                            print(textVar)
+                            print(text)
+                            print(10-(difference*10))
+                            print(subSettings[7])
+                            if 10 - (difference * 10) < subSettings[7]:
                                 addToFound(
                                     texts,
-                                    ((subSettings[7] - difference)/subSettings[7])*100,
+                                    difference * 100,
                                     result,
                                     originalPostDate,
                                     precentageMatched,
@@ -358,7 +389,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                 )
 
             # check for v.reddit
-            elif media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube')):
+            elif media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
                 vidHash = hashVid(conn, media, url)
                 if vidHash == 'invalid':
                     result = ['delete']
@@ -499,6 +530,8 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                             author,
                                             title,
                                         )
+
+                # check for image
                 elif 'png' in contentUrl or 'jpg' in contentUrl:
                     imgHash = hashImg(conn, contentUrl, url)
                     if imgHash == 'invalid':
@@ -508,7 +541,7 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                         precentageMatched = [-1]
                         author = [-1]
                         title = [-1]
-                    if isInt(imgHash):
+                    elif isInt(imgHash):
                         args = c.execute(
                             'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
                             (
@@ -552,6 +585,55 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
                                             author,
                                             title,
                                         )
+                    if subSettings[8]:
+                        imgText = extractText(contentUrl, url)
+                        if imgText != 'invalid' and imgText != '':
+                            args = c.execute(
+                                'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
+                                (
+                                    str(imgText),
+                                ),
+                            )
+                            if list(args.fetchone())[0] != 0:
+                                args = c.execute(
+                                    'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
+                                    (
+                                        str(imgText),
+                                    ),
+                                )
+                                fullResult = list(args.fetchall())
+                                for i in fullResult:
+                                    addToFound(
+                                        i,
+                                        100,
+                                        result,
+                                        originalPostDate,
+                                        precentageMatched,
+                                        author,
+                                        title,
+                                    )
+                            args = c.execute(
+                                'SELECT Url, Date, Author, Title, ImageText FROM posts;'
+                            )
+                            for texts in args.fetchall():
+                                if texts[0] not in result and texts[4] != '':
+                                    textVar = texts[4]
+                                    difference = SequenceMatcher(None, textVar, imgText).ratio()
+                                    print(textVar)
+                                    print(imgText)
+                                    print(10-(difference*10))
+                                    print(subSettings[7])
+                                    if 10 - (difference * 10) < subSettings[7]:
+                                        addToFound(
+                                            texts,
+                                            difference * 100,
+                                            result,
+                                            originalPostDate,
+                                            precentageMatched,
+                                            author,
+                                            title,
+                                        )
+
 
     # delete post if it has been deleted
     for i in result:
@@ -617,7 +699,8 @@ def isLogged(contentUrl, media, text, url, date, top, hot, new, subSettings, red
 
     return returnResult
 
-def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, subreddit):
+
+def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, subreddit, isTextInImage):
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
@@ -629,10 +712,11 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
             )
         )
     c = conn.cursor()
-    if text != '&#x200B;' and text != '':
+    imgText = ''
+    if text != '&#x200B;' and text != '' and text != '[removed]' and text != '[deleted]':
         content = text
     else:
-        if media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube')):
+        if media != None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
             vidHash = hashVid(conn, media, url)
             if isInt(vidHash.replace(' ', '')):
                 content = vidHash
@@ -650,6 +734,10 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
                 content = imgHash
             else:
                 content = contentUrl
+            if isTextInImage:
+                imgText = extractText(contentUrl, url)
+                if imgText == 'invalid':
+                    imgText = ''
         else:
             content = contentUrl
     if top:
@@ -658,6 +746,33 @@ def addPost(date, contentUrl, media, url, text, author, title, top, hot, new, su
         locationVar = 'hot'
     elif new:
         locationVar = 'new'
-
+    print(isTextInImage)
+    if isTextInImage:
+        c.execute(
+            'INSERT INTO Posts (Date, Content, ImageText, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
+                (
+                    int(date),
+                    str(content),
+                    str(imgText),
+                    str(url),
+                    str(locationVar),
+                    str(author),
+                    str(title),
+                ),
+            )
+    else:
+        c.execute(
+            'INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?);',
+                (
+                    int(date),
+                    str(content),
+                    str(url),
+                    str(locationVar),
+                    str(author),
+                    str(title),
+                ),
+            )
+    conn.commit()
+    c.close()
     print('Added new post - {}'.format(str(url)))
     return (int(date), str(content), str(url), str(locationVar), str(author), str(title))

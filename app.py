@@ -1,5 +1,6 @@
 # packages that need to be pip installed
 import praw
+from psaw import PushshiftAPI
 
 # packages that come with python
 import random
@@ -7,9 +8,7 @@ import sys
 import traceback
 import time
 import re
-from threading import Thread, Timer
-from queue import Queue
-import sqlite3
+from multiprocessing import Process, Value
 
 # other files
 import config
@@ -20,6 +19,7 @@ reddit = praw.Reddit(client_id=config.client_id,
                      username=config.username,
                      password=config.password,
                      user_agent=config.user_agent)
+api = PushshiftAPI(reddit)
 
 def deleteComment():
     while True:
@@ -35,22 +35,25 @@ def deleteComment():
             print(repr(e))
             if '503' in str(e):
                 print('503 from server')
+            if '504' in str(e):
+                print('504 from server')  
+            if '401' in str(e):
+                print('401 from server')                  
             else:
                 f = open('errs.txt', 'a')
                 f.write('{}\n'.format(str(traceback.format_exc())))
 # the main function
 
-class findPosts(Thread):
+class findPosts(Process):
     def __init__(self, subSettings):
         ''' Constructor. '''
-        Thread.__init__(self)
+        Process.__init__(self)
         self.subSettings = subSettings
-        self.q = Queue()
+        self.v = Value('i',0)
 
     def run(self):
-        Thread(target=self.findTopPosts).start()
-        Thread(target=self.findHotPosts).start()
-        Thread(target=self.findNewPosts).start()
+        Process(target=self.findTopPosts).start()
+        self.findNewPosts()
 
     def findTopPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
@@ -67,19 +70,20 @@ class findPosts(Thread):
                 top = False
                 hot = True
                 # first get 50 posts from the top of the subreddit
-                for submission in subreddit.top('all', limit=limitVal):
+                for submission in api.search_submissions(subreddit=subreddit):
                     while True:
-                        if (not self.q.empty()) or firstTime:
+                        if (self.v.value!=0) or firstTime:
                             try:
-                                x = self.q.queue[0]
+                                x = self.v.value
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
-                            if firstTime or (x is not None and x is 'doneRunningNew'):
+                            if firstTime or (x is not None and x == 2):
                                 firstTime = False
                                 top = True
                                 hot = False
                                 post += 1
+                                print(post)
                                 result = database.isLogged(
                                     submission.url,
                                     submission.media,
@@ -106,93 +110,24 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
-                                    ))
+                                        self.subSettings[8]
+                                    )
                                     print('{} --> Added {}'.format(
                                         post,
                                         submission.permalink,
                                     ))
-                                with self.q.mutex:
-                                    self.q.queue.clear()
-                                self.q.put('doneRunningTop')
-
-                            break
-
-
-            except Exception as e:
-                print(traceback.format_exc())
-                if '503' in str(e):
-                    print('503 from server')
-                else:
-                    f = open('errs.txt', 'a')
-                    f.write(str(traceback.format_exc()))
-
-
-    def findHotPosts(self):
-        subreddit = reddit.subreddit(self.subSettings[0])
-        top = False
-        hot = True
-        new = False
-        limitVal = self.subSettings[5]
-        while True:
-            try:
-                post = 0
-                # then get 50 posts from trending of the subreddit
-                for submission in subreddit.hot(limit=limitVal):
-                    while True:
-                        if not self.q.empty():
-                            try:
-                                x = self.q.queue[0]
-                            except IndexError as e:
-                                if 'deque index out of range' not in str(e):
-                                    raise IndexError(e)
-                            if x is not None and x is 'doneRunningTop':
-                                post += 1
-                                result = database.isLogged(
-                                    submission.url,
-                                    submission.media,
-                                    submission.selftext,
-                                    submission.permalink,
-                                    submission.created_utc,
-                                    top,
-                                    hot,
-                                    new,
-                                    self.subSettings,
-                                    reddit,
-                                )
-                                if result != [['delete', -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                    rows.append(database.addPost(
-                                        submission.created_utc,
-                                        submission.url,
-                                        submission.media,
-                                        submission.permalink,
-                                        submission.selftext,
-                                        submission.author,
-                                        submission.title,
-                                        top,
-                                        hot,
-                                        new,
-                                        self.subSettings[0],
-                                    ))
-                                    print('{} --> Added {}'.format(
-                                        post,
-                                        submission.permalink,
-                                    ))
-                                with self.q.mutex:
-                                    self.q.queue.clear()
-                                self.q.put('doneRunningHot')
-                                # Call the execute many after all posts have been added
-                                #exec_many()
+                                self.v.value = 1
                                 break
 
-
             except Exception as e:
                 print(traceback.format_exc())
                 if '503' in str(e):
                     print('503 from server')
+                if '401' in str(e):
+                    print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
-
 
     def findNewPosts(self):
         subreddit = reddit.subreddit(self.subSettings[0])
@@ -204,15 +139,15 @@ class findPosts(Thread):
             try:
                 post = 0
                 # then get 1000 posts from new of the subreddit
-                for submission in subreddit.new(limit=limitVal):
+                for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
                     while True:
-                        if not self.q.empty():
+                        if self.v.value != 0:
                             try:
-                                x = self.q.queue[0]
+                                x = self.v.value
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
-                            if x is not None and x is 'doneRunningHot':
+                            if x is not None and x == 1:
                                 post += 1
                                 result = database.isLogged(
                                     submission.url,
@@ -239,7 +174,8 @@ class findPosts(Thread):
                                         hot,
                                         new,
                                         self.subSettings[0],
-                                    ))
+                                        self.subSettings[8],
+                                    )
                                     print('{} --> Added {}'.format(
                                         post,
                                         submission.permalink,
@@ -273,9 +209,7 @@ class findPosts(Thread):
                                             doThis = False
                                         except:
                                             doThis = True
-                                with self.q.mutex:
-                                    self.q.queue.clear()
-                                self.q.put('doneRunningNew')
+                                self.v.value = 2
                                 break
 
                 limitVal = 10
@@ -283,6 +217,8 @@ class findPosts(Thread):
                 print(traceback.format_exc())
                 if '503' in str(e):
                     print('503 from server')
+                if '401' in str(e):
+                    print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
                     f.write(str(traceback.format_exc()))
@@ -300,15 +236,15 @@ threads = []
 deleteOldThread = []
 for i in config.subSettings:
     if i is not None:
-        database.initDatabase(i[0])
+        database.initDatabase(i[0], i[8])
         threads.append(findPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
-            deleteOldThread.append(Thread(target=database.deleteOldFromDatabase, args=(i,)))
+            deleteOldThread.append(Process(target=database.deleteOldFromDatabase, args=(i,)))
             deleteOldThread[threadCount].start()
         threads[threadCount].start()
         threadCount += 1
 
-deleteThread = Thread(target=deleteComment)
+deleteThread = Process(target=deleteComment)
 
 deleteThread.start()
 
