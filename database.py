@@ -396,26 +396,26 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
 
             # check for v.reddit
             elif media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
-                vidHash = hash_vid(conn, media, url)
-                if vidHash == 'invalid':
+                vid_hash = hash_vid(conn, media, url)
+                if vid_hash == 'invalid':
                     result = ['delete']
                     original_post_date = [-1]
                     final_time_passed = [-1]
                     percentage_matched = [-1]
                     author = [-1]
                     title = [-1]
-                if is_int(vidHash.replace(' ', '')):
+                if is_int(vid_hash.replace(' ', '')):
                     args = c.execute(
                         'SELECT COUNT(1) FROM Posts WHERE Content = ?;',
                         (
-                            str(vidHash),
+                            str(vid_hash),
                         ),
                     )
                     if list(args.fetchone())[0] != 0:
                         args = c.execute(
                             'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
                             (
-                                str(vidHash),
+                                str(vid_hash),
                             ),
                         )
                         full_result = list(args.fetchall())
@@ -437,7 +437,7 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
                             hashed_readable = hashed[2]
                             if is_int(hashed_readable.replace(' ', '')):
                                 hashed_difference = hash_vid_difference(
-                                    hashed_readable, vidHash)
+                                    hashed_readable, vid_hash)
                                 if hashed_difference < sub_settings[7]:
                                     add_to_found(
                                         hashed,
@@ -539,7 +539,7 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
 
                 # check for image
                 elif 'png' in content_url or 'jpg' in content_url:
-                    imgHash = hashImg(conn, content_url, url)
+                    imgHash = hash_img(conn, content_url, url)
                     if imgHash == 'invalid':
                         result = ['delete']
                         original_post_date = [-1]
