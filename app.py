@@ -3,11 +3,7 @@ import praw
 from psaw import PushshiftAPI
 
 # packages that come with python
-import random
-import sys
 import traceback
-import time
-import re
 from multiprocessing import Process, Value
 
 # other files
@@ -21,11 +17,12 @@ reddit = praw.Reddit(client_id=config.client_id,
                      user_agent=config.user_agent)
 api = PushshiftAPI(reddit)
 
-def deleteComment():
+
+def delete_comment():
     while True:
         try:
             for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
-                if(comment.score < -1):
+                if comment.score < -1:
                     f = open('fails.txt', 'a')
                     f.write(str(comment.body))
                     comment.delete()
@@ -43,44 +40,40 @@ def deleteComment():
                 f = open('errs.txt', 'a')
                 if '{}\n'.format(str(traceback.format_exc())) not in f.read():
                     f.write('{}\n'.format(str(traceback.format_exc())))
-# the main function
 
-class findPosts(Process):
-    def __init__(self, subSettings):
-        ''' Constructor. '''
+
+# the main function
+class FindPosts(Process):
+    def __init__(self, sub_settings):
+        # Constructor.
         Process.__init__(self)
-        self.subSettings = subSettings
-        self.v = Value('i',0)
+        self.sub_settings = sub_settings
+        self.v = Value('i', 0)
 
     def run(self):
-        Process(target=self.findTopPosts).start()
+        Process(target=self.find_top_posts).start()
         self.findNewPosts()
 
-    def findTopPosts(self):
-        subreddit = reddit.subreddit(self.subSettings[0])
-        print(self.subSettings)
-        top = True
-        hot = False
+    def find_top_posts(self):
+        subreddit = reddit.subreddit(self.sub_settings[0])
+        print(self.sub_settings)
         new = False
-        firstTime = True
-        limitVal = self.subSettings[4]
+        first_time = True
         print('Starting searching...')
         while True:
             try:
                 post = 0
-                top = False
-                hot = True
                 # first get 50 posts from the top of the subreddit
                 for submission in api.search_submissions(subreddit=subreddit):
                     while True:
-                        if (self.v.value!=0) or firstTime:
+                        if (self.v.value != 0) or first_time:
                             try:
                                 x = self.v.value
                             except IndexError as e:
                                 if 'deque index out of range' not in str(e):
                                     raise IndexError(e)
-                            if firstTime or (x is not None and x == 2):
-                                firstTime = False
+                            if first_time or (x is not None and x == 2):
+                                first_time = False
                                 top = True
                                 hot = False
                                 post += 1
@@ -94,12 +87,12 @@ class findPosts(Process):
                                     top,
                                     hot,
                                     new,
-                                    self.subSettings,
+                                    self.sub_settings,
                                     reddit,
                                 )
 
                                 if result != [['delete', -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                    rows.append(database.addPost(
+                                    rows.append(database.add_post(
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -110,8 +103,8 @@ class findPosts(Process):
                                         top,
                                         hot,
                                         new,
-                                        self.subSettings[0],
-                                        self.subSettings[8]
+                                        self.sub_settings[0],
+                                        self.sub_settings[8]
                                     ))
                                     print('{} --> Added {}'.format(
                                         post,
@@ -132,16 +125,16 @@ class findPosts(Process):
                         f.write(str(traceback.format_exc()))
 
     def findNewPosts(self):
-        subreddit = reddit.subreddit(self.subSettings[0])
+        subreddit = reddit.subreddit(self.sub_settings[0])
         top = False
         hot = False
         new = True
-        limitVal = self.subSettings[6]
+        limit_val = self.sub_settings[6]
         while True:
             try:
                 post = 0
                 # then get 1000 posts from new of the subreddit
-                for submission in api.search_submissions(subreddit=subreddit, limit=limitVal):
+                for submission in api.search_submissions(subreddit=subreddit, limit=limit_val):
                     while True:
                         if self.v.value != 0:
                             try:
@@ -160,11 +153,11 @@ class findPosts(Process):
                                     top,
                                     hot,
                                     new,
-                                    self.subSettings,
+                                    self.sub_settings,
                                     reddit,
                                 )
                                 if result != [['delete', -1, -1, -1, -1, -1]] and (result == [] or submission.created_utc != result[0][2]):
-                                    rows.append(database.addPost(
+                                    rows.append(database.add_post(
                                         submission.created_utc,
                                         submission.url,
                                         submission.media,
@@ -175,8 +168,8 @@ class findPosts(Process):
                                         top,
                                         hot,
                                         new,
-                                        self.subSettings[0],
-                                        self.subSettings[8],
+                                        self.sub_settings[0],
+                                        self.sub_settings[8],
                                     ))
                                     print('{} --> Added {}'.format(
                                         post,
@@ -200,21 +193,21 @@ class findPosts(Process):
                                             i[4],
                                         )
                                         cntr += 1
-                                    fullText = 'I have detected that this may be a repost: \n'+ \
+                                    full_text = 'I have detected that this may be a repost: \n'+ \
                                         '\nNum|Post|Date|Match|Author\n:--:|:--:|:--:|:--:|:--:\n{}'.format(table) + \
                                         '\n*Beep Boop* I am a bot | [Source](https://github.com/xXAligatorXx/repostChecker)' + \
                                         '| Contact u/XXAligatorXx for inquiries | The bot will delete its message at -2 score'
-                                    doThis = True
-                                    while doThis:
+                                    do_this = True
+                                    while do_this:
                                         try:
-                                            submission.reply(fullText)
-                                            doThis = False
+                                            submission.reply(full_text)
+                                            do_this = False
                                         except:
-                                            doThis = True
+                                            do_this = True
                                 self.v.value = 2
                                 break
 
-                limitVal = 10
+                limit_val = 10
             except Exception as e:
                 print(traceback.format_exc())
                 if '503' in str(e):
@@ -234,20 +227,22 @@ class findPosts(Process):
             # c.executemany("INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?)", rows)
             # conn.commit()
             # c.close()
-threadCount = 0
+
+
+thread_count = 0
 threads = []
 deleteOldThread = []
 for i in config.subSettings:
     if i is not None:
         database.initDatabase(i[0], i[8])
-        threads.append(findPosts(i))
+        threads.append(FindPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
             deleteOldThread.append(Process(target=database.deleteOldFromDatabase, args=(i,)))
-            deleteOldThread[threadCount].start()
-        threads[threadCount].start()
-        threadCount += 1
+            deleteOldThread[thread_count].start()
+        threads[thread_count].start()
+        thread_count += 1
 
-deleteThread = Process(target=deleteComment)
+deleteThread = Process(target=delete_comment)
 
 deleteThread.start()
 

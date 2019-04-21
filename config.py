@@ -5,7 +5,7 @@ client_secret = os.environ['BOT_CLIENT_SECRET']
 user_agent = os.environ['BOT_USER_AGENT']
 username = os.environ['BOT_USERNAME']
 password = os.environ['BOT_PASSWORD']
-subSettings = [
+sub_settings = [
     [
         os.environ['BOT_SUBREDDIT'],
         int(os.environ['BOT_TOP_DAYS']) if 'BOT_TOP_DAYS' in os.environ else None,
