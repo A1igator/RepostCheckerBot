@@ -78,7 +78,7 @@ class FindPosts(Process):
                                 hot = False
                                 post += 1
                                 print(post)
-                                result = database.isLogged(
+                                result = database.is_logged(
                                     submission.url,
                                     submission.media,
                                     submission.selftext,
@@ -144,7 +144,7 @@ class FindPosts(Process):
                                     raise IndexError(e)
                             if x is not None and x == 1:
                                 post += 1
-                                result = database.isLogged(
+                                result = database.is_logged(
                                     submission.url,
                                     submission.media,
                                     submission.selftext,
@@ -232,12 +232,12 @@ class FindPosts(Process):
 thread_count = 0
 threads = []
 deleteOldThread = []
-for i in config.subSettings:
+for i in config.sub_settings:
     if i is not None:
-        database.initDatabase(i[0], i[8])
+        database.init_database(i[0], i[8])
         threads.append(FindPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
-            deleteOldThread.append(Process(target=database.deleteOldFromDatabase, args=(i,)))
+            deleteOldThread.append(Process(target=database.delete_old_from_database, args=(i,)))
             deleteOldThread[thread_count].start()
         threads[thread_count].start()
         thread_count += 1
