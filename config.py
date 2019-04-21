@@ -38,7 +38,7 @@ sub_settings = [
         int(os.environ['BOT_NEW_NUM_POSTS3']) if 'BOT_NEW_NUM_POSTS3' in os.environ else 1000,
         int(os.environ['BOT_THRESH3']) if 'BOT_THRESH3' in os.environ else 5,
         bool(os.environ['BOT_TEXT_IN_IMAGE3']) if 'BOT_TEXT_IN_IMAGE3' in os.environ else False,
-    ] if 'BOT_SUBREDDIT4' in os.environ else None,
+    ] if 'BOT_SUBREDDIT3' in os.environ else None,
     [
         os.environ['BOT_SUBREDDIT4'],
         int(os.environ['BOT_TOP_DAYS4']) if 'BOT_TOP_DAYS4' in os.environ else None,
