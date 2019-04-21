@@ -121,8 +121,9 @@ class FindPosts(Process):
                     print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
-                    if str(traceback.format_exc()) not in f.read():
-                        f.write(str(traceback.format_exc()))
+                    error = str(traceback.format_exc())
+                    if error not in f.read():
+                        f.write(error)
 
     def findNewPosts(self):
         subreddit = reddit.subreddit(self.sub_settings[0])
@@ -216,8 +217,9 @@ class FindPosts(Process):
                     print('401 from server')
                 else:
                     f = open('errs.txt', 'a')
-                    if str(traceback.format_exc()) not in f.read():
-                        f.write(str(traceback.format_exc()))
+                    error = str(traceback.format_exc())
+                    if error not in f.read():
+                        f.write(error)
             # Call the execute many after all posts have been added
             # need a way to calculate when all posts have been gathered and only then
             # execute this line once
