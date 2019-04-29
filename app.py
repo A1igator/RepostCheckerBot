@@ -39,8 +39,7 @@ def delete_comment():
                 print('401 from server')                  
             else:
                 f = open('errs.txt', 'a')
-                if '{}\n'.format(str(traceback.format_exc())) not in f.read():
-                    f.write('{}\n'.format(str(traceback.format_exc())))
+                f.write('{}\n'.format(str(traceback.format_exc())))
         sleep(1800)
 
 
@@ -124,8 +123,7 @@ class FindPosts(Process):
                 else:
                     f = open('errs.txt', 'a')
                     error = str(traceback.format_exc())
-                    if error not in f.read():
-                        f.write(error)
+                    f.write(error)
 
     def findNewPosts(self):
         subreddit = reddit.subreddit(self.sub_settings[0])
@@ -220,8 +218,7 @@ class FindPosts(Process):
                 else:
                     f = open('errs.txt', 'a')
                     error = str(traceback.format_exc())
-                    if error not in f.read():
-                        f.write(error)
+                    f.write(error)
 
 thread_count = 0
 threads = []
