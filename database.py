@@ -32,14 +32,9 @@ def init_database(subreddit, is_text_in_image):
                 )
             )
     c = conn.cursor()
-    if is_text_in_image:
-        c.execute(
-            'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, ImageText TEXT, Url TEXT, Location TEXT, Author TEXT, Title TEXT);',
-        )
-    else:
-        c.execute(
-            'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, Url TEXT, Location TEXT, Author TEXT, Title TEXT);',
-        )
+    c.execute(
+        'CREATE TABLE IF NOT EXISTS Posts (Date INT, Content TEXT, ImageText TEXT, Url TEXT, Location TEXT, Author TEXT, Title TEXT);',
+    )
     conn.commit()
     c.close()
     print('Create table.')
@@ -751,32 +746,18 @@ def add_post(date, contentUrl, media, url, text, author, title, top, hot, new, s
         location_var = 'hot'
     else:
         location_var = 'new'
-    print(is_text_in_image)
-    if is_text_in_image:
-        c.execute(
-            'INSERT INTO Posts (Date, Content, ImageText, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
-            (
-                    int(date),
-                    str(content),
-                    str(img_text),
-                    str(url),
-                    str(location_var),
-                    str(author),
-                    str(title),
-            ),
-        )
-    else:
-        c.execute(
-            'INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?);',
-            (
-                    int(date),
-                    str(content),
-                    str(url),
-                    str(location_var),
-                    str(author),
-                    str(title),
-            ),
-        )
+    c.execute(
+        'INSERT INTO Posts (Date, Content, ImageText, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?, ?);',
+        (
+                int(date),
+                str(content),
+                str(img_text),
+                str(url),
+                str(location_var),
+                str(author),
+                str(title),
+        ),
+    )
     conn.commit()
     c.close()
     print('Added new post - {}'.format(str(url)))

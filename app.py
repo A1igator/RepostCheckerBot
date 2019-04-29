@@ -5,6 +5,7 @@ from psaw import PushshiftAPI
 # packages that come with python
 import traceback
 from multiprocessing import Process, Value
+from time import sleep
 
 # other files
 import config
@@ -40,6 +41,7 @@ def delete_comment():
                 f = open('errs.txt', 'a')
                 if '{}\n'.format(str(traceback.format_exc())) not in f.read():
                     f.write('{}\n'.format(str(traceback.format_exc())))
+        sleep(1800)
 
 
 # the main function
@@ -220,16 +222,6 @@ class FindPosts(Process):
                     error = str(traceback.format_exc())
                     if error not in f.read():
                         f.write(error)
-            # Call the execute many after all posts have been added
-            # need a way to calculate when all posts have been gathered and only then
-            # execute this line once
-            # print('rows: ' + str(rows))
-            # conn = sqlite3.connect('PostsRepostBotTest.db')
-            # c = conn.cursor()
-            # c.executemany("INSERT INTO Posts (Date, Content, Url, Location, Author, Title) VALUES (?, ?, ?, ?, ?, ?)", rows)
-            # conn.commit()
-            # c.close()
-
 
 thread_count = 0
 threads = []
