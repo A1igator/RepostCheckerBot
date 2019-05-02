@@ -5,7 +5,8 @@ from psaw import PushshiftAPI
 # packages that come with python
 import traceback
 from multiprocessing import Process, Value
-from time import sleep
+from time import sleep, time
+from sched import scheduler
 
 # other files
 import config
@@ -20,27 +21,25 @@ api = PushshiftAPI(reddit)
 
 
 def delete_comment():
-    while True:
-        try:
-            for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
-                if comment.score < -1:
-                    f = open('fails.txt', 'a')
-                    f.write(str(comment.body))
-                    comment.delete()
+    try:
+        for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
+            if comment.score < -1:
+                f = open('fails.txt', 'a')
+                f.write(str(comment.body))
+                comment.delete()
 
-        except Exception as e:
-            print(e)
-            print(repr(e))
-            if '503' in str(e):
-                print('503 from server')
-            if '504' in str(e):
-                print('504 from server')  
-            if '401' in str(e):
-                print('401 from server')                  
-            else:
-                f = open('errs.txt', 'a')
-                f.write('{}\n'.format(str(traceback.format_exc())))
-        sleep(1800)
+    except Exception as e:
+        print(e)
+        print(repr(e))
+        if '503' in str(e):
+            print('503 from server')
+        if '504' in str(e):
+            print('504 from server')
+        if '401' in str(e):
+            print('401 from server')
+        else:
+            f = open('errs.txt', 'a')
+            f.write('{}\n'.format(str(traceback.format_exc())))
 
 
 # the main function
@@ -220,25 +219,19 @@ class FindPosts(Process):
                     error = str(traceback.format_exc())
                     f.write(error)
 
+
 thread_count = 0
 threads = []
-deleteOldThread = []
+s = scheduler(time, sleep)
 for i in config.sub_settings:
     if i is not None:
         database.init_database(i[0], i[8])
         threads.append(FindPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
-            deleteOldThread.append(Process(target=database.delete_old_from_database, args=(i,)))
-            deleteOldThread[thread_count].start()
+            s.enter(86400, 1, database.delete_old_from_database, argument=(i,))
         threads[thread_count].start()
         thread_count += 1
 
-deleteThread = Process(target=delete_comment)
-
-deleteThread.start()
-
-deleteThread.join()
+s.enter(1800, 1, delete_comment)
 for i in range(0, len(threads)):
-    if 'deleteOldThread' in vars():
-        deleteOldThread[i].join()
     threads[i].join()
