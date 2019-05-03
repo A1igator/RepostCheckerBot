@@ -235,7 +235,7 @@ def update_database(conn, url, update_val):
     c.close()
 
 
-def delete_old_from_database(sub_settings):
+def delete_old_from_database(sub_settings, s):
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
@@ -247,23 +247,28 @@ def delete_old_from_database(sub_settings):
                 )
             )
     c = conn.cursor()
-    while True:
-        args = c.execute(
-            'SELECT Date, Location FROM Posts;'
-        )
-        now = datetime.utcnow()
-        for x in args.fetchall():
-            then = datetime.fromtimestamp(x[0])
-            time_passed = (now-then).days
-            if sub_settings[1] is not None and time_passed > sub_settings[1] and x[1] == 'top' or sub_settings[2] is not None and time_passed > sub_settings[2] and x[1] == 'hot' or sub_settings[3] is not None and time_passed > sub_settings[3] and x[1] == 'new':
-                c.execute(
-                    'DELETE FROM Posts WHERE Date = ?;',
-                    (
-                        int(x[0]),
-                    ),
-                )
-                conn.commit()
-                print('deleted an old post')
+    s.enter(86400, 1, delete_old_loop(), argument=(sub_settings, c, conn))
+
+
+def delete_old_loop(sub_settings, c, conn):
+    args = c.execute(
+        'SELECT Date, Location FROM Posts;'
+    )
+    now = datetime.utcnow()
+    for x in args.fetchall():
+        then = datetime.fromtimestamp(x[0])
+        time_passed = (now - then).days
+        if sub_settings[1] is not None and time_passed > sub_settings[1] and x[1] == 'top' or sub_settings[
+            2] is not None and time_passed > sub_settings[2] and x[1] == 'hot' or sub_settings[
+            3] is not None and time_passed > sub_settings[3] and x[1] == 'new':
+            c.execute(
+                'DELETE FROM Posts WHERE Date = ?;',
+                (
+                    int(x[0]),
+                ),
+            )
+            conn.commit()
+            print('deleted an old post')
 
 
 def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, reddit):

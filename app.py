@@ -228,7 +228,7 @@ for i in config.sub_settings:
         database.init_database(i[0], i[8])
         threads.append(FindPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
-            s.enter(86400, 1, database.delete_old_from_database, argument=(i,))
+            database.delete_old_from_database(i, s)
         threads[thread_count].start()
         thread_count += 1
 
