@@ -15,4 +15,4 @@ sub_settings = [[
         int(os.environ['BOT_NEW_NUM_POSTS' + i]) if 'BOT_NEW_NUM_POSTS' + i in os.environ else 1000,
         int(os.environ['BOT_THRESH' +i]) if 'BOT_THRESH' + i in os.environ else 5,
         bool(os.environ['BOT_TEXT_IN_IMAGE' + i]) if 'BOT_TEXT_IN_IMAGE' + i in os.environ else False,
-    ] for i in range(5)]
+    ] for i in [str(x) for x in range(5)]]
