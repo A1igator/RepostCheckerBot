@@ -395,7 +395,7 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
                                 )
 
             # check for v.reddit
-            elif media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
+            elif media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'Gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
                 vid_hash = hash_vid(conn, media, url)
                 if vid_hash == 'invalid':
                     result = ['delete']
@@ -721,7 +721,7 @@ def add_post(date, contentUrl, media, url, text, author, title, top, hot, new, s
     if text != '&#x200B;' and text != '' and text != '[removed]' and text != '[deleted]':
         content = text
     else:
-        if media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
+        if media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'Gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
             vidHash = hash_vid(conn, media, url)
             if is_int(vidHash.replace(' ', '')):
                 content = vidHash
