@@ -247,7 +247,7 @@ def delete_old_from_database(sub_settings, s):
                 )
             )
     c = conn.cursor()
-    s.enter(86400, 1, delete_old_loop(), argument=(sub_settings, c, conn))
+    s.enter(86400, 1, delete_old_loop, argument=(sub_settings, c, conn))
 
 
 def delete_old_loop(sub_settings, c, conn):
