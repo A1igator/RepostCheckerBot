@@ -122,7 +122,7 @@ def extract_text(img_url, url):
         )
         img = Image.open(f)
         img_text = image_to_string(img).replace('\n', '').replace('\r', '').replace(' ', '')
-    except:
+    except not HTTPError:
         f = open('tesseractErrs.txt', 'a')
         f.write('{}\n{}\n'.format(str(traceback.format_exc()), img_url))
     return img_text
