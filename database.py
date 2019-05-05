@@ -135,18 +135,29 @@ def hash_vid(conn, vid_url, url):
         container = av.open(vid_url['reddit_video']['fallback_url'])
         for frame in container.decode(video=0):
             vid_hash = '{}{} '.format(vid_hash, str(dhash.dhash_int(frame.to_image())))
-    except:
-        f = open('dedLink.txt', 'a')
-        f.write('{}\n{}\n'.format(str(traceback.format_exc()), vid_url))
-        c = conn.cursor()
-        c.execute(
-            'DELETE FROM Posts WHERE Url = ?;',
-            (
-                str(url),
-            ),
-        )
-        conn.commit()
-        c.close()
+    except Exception as e:
+        if '403' in e:
+            c = conn.cursor()
+            c.execute(
+                'DELETE FROM Posts WHERE Url = ?;',
+                (
+                    str(url),
+                ),
+            )
+            conn.commit()
+            c.close()
+        else:
+            f = open('dedLink.txt', 'a')
+            f.write('{}\n{}\n'.format(str(traceback.format_exc()), vid_url))
+            c = conn.cursor()
+            c.execute(
+                'DELETE FROM Posts WHERE Url = ?;',
+                (
+                    str(url),
+                ),
+            )
+            conn.commit()
+            c.close()
         vid_hash = 'invalid'
     return vid_hash
 
@@ -211,7 +222,6 @@ def hash_vid_difference(original_hash, new_hash):
             cntr += 1
         min_differences.append(min(frame_differences))
         frame_differences = []
-    print(sum(min_differences)/len(min_differences))
     return sum(min_differences)/len(min_differences)
 
 
@@ -380,10 +390,6 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
                         if texts[0] not in result:
                             text_var = texts[4]
                             difference = SequenceMatcher(None, text_var, text).ratio()
-                            print(text_var)
-                            print(text)
-                            print(10-(difference*10))
-                            print(sub_settings[7])
                             if 10 - (difference * 10) < sub_settings[7]:
                                 add_to_found(
                                     texts,
@@ -396,7 +402,7 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
                                 )
 
             # check for v.reddit
-            elif media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'Gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
+            elif media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
                 vid_hash = hash_vid(conn, media, url)
                 if vid_hash == 'invalid':
                     result = ['delete']
@@ -417,7 +423,7 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
                             'SELECT Url, Date, Author, Title FROM Posts WHERE Content = ?;',
                             (
                                 str(vid_hash),
-                            ),
+                            ),g
                         )
                         full_result = list(args.fetchall())
                         for i in full_result:
@@ -626,10 +632,6 @@ def is_logged(content_url, media, text, url, date, top, hot, new, sub_settings, 
                                 if texts[0] not in result and texts[4] != '':
                                     text_var = texts[4]
                                     difference = SequenceMatcher(None, text_var, img_text).ratio()
-                                    print(text_var)
-                                    print(img_text)
-                                    print(10-(difference*10))
-                                    print(sub_settings[7])
                                     if 10 - (difference * 10) < sub_settings[7]:
                                         add_to_found(
                                             texts,
@@ -722,7 +724,7 @@ def add_post(date, contentUrl, media, url, text, author, title, top, hot, new, s
     if text != '&#x200B;' and text != '' and text != '[removed]' and text != '[deleted]':
         content = text
     else:
-        if media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'Gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
+        if media is not None and ('oembed' not in media or 'provider_name' not in media['oembed'] or (media['oembed']['provider_name'] != 'gfycat' and media['oembed']['provider_name'] != 'YouTube' and media['oembed']['provider_name'] != 'Imgur')):
             vidHash = hash_vid(conn, media, url)
             if is_int(vidHash.replace(' ', '')):
                 content = vidHash
