@@ -136,7 +136,7 @@ def hash_vid(conn, vid_url, url):
         for frame in container.decode(video=0):
             vid_hash = '{}{} '.format(vid_hash, str(dhash.dhash_int(frame.to_image())))
     except Exception as e:
-        if '403' in e:
+        if '403' in str(e):
             c = conn.cursor()
             c.execute(
                 'DELETE FROM Posts WHERE Url = ?;',

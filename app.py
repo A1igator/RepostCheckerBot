@@ -77,7 +77,6 @@ class FindPosts(Process):
                                 top = True
                                 hot = False
                                 post += 1
-                                print(post)
                                 result = database.is_logged(
                                     submission.url,
                                     submission.media,
