@@ -4,9 +4,8 @@ from psaw import PushshiftAPI
 
 # packages that come with python
 import traceback
-from multiprocessing import Process, Value
+from multiprocessing import Process, Value, Event
 from time import sleep, time
-from sched import scheduler
 
 # other files
 import config
@@ -19,7 +18,23 @@ reddit = praw.Reddit(client_id=config.client_id,
                      user_agent=config.user_agent)
 api = PushshiftAPI(reddit)
 
+def setInterval(interval):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            stopped = Event()
 
+            def loop(): # executed in another thread
+                while not stopped.wait(interval): # until stopped
+                    function(*args, **kwargs)
+
+            t = Process(target=loop)
+            t.daemon = True # stop if the program exits
+            t.start()
+            return stopped
+        return wrapper
+    return decorator
+
+@setInterval(1)
 def delete_comment():
     try:
         for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
@@ -221,7 +236,6 @@ class FindPosts(Process):
 
 thread_count = 0
 threads = []
-s = scheduler(time, sleep)
 for i in config.sub_settings:
     if i is not None:
         database.init_database(i[0], i[8])
@@ -231,6 +245,6 @@ for i in config.sub_settings:
         threads[thread_count].start()
         thread_count += 1
 
-s.enter(1800, 1, delete_comment)
+delete_comment()
 for i in range(0, len(threads)):
     threads[i].join()
