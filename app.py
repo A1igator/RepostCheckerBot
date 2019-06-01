@@ -4,7 +4,7 @@ from psaw import PushshiftAPI
 
 # packages that come with python
 import traceback
-from multiprocessing import Process, Value, Event
+from multiprocessing import Process, Value
 from time import sleep, time
 
 # other files

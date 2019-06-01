@@ -1,3 +1,5 @@
+from multiprocessing import Process, Event
+
 def setInterval(interval):
     def decorator(function):
         def wrapper(*args, **kwargs):
