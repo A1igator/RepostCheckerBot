@@ -248,7 +248,7 @@ def update_database(conn, url, update_val):
     c.close()
 
 
-def delete_old_from_database(sub_settings, s):
+def delete_old_from_database(sub_settings):
     conn = sqlite3.connect(
             'Posts{}.db'.format(
                 sub(
