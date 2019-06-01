@@ -262,7 +262,7 @@ def delete_old_from_database(sub_settings, s):
     c = conn.cursor()
     delete_old_loop(sub_settings, c, conn)
 
-@setIntervals(5)
+@setInterval(5)
 def delete_old_loop(sub_settings, c, conn):
     args = c.execute(
         'SELECT Date, Location FROM Posts;'
