@@ -10,6 +10,8 @@ from time import sleep, time
 # other files
 import config
 import database
+import setInterval
+
 rows = []
 reddit = praw.Reddit(client_id=config.client_id,
                      client_secret=config.client_secret,
@@ -17,22 +19,6 @@ reddit = praw.Reddit(client_id=config.client_id,
                      password=config.password,
                      user_agent=config.user_agent)
 api = PushshiftAPI(reddit)
-
-def setInterval(interval):
-    def decorator(function):
-        def wrapper(*args, **kwargs):
-            stopped = Event()
-
-            def loop(): # executed in another thread
-                while not stopped.wait(interval): # until stopped
-                    function(*args, **kwargs)
-
-            t = Process(target=loop)
-            t.daemon = True # stop if the program exits
-            t.start()
-            return stopped
-        return wrapper
-    return decorator
 
 @setInterval(1)
 def delete_comment():
@@ -241,7 +227,7 @@ for i in config.sub_settings:
         database.init_database(i[0], i[8])
         threads.append(FindPosts(i))
         if i[1] is not None or i[2] is not None or i[3] is not None:
-            database.delete_old_from_database(i, s)
+            database.delete_old_from_database(i)
         threads[thread_count].start()
         thread_count += 1
 

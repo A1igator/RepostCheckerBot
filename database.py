@@ -16,6 +16,8 @@ from difflib import SequenceMatcher
 from pytesseract import image_to_string
 import av
 
+import setInterval
+
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
@@ -258,9 +260,9 @@ def delete_old_from_database(sub_settings, s):
                 )
             )
     c = conn.cursor()
-    s.enter(86400, 1, delete_old_loop, argument=(sub_settings, c, conn))
+    delete_old_loop(sub_settings, c, conn)
 
-
+@setInverval(5)
 def delete_old_loop(sub_settings, c, conn):
     args = c.execute(
         'SELECT Date, Location FROM Posts;'
