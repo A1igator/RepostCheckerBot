@@ -16,8 +16,22 @@ from difflib import SequenceMatcher
 from pytesseract import image_to_string
 import av
 
-from setInterval import setInterval
+def setInterval(interval):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            stopped = Event()
 
+            def loop(): # executed in another thread
+                while not stopped.wait(interval): # until stopped
+                    function(*args, **kwargs)
+
+            t = Process(target=loop)
+            t.daemon = True # stop if the program exits
+            t.start()
+            return stopped
+        return wrapper
+    return decorator
+    
 context = ssl._create_unverified_context()
 user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
 
