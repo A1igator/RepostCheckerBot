@@ -10,7 +10,7 @@ from time import sleep, time
 # other files
 import config
 import database
-import setInterval
+from setInterval import setInterval
 
 rows = []
 reddit = praw.Reddit(client_id=config.client_id,
