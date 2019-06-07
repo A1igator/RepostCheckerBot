@@ -20,7 +20,7 @@ reddit = praw.Reddit(client_id=config.client_id,
                      user_agent=config.user_agent)
 api = PushshiftAPI(reddit)
 
-@setInterval(1)
+@setInterval(1800)
 def delete_comment():
     try:
         for comment in reddit.redditor('RepostCheckerBot').comments.new(limit=50):
@@ -226,8 +226,8 @@ for i in config.sub_settings:
     if i is not None:
         database.init_database(i[0], i[8])
         threads.append(FindPosts(i))
-        # if i[1] is not None or i[2] is not None or i[3] is not None:
-        #     database.delete_old_from_database(i)
+        if i[1] is not None or i[2] is not None or i[3] is not None:
+            database.delete_old_loop(i)
         threads[thread_count].start()
         thread_count += 1
 
